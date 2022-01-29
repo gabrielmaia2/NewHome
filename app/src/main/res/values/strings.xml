@@ -1,0 +1,31 @@
+<resources>
+    <string name="appName">NewHome</string>
+    <string name="loginTitulo">Login</string>
+    <string name="loginLoginPlaceholder">Email</string>
+    <string name="loginSenhaPlaceholder">Senha</string>
+    <string name="criarContaTitulo">Criar conta</string>
+    <string name="criarContaNomePlaceholder">Nome completo</string>
+    <string name="criarContaIdadePlaceholder">Idade</string>
+    <string name="criarContaEmailPlaceholder">Email</string>
+    <string name="criarContaSenhaPlaceholder">Senha</string>
+    <string name="buttonCriarContaPlaceholder">Cadastrar</string>
+    <string name="buttonFazerLoginPlaceholder">Logar</string>
+    <string name="animalImagemDescricao">Imagem do animal</string>
+    <string name="animalNomePlaceholder">Nome do animal</string>
+    <string name="animalDetalhesPlaceholder">Detalhes do animal</string>
+    <string name="buttonPorPraAdocao">Por animal em adoção</string>
+    <string name="buttonVerSolicitacoes">Ver solicitações</string>
+    <string name="buttonVerSolicitacoesFeitas">Solicitações feitas</string>
+    <string name="pesquisaHint">Pesquisar</string>
+    <string name="imagemPerfilDescricao">Imagem do perfil</string>
+    <string name="editPerfilDescricao">Icone de editar perfil</string>
+    <string name="imagemAnimalDescricao">Imagem do animal</string>
+    <string name="editAnimalIconDescricao">Icone de editar imagem do animal</string>
+    <string name="perfilNomeHint">Nome</string>
+    <string name="perfilDescricaoHint">Descrição</string>
+    <string name="botaoAnimaisPostosAdocao">Ver animais postos em adoção</string>
+    <string name="botaoAnimaisAdotados">Ver animais adotados</string>
+    <string name="imagemSolicitacaoDescricao">Imagem do solicitador</string>
+    <string name="tituloSolicitacaoPreview">Título solicitação</string>
+    <string name="descricaoSolicitacaoPreview">Descrição solicitação</string>
+</resources>
