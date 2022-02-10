@@ -52,6 +52,7 @@ class AnimalAdotadoActivity : AppCompatActivity() {
 
         val id = intent.getStringExtra("id")!!
         NewHomeApplication.animalProvider.getAnimal(id, { animal ->
+            this.animal = animal
             nomeAnimalAdotadoText.text = animal.nome
             descricaoAnimalAdotadoText.text = animal.detalhes
             animalAdotadoImage.setImageBitmap(animal.imagem)
