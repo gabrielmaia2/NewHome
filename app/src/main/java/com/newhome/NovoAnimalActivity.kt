@@ -1,13 +1,24 @@
 package com.newhome
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import com.newhome.dto.Animal
+import java.io.File
+import java.io.IOException
+import kotlin.math.max
+import kotlin.math.min
 
 class NovoAnimalActivity : AppCompatActivity() {
     private lateinit var adicionarAnimalImage: ImageView
@@ -19,6 +30,11 @@ class NovoAnimalActivity : AppCompatActivity() {
     private lateinit var localMapaButton: Button
     private lateinit var concluirAdicionarAnimalButton: Button
     private lateinit var cancelarAdicionarAnimalButton: Button
+
+    private var imagem: Bitmap? = null
+
+    private lateinit var takePictureLauncher: ActivityResultLauncher<Intent>
+    private var photoFile: File? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +54,9 @@ class NovoAnimalActivity : AppCompatActivity() {
 
         // TODO setar localMapaButton
         // TODO trocar o texto do mapa de colocar pra editar quando colocar localizacao
+
+        setTakePictureLauncher()
+        adicionarAnimalImage.setOnClickListener { onAdicionarImagem() }
         concluirAdicionarAnimalButton.setOnClickListener { onConcluir() }
         cancelarAdicionarAnimalButton.setOnClickListener { onCancelar() }
     }
@@ -52,28 +71,77 @@ class NovoAnimalActivity : AppCompatActivity() {
         }
     }
 
-    private fun onConcluir() {
-        // conclui a edicao e retorna para a tela de animal dono enviando o novo animal editado
+    private fun setTakePictureLauncher() {
+        takePictureLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode != RESULT_OK) return@registerForActivityResult
 
-        // TODO enviar imagem pro database e colocar url aqui
+                val options = BitmapFactory.Options()
+                options.inJustDecodeBounds = true
+                BitmapFactory.decodeFile(photoFile!!.absolutePath, options)
+
+                // determina quanto mudar a escala da imagem
+                val side = NewHomeApplication.imageSideLength
+                val scaleFactor: Int =
+                    max(1, min(options.outWidth / side, options.outHeight / side))
+
+                options.inJustDecodeBounds = false
+                options.inSampleSize = scaleFactor
+                val bitmap = BitmapFactory.decodeFile(photoFile!!.absolutePath, options)
+
+                this.imagem = bitmap
+                adicionarAnimalImage.setImageBitmap(bitmap)
+            }
+    }
+
+    private fun onAdicionarImagem() {
+        // tira foto e guarda para foto do perfil
+
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+
+        // assegura que tem uma atividade de camera pra tratar do intent
+        takePictureIntent.resolveActivity(packageManager)?.also {
+            // cria um novo arquivo pra guardar a foto que vai ser tirada
+            try {
+                photoFile = Util.criarArquivoImagem(this)
+
+                val photoURI = FileProvider.getUriForFile(
+                    this,
+                    "com.newhome.fileprovider",
+                    photoFile!!
+                )
+
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+
+                takePictureLauncher.launch(takePictureIntent)
+            } catch (e: IOException) {
+                // erro ao criar arquivo
+                Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun onConcluir() {
+        // conclui a edicao e retorna para a tela de animal dono enviando o novo animal criado
+
         val animal = Animal()
-        animal.imagemURL = ""
+        animal.imagem = imagem
         animal.nome = nomeNovoAnimalText.text.toString()
         animal.detalhes = descricaoNovoAnimalText.text.toString()
         // TODO enviar posicao no mapa
 
-        // TODO enviar animal pro database
-
-        val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
-        setResult(RESULT_OK, intent)
-        finish()
+        NewHomeApplication.animalProvider.adicionarAnimal(animal, {
+            Toast.makeText(applicationContext, "Animal adicionado com sucesso.", Toast.LENGTH_SHORT)
+                .show()
+            finish()
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun onCancelar() {
         // volta pra tela de lista sem adicionar animal
 
-        val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
-        setResult(RESULT_CANCELED, intent)
         finish()
     }
 }

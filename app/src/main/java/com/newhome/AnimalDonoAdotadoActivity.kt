@@ -1,12 +1,13 @@
 package com.newhome
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.newhome.dto.Animal
 
 class AnimalDonoAdotadoActivity : AppCompatActivity() {
@@ -47,27 +48,27 @@ class AnimalDonoAdotadoActivity : AppCompatActivity() {
     }
 
     private fun carregarDados() {
-        // TODO carregar animal do database
+        // carrega animal do database
 
-        animal = Animal()
-        animal.id = intent.getStringExtra("id")!!
-        animal.imagemURL = ""
-        animal.nome = "Cachorrinho"
-        animal.detalhes = "Ele é muito fofinho e gosta de mijar a casa toda."
-
-        nomeAnimalAdotadoDonoText.text = animal.nome
-        descricaoAnimalAdotadoDonoText.text = animal.detalhes
-        Util.tryLoadDrawableAsync(applicationContext, animal.imagemURL) { drawable ->
-            animalAdotadoDonoImage.setImageDrawable(drawable)
-        }
+        val id = intent.getStringExtra("id")!!
+        NewHomeApplication.animalProvider.getAnimal(id, { animal ->
+            nomeAnimalAdotadoDonoText.text = animal.nome
+            descricaoAnimalAdotadoDonoText.text = animal.detalhes
+            animalAdotadoDonoImage.setImageBitmap(animal.imagem)
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun verAdotador() {
-        // TODO pegar id do adotador do database
-        val adotadorId = "id1"
+        // ve o perfil do adotador
 
-        val intent = Intent(applicationContext, PerfilActivity::class.java)
-        intent.putExtra("id", adotadorId)
-        startActivity(intent)
+        NewHomeApplication.animalProvider.getAdotador(animal.id, { adotador ->
+            val intent = Intent(applicationContext, PerfilActivity::class.java)
+            intent.putExtra("id", adotador!!.id)
+            startActivity(intent)
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 }

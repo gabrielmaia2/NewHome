@@ -1,19 +1,14 @@
 package com.newhome
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.widget.addTextChangedListener
+import androidx.appcompat.app.AppCompatActivity
 import com.newhome.dto.Animal
-import java.util.*
-import kotlin.collections.ArrayList
+import com.newhome.dto.Usuario
 
 class ListarAnimaisActivity : AppCompatActivity() {
     private lateinit var semAnimaisText: TextView
@@ -25,8 +20,6 @@ class ListarAnimaisActivity : AppCompatActivity() {
     private lateinit var listView: ListView
     private lateinit var listViewAdapter: AnimalAdapter
 
-    private lateinit var addAnimalActivityLanucher: ActivityResultLauncher<Intent>
-
     // todosAnimais, postosAdocao, adotados, solicitados
     private var tipo: String = ""
 
@@ -34,6 +27,7 @@ class ListarAnimaisActivity : AppCompatActivity() {
     // postos em adocao pelo usuario com esse id
     private var usuarioId: String = ""
     private var eProprioPerfil = false
+    private lateinit var usuarioAtual: Usuario
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,15 +44,19 @@ class ListarAnimaisActivity : AppCompatActivity() {
 
         listView = findViewById(R.id.listarAnimaisListView)
 
-        carregaDados()
-        verificarMensagem()
-        definirVisibilidadeBotoes()
-        carregarAnimais()
-        setAddAnimalActivityLauncher()
         listView.setOnItemClickListener { _, _, position, _ -> onVerAnimal(position) }
         porAdocaoButton.setOnClickListener { onAddAnimal() }
         solicitacoesFeitasListarAnimaisButton.setOnClickListener { onVerSolicitacoesFeitas() }
         solicitacoesRecebidasListarAnimaisButton.setOnClickListener { onVerSolicitacoesRecebidas() }
+
+        porAdocaoButton.visibility = View.GONE
+        solicitacoesFeitasListarAnimaisButton.visibility = View.GONE
+        solicitacoesRecebidasListarAnimaisButton.visibility = View.GONE
+    }
+
+    override fun onResume() {
+        super.onResume()
+        carregarDados()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -73,7 +71,7 @@ class ListarAnimaisActivity : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                carregarAnimais(newText)
+                filtrarAnimais(newText)
                 return true
             }
         })
@@ -96,41 +94,28 @@ class ListarAnimaisActivity : AppCompatActivity() {
         }
     }
 
-    private fun carregaDados() {
+    private fun carregarDados() {
         // pega qual o tipo da lista (todosAnimais por padrao)
         tipo = intent.getStringExtra("tipo") ?: "todosAnimais"
 
         // pega o id do usuario (se for postosAdocao)
         usuarioId = intent.getStringExtra("usuarioId") ?: ""
-        eProprioPerfil = usuarioId == ""
+
+        if (usuarioId == "") usuarioId = NewHomeApplication.idUsuarioAtual
+        eProprioPerfil = usuarioId == NewHomeApplication.idUsuarioAtual
+
         if (!eProprioPerfil) {
             tipo = "postosAdocao"
         }
-    }
 
-    private fun verificarMensagem() {
-        // verifica se existe alguma mensagem pra exibir e se tiver exibe ela num toast
+        NewHomeApplication.usuarioProvider.getUsuarioAtual({ usuario ->
+            usuarioAtual = usuario
 
-        val mensagem = intent.getStringExtra("mensagem") ?: return
-
-        when (mensagem) {
-            "animalDeletado" -> Toast.makeText(
-                this,
-                "Animal deletado com sucesso.",
-                Toast.LENGTH_SHORT
-            ).show()
-            "animalBuscado" -> Toast.makeText(
-                this,
-                "Você buscou o animal.",
-                Toast.LENGTH_SHORT
-            ).show()
-            "adocaoCancelada" -> Toast.makeText(
-                this,
-                "Você cancelou a adoção do animal.",
-                Toast.LENGTH_SHORT
-            ).show()
-            else -> return
-        }
+            definirVisibilidadeBotoes()
+            carregarAnimais()
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun definirVisibilidadeBotoes() {
@@ -138,13 +123,8 @@ class ListarAnimaisActivity : AppCompatActivity() {
         // se o tipo for todosAnimals ou postosAdocao, o botao de por animal em adocao fica visivel
         // se o tipo for adotados ou postosAdocao, o botao de solicitacoes feitas fica visivel
 
-        porAdocaoButton.visibility = View.GONE
-        solicitacoesFeitasListarAnimaisButton.visibility = View.GONE
-        solicitacoesRecebidasListarAnimaisButton.visibility = View.GONE
-
         // verifica se e a lista de todos os animais ou
         // a de animais postos em adocao do proprio perfil
-        // TODO verificar se e animais postos em adocao do proprio perfil
 
         if (tipo == "todosAnimais" || (tipo == "postosAdocao" && eProprioPerfil)) {
             // permite adicionar animal pra adocao
@@ -159,53 +139,48 @@ class ListarAnimaisActivity : AppCompatActivity() {
         }
     }
 
-    private fun setAddAnimalActivityLauncher() {
-        // launchar usado para iniciar a activity de adicionar um novo animal
-
-        addAnimalActivityLanucher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode != RESULT_OK) return@registerForActivityResult
-
-                carregarAnimais() // atualiza lista de animais
-                Toast.makeText(this, "Animal adicionado com sucesso.", Toast.LENGTH_SHORT).show()
-            }
-    }
-
     private fun onVerAnimal(position: Int) {
-        // vai pra tela do animal dono
+        // vai pra tela de ver animal
 
-        // TODO mudar pra verificar se e o dono de cada animal no database
+        val animal = listViewAdapter.getItem(position)!!
 
-        // TODO verificar se e dono no database
-        val eDono = eProprioPerfil
+        NewHomeApplication.animalProvider.getDonoInicial(animal.id, { dono ->
+            // verifica se e dono
+            val eDono = usuarioAtual.id == dono.id
 
-        // TODO verificar do database se foi adotado
-        val adotado = false
+            NewHomeApplication.animalProvider.getAdotador(animal.id, { adotador ->
+                    // verifica se animal foi adotado
+                    val adotado = adotador != null
 
-        val intent = if (eDono) {
-            if (adotado) {
-                Intent(applicationContext, AnimalDonoAdotadoActivity::class.java)
-            } else {
-                Intent(applicationContext, AnimalDonoActivity::class.java)
-            }
-        }
-        else {
-            if (adotado) {
-                Intent(applicationContext, AnimalAdotadoActivity::class.java)
-            } else {
-                Intent(applicationContext, AnimalActivity::class.java)
-            }
-        }
+                    val intent = if (eDono) {
+                        if (adotado) {
+                            Intent(applicationContext, AnimalDonoAdotadoActivity::class.java)
+                        } else {
+                            Intent(applicationContext, AnimalDonoActivity::class.java)
+                        }
+                    } else {
+                        if (adotado) {
+                            Intent(applicationContext, AnimalAdotadoActivity::class.java)
+                        } else {
+                            Intent(applicationContext, AnimalActivity::class.java)
+                        }
+                    }
 
-        intent.putExtra("id", listViewAdapter.getItem(position)!!.id)
-        startActivity(intent)
+                    intent.putExtra("id", animal.id)
+                    startActivity(intent)
+                }, { e ->
+                    Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+                })
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun onAddAnimal() {
         // vai para a tela de adicionar um novo animal
 
         val intent = Intent(applicationContext, NovoAnimalActivity::class.java)
-        addAnimalActivityLanucher.launch(intent)
+        startActivity(intent)
     }
 
     private fun onVerSolicitacoesFeitas() {
@@ -223,43 +198,54 @@ class ListarAnimaisActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun carregarAnimais(pesquisa: String? = null) {
+    private fun carregarAnimais() {
         // carrega animais do database
 
-        // TODO pegar animais dos providers
-        // TODO setar click listeners pra botoes de remover ou cancelar de cada item
-        // TODO verificar se pesquisa e nula e so pesquisar se nao for
+        if (tipo == "todosAnimais") {
+            NewHomeApplication.animalProvider.getTodosAnimais({ animais ->
+                onAnimaisCarregados(animais)
+            }, { e ->
+                Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+            })
+        } else if (tipo == "postosAdocao") {
+            NewHomeApplication.animalProvider.getAnimaisPostosAdocao(usuarioId, { animais ->
+                onAnimaisCarregados(animais)
+            }, { e ->
+                Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+            })
+        } else if (tipo == "adotados") {
+            NewHomeApplication.animalProvider.getAnimaisAdotados(usuarioAtual.id, { animais ->
+                    onAnimaisCarregados(animais)
+                }, { e ->
+                    Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+                })
+        } else if (tipo == "solicitados") {
+            NewHomeApplication.animalProvider.getAnimaisSolicitados(usuarioAtual.id, { animais ->
+                    onAnimaisCarregados(animais)
+                }, { e ->
+                    Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+                })
+        }
+    }
 
-        // TODO pegar dados baseados no tipo da tela e
-        //  filtrar por id usuario caso seja postosAdocao e tenha id
-
-        val a1 = Animal()
-        a1.nome = "Cachorrinho"
-        a1.detalhes = "Ele é muito fofinho e gosta de mijar a casa toda."
-        a1.imagemURL = ""
-        val a2 = Animal()
-        a2.nome = "Gatinho"
-        a2.detalhes = "Ele é muito fofinho e acha que é dono da casa."
-        a2.imagemURL = ""
-        val a3 = Animal()
-        a3.nome = "Hamsterzinho"
-        a3.detalhes = "Ele existe, eu acho. Eu sei que ele dorme e come (às vezes)."
-        a3.imagemURL = ""
-
-        val animais = ArrayList<Animal>()
-        animais.add(a1)
-        animais.add(a2)
-        animais.add(a3)
-
+    private fun onAnimaisCarregados(animais: List<Animal>) {
         listViewAdapter = AnimalAdapter(this, animais)
-        if (pesquisa != null && pesquisa != "")
-            listViewAdapter.filter.filter(pesquisa)
         listView.adapter = listViewAdapter
 
         if (listViewAdapter.isEmpty) {
             semAnimaisText.visibility = View.VISIBLE
         } else {
             semAnimaisText.visibility = View.GONE
+        }
+    }
+
+    private fun filtrarAnimais(pesquisa: String?) {
+        listViewAdapter.filter.filter(pesquisa?.lowercase()) { count ->
+            if (count == 0) {
+                semAnimaisText.visibility = View.VISIBLE
+            } else {
+                semAnimaisText.visibility = View.GONE
+            }
         }
     }
 }

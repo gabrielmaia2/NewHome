@@ -1,12 +1,11 @@
 package com.newhome
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
-import com.newhome.dto.Animal
+import androidx.appcompat.app.AppCompatActivity
 
 class SolicitacaoAdicionarDetalhesActivity : AppCompatActivity() {
     private lateinit var detalhesPopupDonoEditText: TextView
@@ -42,9 +41,9 @@ class SolicitacaoAdicionarDetalhesActivity : AppCompatActivity() {
     private fun onConcluir() {
         // envia detalhes de volta
 
-        val detalhes = detalhesPopupDonoEditText.text.toString()
+        val detalhes = detalhesPopupDonoEditText.text?.toString() ?: ""
 
-        val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
+        val intent = Intent(applicationContext, SolicitacaoActivity::class.java)
         intent.putExtra("detalhes", detalhes)
         setResult(RESULT_OK, intent)
         finish()
@@ -53,7 +52,7 @@ class SolicitacaoAdicionarDetalhesActivity : AppCompatActivity() {
     private fun onCancelar() {
         // volta pra tela de lista sem adicionar animal
 
-        val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
+        val intent = Intent(applicationContext, SolicitacaoActivity::class.java)
         setResult(RESULT_CANCELED, intent)
         finish()
     }

@@ -1,12 +1,13 @@
 package com.newhome
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.newhome.dto.Animal
 
 class AnimalAdotadoActivity : AppCompatActivity() {
@@ -47,27 +48,27 @@ class AnimalAdotadoActivity : AppCompatActivity() {
     }
 
     private fun carregarDados() {
-        // TODO carregar animal do database
+        // carrega animal do database
 
-        animal = Animal()
-        animal.id = intent.getStringExtra("id")!!
-        animal.imagemURL = ""
-        animal.nome = "Cachorrinho"
-        animal.detalhes = "Ele é muito fofinho e gosta de mijar a casa toda."
-
-        nomeAnimalAdotadoText.text = animal.nome
-        descricaoAnimalAdotadoText.text = animal.detalhes
-        Util.tryLoadDrawableAsync(applicationContext, animal.imagemURL) { drawable ->
-            animalAdotadoImage.setImageDrawable(drawable)
-        }
+        val id = intent.getStringExtra("id")!!
+        NewHomeApplication.animalProvider.getAnimal(id, { animal ->
+            nomeAnimalAdotadoText.text = animal.nome
+            descricaoAnimalAdotadoText.text = animal.detalhes
+            animalAdotadoImage.setImageBitmap(animal.imagem)
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun onVerPerfilDonoAntigo() {
-        // TODO pegar id do dono antigo do database
-        val donoAntigoId = "id1"
+        // ve perfil do dono
 
-        val intent = Intent(applicationContext, PerfilActivity::class.java)
-        intent.putExtra("id", donoAntigoId)
-        startActivity(intent)
+        NewHomeApplication.animalProvider.getDonoInicial(animal.id, { dono ->
+            val intent = Intent(applicationContext, PerfilActivity::class.java)
+            intent.putExtra("id", dono.id)
+            startActivity(intent)
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 }

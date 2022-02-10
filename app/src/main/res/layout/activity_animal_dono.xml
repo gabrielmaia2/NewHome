@@ -12,7 +12,7 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/adicionarAnimaDonolImage"
+            android:id="@+id/animalDonoImage"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="20dp"
@@ -36,7 +36,7 @@
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/adicionarAnimaDonolImage" />
+            app:layout_constraintTop_toBottomOf="@+id/animalDonoImage" />
 
         <TextView
             android:id="@+id/descricaoAnimalDonoText"

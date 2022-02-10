@@ -1,7 +1,6 @@
 package com.newhome
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -11,12 +10,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.newhome.dto.Animal
+import com.newhome.dto.Solicitacao
 import com.newhome.dto.SolicitacaoID
 import com.newhome.dto.Usuario
 
 class SolicitacaoActivity : AppCompatActivity() {
-    private lateinit var id: SolicitacaoID
+    private lateinit var solicitacao: Solicitacao
     private lateinit var solicitador: Usuario
     private lateinit var animal: Animal
 
@@ -46,7 +47,8 @@ class SolicitacaoActivity : AppCompatActivity() {
         solicitacaoNomeText = findViewById(R.id.solicitacaoNomeText)
         solicitacaoPerfilDescricaoText = findViewById(R.id.solicitacaoPerfilDescricaoText)
 
-        animalDetalhesSolicitacaoFragment = supportFragmentManager.findFragmentById(R.id.animalDetalhesSolicitacaoFragment) as AnimalPreviewFragment
+        animalDetalhesSolicitacaoFragment =
+            supportFragmentManager.findFragmentById(R.id.animalDetalhesSolicitacaoFragment) as AnimalPreviewFragment
 
         aceitarSolicitacaoButton = findViewById(R.id.aceitarSolicitacaoButton)
         rejeitarSolicitacaoButton = findViewById(R.id.rejeitarSolicitacaoButton)
@@ -55,7 +57,6 @@ class SolicitacaoActivity : AppCompatActivity() {
         cancelarAdocaoSolicitacaoButton = findViewById(R.id.cancelarAdocaoSolicitacaoButton)
 
         carregarDados()
-        verificarAceita()
         setAdicionarDetalhesLauncher()
         solicitacaoPerfilImage.setOnClickListener { onVerSolicitador() }
         animalDetalhesSolicitacaoFragment.requireView().setOnClickListener { onVerAnimal() }
@@ -64,6 +65,12 @@ class SolicitacaoActivity : AppCompatActivity() {
         voltarButton.setOnClickListener { onVoltar() }
         animalBuscadoSolicitacaoButton.setOnClickListener { onAnimalBuscado() }
         cancelarAdocaoSolicitacaoButton.setOnClickListener { onCancelar() }
+
+        animalBuscadoSolicitacaoButton.visibility = View.GONE
+        cancelarAdocaoSolicitacaoButton.visibility = View.GONE
+        aceitarSolicitacaoButton.visibility = View.GONE
+        rejeitarSolicitacaoButton.visibility = View.GONE
+        voltarButton.visibility = View.GONE
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -77,52 +84,50 @@ class SolicitacaoActivity : AppCompatActivity() {
     }
 
     private fun carregarDados() {
-        id = intent.getSerializableExtra("id") as SolicitacaoID
+        val id = intent.getSerializableExtra("id") as SolicitacaoID
 
-        // TODO carregar dados do database
+        NewHomeApplication.solicitacaoProvider.getSolicitacao(id, { solicitacao ->
+            this.solicitacao = solicitacao
+            animal = solicitacao.animal
+            solicitador = solicitacao.solicitador
 
-        animal = Animal()
-        animal.nome = "Cachorrinho"
-        animal.detalhes = "Ele é muito fofinho e gosta de mijar a casa toda."
-        animal.imagemURL = ""
-        animal.id = id.animalId
-        solicitador = Usuario()
-        solicitador.nome = "Marcos"
-        solicitador.detalhes = "Sou uma pessoa muito legal"
-        solicitador.imagemURL = ""
-        solicitador.id = id.adotadorId
+            solicitacaoNomeText.text = solicitador.nome
+            solicitacaoPerfilDescricaoText.text = solicitador.detalhes
+            solicitacaoPerfilImage.setImageBitmap(solicitador.imagem)
 
-        Util.tryLoadDrawableAsync(applicationContext, solicitador.imagemURL) { drawable ->
-            solicitacaoPerfilImage.setImageDrawable(drawable)
-        }
-        solicitacaoNomeText.text = solicitador.nome
-        solicitacaoPerfilDescricaoText.text = solicitador.detalhes
+            // cria animal fragment
+            val view = animalDetalhesSolicitacaoFragment.requireView()
+            val nomeAnimalPreviewText: TextView = view.findViewById(R.id.nomeAnimalPreviewText)
+            val detalhesAnimalPreviewText: TextView =
+                view.findViewById(R.id.detalhesAnimalPreviewText)
+            val imageView: ImageView = view.findViewById(R.id.animalImagem)
 
-        // TODO criar animal fragment
-        val view = animalDetalhesSolicitacaoFragment.requireView()
-        val nomeAnimalPreviewText: TextView = view.findViewById(R.id.nomeAnimalPreviewText)
-        val detalhesAnimalPreviewText: TextView = view.findViewById(R.id.detalhesAnimalPreviewText)
-        val imageView: ImageView = view.findViewById(R.id.animalImagem)
+            nomeAnimalPreviewText.text = animal.nome
+            detalhesAnimalPreviewText.text = animal.detalhes
+            imageView.setImageBitmap(animal.imagem)
 
-        nomeAnimalPreviewText.text = animal.nome
-        detalhesAnimalPreviewText.text = animal.detalhes
-        Util.tryLoadDrawableAsync(applicationContext, animal.imagemURL) { drawable ->
-            imageView.setImageDrawable(drawable)
-        }
+            verificarAceita()
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun verificarAceita() {
-        // TODO buscar se foi aceita do database
-        val aceita = true
-
-        if (aceita) {
-            aceitarSolicitacaoButton.visibility = View.GONE
-            rejeitarSolicitacaoButton.visibility = View.GONE
-            voltarButton.visibility = View.GONE
-        } else {
-            animalBuscadoSolicitacaoButton.visibility = View.GONE
-            cancelarAdocaoSolicitacaoButton.visibility = View.GONE
-        }
+        NewHomeApplication.solicitacaoProvider.getStatusSolicitacao(
+            solicitacao.id!!,
+            { statusSolicitacao ->
+                if (statusSolicitacao.solicitacaoAceita) {
+                    animalBuscadoSolicitacaoButton.visibility = View.VISIBLE
+                    cancelarAdocaoSolicitacaoButton.visibility = View.VISIBLE
+                } else {
+                    aceitarSolicitacaoButton.visibility = View.VISIBLE
+                    rejeitarSolicitacaoButton.visibility = View.VISIBLE
+                    voltarButton.visibility = View.VISIBLE
+                }
+            },
+            { e ->
+                Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+            })
     }
 
     private fun setAdicionarDetalhesLauncher() {
@@ -131,17 +136,26 @@ class SolicitacaoActivity : AppCompatActivity() {
                 if (result.resultCode != RESULT_OK) return@registerForActivityResult
 
                 val detalhes = result.data!!.getStringExtra("detalhes")!!
-                // TODO enviar detalhes pro database
 
-                val intent = Intent(applicationContext, ListaSolicitacaoActivity::class.java)
-                setResult(RESULT_OK, intent)
-                intent.putExtra("id", id)
-                intent.putExtra("mensagem", "animalBuscado")
-                finish()
+                NewHomeApplication.solicitacaoProvider.aceitarSolicitacao(solicitacao.id!!,
+                    detalhes,
+                    {
+                        Toast.makeText(
+                            applicationContext,
+                            "Solicitação aceita.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        finish()
+                    },
+                    { e ->
+                        Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+                    })
             }
     }
 
     private fun onVerSolicitador() {
+        // vai pra tela do solicitador
+
         val intent = Intent(applicationContext, PerfilActivity::class.java)
         intent.putExtra("id", solicitador.id)
         startActivity(intent)
@@ -158,45 +172,47 @@ class SolicitacaoActivity : AppCompatActivity() {
     private fun onAceitar() {
         // aceita solicitacao
 
-        val intent = Intent(applicationContext, ListaSolicitacaoActivity::class.java)
-        intent.putExtra("id", id)
-        intent.putExtra("mensagem", "aceita")
-        setResult(RESULT_OK, intent)
-        finish()
+        val intent = Intent(applicationContext, SolicitacaoAdicionarDetalhesActivity::class.java)
+        adicionarDetalhesLauncher.launch(intent)
     }
 
     private fun onRejeitar() {
         // rejeita solicitacao
 
-        val intent = Intent(applicationContext, ListaSolicitacaoActivity::class.java)
-        intent.putExtra("id", id)
-        intent.putExtra("mensagem", "rejeitada")
-        setResult(RESULT_OK, intent)
-        finish()
+        NewHomeApplication.solicitacaoProvider.rejeitarSolicitacao(solicitacao.id!!, {
+            Toast.makeText(applicationContext, "Solicitação rejeitada.", Toast.LENGTH_SHORT).show()
+            finish()
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun onVoltar() {
         // volta sem fazer nada
 
-        val intent = Intent(applicationContext, ListaSolicitacaoActivity::class.java)
-        setResult(RESULT_CANCELED, intent)
         finish()
     }
 
     private fun onAnimalBuscado() {
         // vai pra tela de detalhes do animal
 
-        val intent = Intent(applicationContext, SolicitacaoAdicionarDetalhesActivity::class.java)
-        adicionarDetalhesLauncher.launch(intent)
+        NewHomeApplication.animalProvider.animalEnviado(animal.id, {
+            Toast.makeText(applicationContext, "Animal buscado.", Toast.LENGTH_SHORT)
+                .show()
+            finish()
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun onCancelar() {
         // cancela adocao
 
-        val intent = Intent(applicationContext, ListaSolicitacaoActivity::class.java)
-        intent.putExtra("id", id)
-        intent.putExtra("mensagem", "cancelado")
-        setResult(RESULT_OK, intent)
-        finish()
+        NewHomeApplication.solicitacaoProvider.cancelarSolicitacaoAceita(animal.id, {
+            Toast.makeText(applicationContext, "Cancelado.", Toast.LENGTH_SHORT).show()
+            finish()
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 }

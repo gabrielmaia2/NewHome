@@ -1,10 +1,10 @@
 package com.newhome
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 
 class SolicitacaoDetalhesActivity : AppCompatActivity() {
     private lateinit var solicitacaoDetalhesDetalhesText: TextView
@@ -18,8 +18,9 @@ class SolicitacaoDetalhesActivity : AppCompatActivity() {
         supportActionBar?.title = "Detalhes"
 
         solicitacaoDetalhesDetalhesText = findViewById(R.id.solicitacaoDetalhesDetalhesText)
-
         solicitacaoDetalhesConcluirButton = findViewById(R.id.solicitacaoDetalhesConcluirButton)
+
+        solicitacaoDetalhesDetalhesText.text = intent.getStringExtra("detalhes")
 
         solicitacaoDetalhesConcluirButton.setOnClickListener { finish() }
     }

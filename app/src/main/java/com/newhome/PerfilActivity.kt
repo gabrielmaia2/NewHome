@@ -1,7 +1,6 @@
 package com.newhome
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -12,11 +11,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.newhome.dto.Usuario
 
 class PerfilActivity : AppCompatActivity() {
-    private lateinit var usuario: Usuario
-
     private lateinit var perfilImage: ImageView
 
     private lateinit var nomePerfilText: TextView
@@ -24,11 +22,10 @@ class PerfilActivity : AppCompatActivity() {
 
     private lateinit var animaisAdotadosButton: Button
     private lateinit var animaisPostosAdocaoButton: Button
+    private lateinit var sairPerfilButton: Button
 
-    private var id: String = ""
+    private lateinit var usuario: Usuario
     private var eProprioPerfil = false
-
-    private lateinit var editPerfilActivityLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,17 +38,25 @@ class PerfilActivity : AppCompatActivity() {
         nomePerfilText = findViewById(R.id.nomePerfilText)
         descricaoPerfilText = findViewById(R.id.descricaoPerfilText)
 
-        animaisAdotadosButton = findViewById(R.id.editPerfilButton)
-        animaisPostosAdocaoButton = findViewById(R.id.cancelarEditPerfilButton)
+        animaisAdotadosButton = findViewById(R.id.animaisAdotadosButton)
+        animaisPostosAdocaoButton = findViewById(R.id.animaisPostosAdocaoButton)
+        sairPerfilButton = findViewById(R.id.sairPerfilButton)
 
-        carregarDados()
-        setEditPerfilActivityLauncher()
         animaisAdotadosButton.setOnClickListener { onVerAnimaisAdotados() }
         animaisPostosAdocaoButton.setOnClickListener { onVerAnimaisPostosAdocao() }
+        sairPerfilButton.setOnClickListener { onSair() }
+
+        animaisAdotadosButton.visibility = View.GONE
+        sairPerfilButton.visibility = View.GONE
+    }
+
+    override fun onResume() {
+        super.onResume()
+        carregarDados()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        if (!eProprioPerfil) return super.onCreateOptionsMenu(menu)
+        if(!eProprioPerfil) return super.onCreateOptionsMenu(menu)
 
         menuInflater.inflate(R.menu.editar_menu, menu)
         return true
@@ -72,42 +77,29 @@ class PerfilActivity : AppCompatActivity() {
     }
 
     private fun carregarDados() {
-        id = intent.getStringExtra("id") ?: ""
+        var id = intent.getStringExtra("id") ?: ""
 
-        // TODO checar se o perfil e o mesmo da pessoa atual
-        eProprioPerfil = id == ""
+        if (id == "") id = NewHomeApplication.idUsuarioAtual
+        eProprioPerfil = id == NewHomeApplication.idUsuarioAtual
 
-        // TODO carregar dados do perfil
-        usuario = Usuario()
-        usuario.nome = "Marcos"
-        usuario.detalhes = "Sou uma pessoa muito legal."
-        usuario.imagemURL = ""
+        NewHomeApplication.usuarioProvider.getUsuario(id, { usuario ->
+            onDadosCarregados(usuario)
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
+    }
+
+    private fun onDadosCarregados(usuario: Usuario) {
+        this.usuario = usuario
 
         nomePerfilText.text = usuario.nome
         descricaoPerfilText.text = usuario.detalhes
-        Util.tryLoadDrawableAsync(this, usuario.imagemURL) { drawable ->
-            perfilImage.setImageDrawable(drawable)
+        perfilImage.setImageBitmap(usuario.imagem)
+
+        if (eProprioPerfil) {
+            animaisAdotadosButton.visibility = View.VISIBLE
+            sairPerfilButton.visibility = View.VISIBLE
         }
-
-        if (!eProprioPerfil) {
-            animaisAdotadosButton.visibility = View.GONE
-        }
-    }
-
-    private fun setEditPerfilActivityLauncher() {
-        // launcher usado para iniciar a atividade de editar perfil
-
-        editPerfilActivityLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode != RESULT_OK) return@registerForActivityResult
-
-                usuario = result.data!!.getSerializableExtra("usuario") as Usuario
-                // TODO enviar perfil pro database
-
-                Toast.makeText(this, "Perfil editado com sucesso.", Toast.LENGTH_SHORT).show()
-
-                carregarDados() // atualiza dados do perfil
-            }
     }
 
     private fun onVerAnimaisAdotados() {
@@ -116,7 +108,6 @@ class PerfilActivity : AppCompatActivity() {
         val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
         intent.putExtra("tipo", "adotados")
         startActivity(intent)
-        finish()
     }
 
     private fun onVerAnimaisPostosAdocao() {
@@ -125,16 +116,29 @@ class PerfilActivity : AppCompatActivity() {
         val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
         intent.putExtra("tipo", "postosAdocao")
         if (!eProprioPerfil) {
-            intent.putExtra("usuarioId", id)
+            intent.putExtra("usuarioId", usuario.id)
         }
         startActivity(intent)
+    }
+
+    private fun onSair() {
+        NewHomeApplication.contaProvider.sair({
+            val intent = Intent(applicationContext, StartActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun onEditarPerfilClick() {
         // vai para a tela de editar perfil
 
+        if (!eProprioPerfil) {
+            return
+        }
+
         val intent = Intent(applicationContext, EditarPerfilActivity::class.java)
-        intent.putExtra("usuario", usuario)
-        editPerfilActivityLauncher.launch(intent)
+        startActivity(intent)
     }
 }

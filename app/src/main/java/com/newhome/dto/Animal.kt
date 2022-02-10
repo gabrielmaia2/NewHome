@@ -1,12 +1,17 @@
 package com.newhome.dto
 
-import android.graphics.drawable.Drawable
+import android.graphics.Bitmap
 import java.io.Serializable
 
-class Animal : Serializable {
+class Animal {
     var id: String = ""
     lateinit var nome: String
     lateinit var detalhes: String
-    lateinit var imagemURL: String
+    var imagem: Bitmap? = null
     // TODO location on maps
+
+    // para poder pesquisar animal na lista de animais
+    override fun toString(): String {
+        return nome.lowercase() + detalhes.lowercase()
+    }
 }

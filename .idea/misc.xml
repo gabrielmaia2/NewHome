@@ -8,7 +8,7 @@
         <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_animal_dono.xml" value="0.17" />
         <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_animal_dono_adotado.xml" value="0.18" />
         <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_create_account.xml" value="0.20416666666666666" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_criar_conta.xml" value="0.25" />
+        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_criar_conta.xml" value="0.2" />
         <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_editar_animal.xml" value="0.21" />
         <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_editar_perfil.xml" value="0.16" />
         <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_get_location.xml" value="0.1361111111111111" />
@@ -31,6 +31,7 @@
         <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/popup_solicitacao_dono.xml" value="0.2" />
         <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/menu/editar_menu.xml" value="0.1361111111111111" />
         <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/menu/main_menu.xml" value="0.21" />
+        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/xml/file_paths.xml" value="0.1361111111111111" />
       </map>
     </option>
   </component>

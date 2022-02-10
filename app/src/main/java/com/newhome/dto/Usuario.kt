@@ -1,12 +1,11 @@
 package com.newhome.dto
 
-import android.graphics.drawable.Drawable
-import android.media.Image
+import android.graphics.Bitmap
 import java.io.Serializable
 
-class Usuario : Serializable {
+class Usuario {
     var id: String = ""
     lateinit var nome: String
     lateinit var detalhes: String
-    lateinit var imagemURL: String
+    var imagem: Bitmap? = null
 }

@@ -7,7 +7,7 @@
         android:title="Search"
         android:icon="@android:drawable/ic_menu_search"
         app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="ifRoom|collapseActionView"/>
+        app:showAsAction="ifRoom|collapseActionView" />
     <item
         android:id="@+id/verPerfilMenuItem"
         android:title="Ver perfil" />

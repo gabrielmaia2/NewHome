@@ -1,23 +1,22 @@
 package com.newhome
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.newhome.dto.Animal
 
 class AnimalDonoActivity : AppCompatActivity() {
     private lateinit var animal: Animal
 
-    private lateinit var adicionarAnimaDonolImage: ImageView
+    private lateinit var animalDonoImage: ImageView
 
     private lateinit var nomeAnimalDonoText: TextView
     private lateinit var descricaoAnimalDonoText: TextView
@@ -26,15 +25,13 @@ class AnimalDonoActivity : AppCompatActivity() {
     private lateinit var solicitacoesDonoButton: Button
     private lateinit var removerAnimaDonolButton: Button
 
-    private lateinit var editAnimalActivityLauncher: ActivityResultLauncher<Intent>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_animal_dono)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Animal"
 
-        adicionarAnimaDonolImage = findViewById(R.id.adicionarAnimaDonolImage)
+        animalDonoImage = findViewById(R.id.animalDonoImage)
 
         nomeAnimalDonoText = findViewById(R.id.nomeAnimalDonoText)
         descricaoAnimalDonoText = findViewById(R.id.descricaoAnimalDonoText)
@@ -45,10 +42,13 @@ class AnimalDonoActivity : AppCompatActivity() {
 
         // TODO setar mapa listener pra ver local no mapa
 
-        carregarDados()
-        setEditAnimalActivityLauncher()
         solicitacoesDonoButton.setOnClickListener { onVerSolicitacoes() }
         removerAnimaDonolButton.setOnClickListener { onRemoverAnimal() }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        carregarDados()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -70,22 +70,27 @@ class AnimalDonoActivity : AppCompatActivity() {
         }
     }
 
-    private fun setEditAnimalActivityLauncher() {
-        editAnimalActivityLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode != RESULT_OK) return@registerForActivityResult
+    private fun carregarDados() {
+        // carrega os dados do database e preenche os campos
 
-                carregarDados() // atualiza animal
-                Toast.makeText(this, "Animal editado com sucesso.", Toast.LENGTH_SHORT).show()
-            }
+        val id = intent.getStringExtra("id")!!
+        NewHomeApplication.animalProvider.getAnimal(id, { animal ->
+            this.animal = animal
+            nomeAnimalDonoText.text = animal.nome
+            descricaoAnimalDonoText.text = animal.detalhes
+            animalDonoImage.setImageBitmap(animal.imagem)
+        }, {
+            Toast.makeText(applicationContext, "Ocorreu um erro ao carregar animal.", Toast.LENGTH_SHORT).show()
+            finish()
+        })
     }
 
     private fun onEditarAnimalClick() {
         // vai para a tela de editar animal
 
         val intent = Intent(applicationContext, EditarAnimalActivity::class.java)
-        intent.putExtra("animal", animal)
-        editAnimalActivityLauncher.launch(intent)
+        intent.putExtra("id", animal.id)
+        startActivity(intent)
     }
 
     private fun onVerSolicitacoes() {
@@ -99,26 +104,14 @@ class AnimalDonoActivity : AppCompatActivity() {
     private fun onRemoverAnimal() {
         // remove animal e volta para lista de animais
 
-        // TODO remover do database
+        NewHomeApplication.animalProvider.removerAnimal(animal.id, {
+            Toast.makeText(applicationContext, "Animal deletado com sucesso.", Toast.LENGTH_SHORT)
+                .show()
 
-        val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
-        intent.putExtra("mensagem", "animalDeletado")
-        startActivity(intent)
-    }
-
-    private fun carregarDados() {
-        // TODO carregar do database
-
-        animal = Animal()
-        animal.id = intent.getStringExtra("id")!!
-        animal.nome = "Cachorrinho"
-        animal.detalhes = "Ele é muito fofinho e gosta de mijar a casa toda."
-        animal.imagemURL = ""
-
-        nomeAnimalDonoText.text = animal.nome
-        descricaoAnimalDonoText.text = animal.detalhes
-        Util.tryLoadDrawableAsync(applicationContext, animal.imagemURL) { drawable ->
-            adicionarAnimaDonolImage.setImageDrawable(drawable)
-        }
+            val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
+            startActivity(intent)
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 }

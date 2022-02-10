@@ -1,10 +1,10 @@
 package com.newhome
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.appcompat.app.AppCompatActivity
 
 class StartActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,9 +35,14 @@ class StartActivity : AppCompatActivity() {
     // cria instancia intent e guarando dentro do intent
     // intent é a variavel que leva para outra tela
     private fun goToApp() {
-        // TODO checar se ja esta logado e se nao tiver levar pra login
-        val intent = Intent(applicationContext, LoginActivity::class.java)
-        startActivity(intent) // passando a variavel dentro dela (inicia a atividade)
-        finish() // quando inicia ele abre uma por cima da outra
+        NewHomeApplication.contaProvider.tentarUsarContaLogada({
+            val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
+            startActivity(intent) // passando a variavel dentro dela (inicia a atividade)
+            finish() // fecha a atual pra nao poder voltar depois com o botao de voltar
+        }, {
+            val intent = Intent(applicationContext, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        })
     }
 }

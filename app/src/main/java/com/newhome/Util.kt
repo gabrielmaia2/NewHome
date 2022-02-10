@@ -1,39 +1,31 @@
 package com.newhome
 
 import android.content.Context
-import android.graphics.drawable.Drawable
-import android.os.Handler
-import android.os.Looper
-import android.util.Patterns
-import androidx.appcompat.content.res.AppCompatResources
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.Environment
+import android.provider.MediaStore
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
+import java.io.File
 import java.io.IOException
-import java.io.InputStream
-import java.net.URL
-import java.util.concurrent.Executors
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.math.max
+import kotlin.math.min
 
 class Util {
     companion object {
-        fun tryLoadDrawable(context: Context, url: String): Drawable {
-            if (!Patterns.WEB_URL.matcher(url).matches())
-                return AppCompatResources.getDrawable(context, R.drawable.image_default)!!
+        @Throws(IOException::class)
+        fun criarArquivoImagem(context: Context): File {
+            // cria um nome para a imagem
+            val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+            val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
 
-            return try {
-                val inputStream = URL(url).content as InputStream
-                Drawable.createFromStream(inputStream, "src name")
-            } catch (e: IOException) {
-                AppCompatResources.getDrawable(context, R.drawable.image_default)!!
-            }
-        }
-
-        fun tryLoadDrawableAsync(context: Context, url: String, onLoad: (drawable: Drawable) -> Unit) {
-            val executor = Executors.newSingleThreadExecutor()
-            val handler = Handler(Looper.getMainLooper())
-            executor.execute {
-                val drawable = tryLoadDrawable(context, url)
-                handler.post {
-                    onLoad(drawable)
-                }
-            }
+            // cria um arquivo temporario e retorna ele
+            return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
         }
     }
 }

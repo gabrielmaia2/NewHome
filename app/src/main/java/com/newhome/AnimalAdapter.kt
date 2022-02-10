@@ -9,13 +9,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.newhome.dto.Animal
 
-class AnimalAdapter(context: Context, var animais: ArrayList<Animal> = ArrayList()) :
+class AnimalAdapter(context: Context, var animais: List<Animal> = ArrayList()) :
     ArrayAdapter<Animal>(context, R.layout.fragment_animal_preview, animais) {
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val v = convertView ?: LayoutInflater.from(context)
             .inflate(R.layout.fragment_animal_preview, parent, false)
 
-        val animal = animais[position];
+        val animal = animais[position]
 
         val nomeAnimalText: TextView = v.findViewById(R.id.nomeAnimalPreviewText)
         val detalhesAnimalText: TextView = v.findViewById(R.id.detalhesAnimalPreviewText)
@@ -23,9 +23,7 @@ class AnimalAdapter(context: Context, var animais: ArrayList<Animal> = ArrayList
 
         nomeAnimalText.text = animal.nome
         detalhesAnimalText.text = animal.detalhes
-        Util.tryLoadDrawableAsync(context, animal.imagemURL) { drawable ->
-            animalImagem.setImageDrawable(drawable)
-        }
+        animalImagem.setImageBitmap(animal.imagem)
 
         return v
     }

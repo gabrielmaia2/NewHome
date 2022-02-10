@@ -1,11 +1,12 @@
 package com.newhome
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.newhome.dto.NovaConta
 
 class CriarContaActivity : AppCompatActivity() {
     private lateinit var nomeText: EditText
@@ -36,11 +37,20 @@ class CriarContaActivity : AppCompatActivity() {
     private fun onCadastrar() {
         // cadastra e vai pra lista de animais
 
-        // TODO tentar cadastrar (se der certo vai pra lista senao continua nessa tela e diz o erro)
+        val novaConta = NovaConta()
+        novaConta.email = (emailText.text?.toString() ?: "").trim()
+        novaConta.senha = senhaText.text?.toString() ?: ""
+        novaConta.nome = nomeText.text?.toString() ?: ""
+        novaConta.idade = (idadeText.text?.toString() ?: "0").toInt()
 
-        val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
+        NewHomeApplication.contaProvider.cadastrar(novaConta, {
+            Toast.makeText(applicationContext, "Cadastrado com sucesso.", Toast.LENGTH_SHORT).show()
+
+            val intent = Intent(applicationContext, LoginActivity::class.java)
+            startActivity(intent)
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun onFazerLogin() {

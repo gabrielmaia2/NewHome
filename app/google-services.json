@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "534744516524",
+    "project_id": "newhome-4c2f7",
+    "storage_bucket": "newhome-4c2f7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:534744516524:android:b5c65c33cef66899a49c09",
+        "android_client_info": {
+          "package_name": "com.newhome"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "534744516524-90uhjm115ov95ls6e8faiumfad05rova.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1MvvKwP3QVBaOthxn-SMnZNqNuCrBCJk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "534744516524-90uhjm115ov95ls6e8faiumfad05rova.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

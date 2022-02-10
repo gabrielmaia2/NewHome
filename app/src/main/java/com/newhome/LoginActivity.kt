@@ -1,12 +1,12 @@
 package com.newhome
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
-import androidx.core.content.IntentCompat
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.newhome.dto.ContaLogin
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var loginLoginText: EditText
@@ -33,14 +33,24 @@ class LoginActivity : AppCompatActivity() {
     private fun onFazerLogin() {
         // loga e vai pra lista de animais
 
-        // TODO tentar logar (se der certo vai pra lista senao continua nessa tela e diz o erro)
+        val contaLogin = ContaLogin()
+        contaLogin.email = (loginLoginText.text?.toString() ?: "").trim()
+        contaLogin.senha = senhaLoginText.text?.toString() ?: ""
 
-        // clear task ta dizendo que esse intent é pra limpar as outras task
-        // new task usa a atual como a raiz
+        NewHomeApplication.contaProvider.logar(contaLogin, {
+            // clear task ta dizendo que esse intent é pra limpar as outras task
+            // new task usa a atual como a raiz
 
-        val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
+            NewHomeApplication.carregarUsuarioAtual {
+                Toast.makeText(applicationContext, "Logado com sucesso.", Toast.LENGTH_SHORT).show()
+
+                val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }
+        }, { e ->
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun onCadastrar() {

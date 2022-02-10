@@ -1,10 +1,8 @@
 package com.newhome
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+
 //import com.google.android.gms.maps.GoogleMap
 //import com.google.android.gms.maps.GoogleMap.OnMapClickListener
 //import com.google.android.gms.maps.model.Marker
@@ -17,7 +15,7 @@ import android.widget.Button
 //
 //
 class GetLocationActivity : AppCompatActivity() {
-//    private val mMap: GoogleMap? = null
+    //    private val mMap: GoogleMap? = null
 //    private var mLastMarker: Marker? = null
 //
     override fun onCreate(savedInstanceState: Bundle?) {
