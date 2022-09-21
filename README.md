@@ -1,11 +1,12 @@
 # NewHome
 
+![Logo](logo.png#thumbnail)
+
 Aplicativo para adoção de animais.
 
 Equipe:
-- Nome da equipe: NewHome;
-- Integrantes:
-  - Gabriel Maia Gondim ([gabrielmaia2](https://github.com/gabrielmaia2/));
+
+- Gabriel Maia Gondim ([gabrielmaia2](https://github.com/gabrielmaia2/)).
 
 Links:
 
@@ -14,3 +15,10 @@ Links:
 - [Trello](https://trello.com/b/wDqJiqbW)
 - [Protótipo](https://www.figma.com/file/Ynqz8XqNbdFSNU1TjwKW5D/NewHome?node-id=0%3A1)
 - [Protótipo navegável](https://www.figma.com/proto/Ynqz8XqNbdFSNU1TjwKW5D/NewHome?node-id=7%3A2&scaling=scale-down&page-id=0%3A1&starting-point-node-id=7%3A2&show-proto-sidebar=1)
+
+<style>
+img[src*="#thumbnail"] {
+    height:40vh;
+    border-radius: 20px
+}
+</style>
