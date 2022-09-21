@@ -2,6 +2,11 @@
 
 Aplicativo para adoção de animais.
 
+Equipe:
+- Nome da equipe: NewHome;
+- Integrantes:
+  - Gabriel Maia Gondim ([gabrielmaia2](https://github.com/gabrielmaia2/));
+
 Links:
 
 - [Documento de visão](Documento%20de%20visão%20-%20NewHome.docx)
