@@ -10,7 +10,9 @@ def genericSh(cmd) {
 pipeline {
   agent any
 
-  env.UNIX = isUnix()
+  environment {
+    UNIX = isUnix()
+  }
 
   stages {
     stage('Build') {
