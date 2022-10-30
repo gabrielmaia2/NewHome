@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/solicitadorImagem"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/image_default"
+        android:contentDescription="@string/imagemSolicitacaoDescricao" />
+
+    <TextView
+        android:id="@+id/tituloSolicitacao"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:hint="@string/tituloSolicitacaoPreview"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/solicitadorImagem"
+        app:layout_constraintTop_toTopOf="@+id/solicitadorImagem" />
+
+    <TextView
+        android:id="@+id/descricaoSolicitacao"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:maxHeight="25dp"
+        android:hint="@string/descricaoSolicitacaoPreview"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/solicitadorImagem"
+        app:layout_constraintEnd_toEndOf="@+id/tituloSolicitacao"
+        app:layout_constraintStart_toStartOf="@+id/tituloSolicitacao"
+        app:layout_constraintTop_toBottomOf="@+id/tituloSolicitacao" />
+</androidx.constraintlayout.widget.ConstraintLayout>
