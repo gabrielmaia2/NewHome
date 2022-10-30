@@ -1,16 +1,17 @@
-env.UNIX = isUnix()
-
 def genericSh(cmd) {
-    if (Boolean.valueOf(env.UNIX)) {
-        sh cmd
-    }
-    else {
-        bat cmd
-   }
+  if (Boolean.valueOf(env.UNIX)) {
+    sh cmd
+  }
+  else {
+    bat cmd
+  }
 }
 
 pipeline {
   agent any
+
+  env.UNIX = isUnix()
+
   stages {
     stage('Build') {
       steps {
