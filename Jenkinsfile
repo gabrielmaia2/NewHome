@@ -1,18 +1,29 @@
+env.UNIX = isUnix()
+
+def genericSh(cmd) {
+    if (Boolean.valueOf(env.UNIX)) {
+        sh cmd
+    }
+    else {
+        bat cmd
+   }
+}
+
 pipeline {
   agent any
   stages {
     stage('Build') {
       steps {
         echo 'Building...'
-        sh './gradlew clean'
-        sh './gradlew assemble'
+        genericSh './gradlew clean'
+        genericSh './gradlew assemble'
       }
     }
 
     stage('Test') {
       steps {
         echo 'Testing...'
-        sh './gradlew test'
+        genericSh './gradlew test'
       }
     }
 
