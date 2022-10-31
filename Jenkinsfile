@@ -7,13 +7,20 @@ def genericSh(cmd) {
   }
 }
 
+def copyGoogleServicesSecret() {
+}
+
 pipeline {
   agent any
 
   environment {
     UNIX = isUnix()
   }
-
+  
+  withCredentials([file(credentialsId: 'google-services-json', variable: 'google-services-json')]) {
+    genericSh "cp \$google-services-json ./app/google-services.json"
+  }
+  
   stages {
     stage('Build') {
       steps {
@@ -35,6 +42,5 @@ pipeline {
         echo 'Deploying...'
       }
     }
-
   }
 }
