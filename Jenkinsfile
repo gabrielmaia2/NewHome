@@ -24,7 +24,7 @@ pipeline {
     stage('Build') {
       steps {
         echo 'Building...'
-        copyGoogleServicesSecret
+        copyGoogleServicesSecret()
         genericSh './gradlew clean'
         genericSh './gradlew assemble'
       }
