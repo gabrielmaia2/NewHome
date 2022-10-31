@@ -8,6 +8,9 @@ def genericSh(cmd) {
 }
 
 def copyGoogleServicesSecret() {
+  withCredentials([file(credentialsId: 'google-services-json', variable: 'google-services-json')]) {
+    genericSh "cp \$google-services-json ./app/google-services.json"
+  }
 }
 
 pipeline {
@@ -17,14 +20,11 @@ pipeline {
     UNIX = isUnix()
   }
   
-  withCredentials([file(credentialsId: 'google-services-json', variable: 'google-services-json')]) {
-    genericSh "cp \$google-services-json ./app/google-services.json"
-  }
-  
   stages {
     stage('Build') {
       steps {
         echo 'Building...'
+        copyGoogleServicesSecret
         genericSh './gradlew clean'
         genericSh './gradlew assemble'
       }
