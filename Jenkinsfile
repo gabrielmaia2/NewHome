@@ -9,7 +9,12 @@ def genericSh(cmd) {
 
 def copyGoogleServicesSecret() {
   withCredentials([file(credentialsId: 'google-services-json', variable: 'google-services-json')]) {
-    genericSh "cp \$google-services-json ./app/google-services.json"
+    if (Boolean.valueOf(env.UNIX)) {
+      genericSh "cp -f \$google-services-json ./app/google-services.json"
+    }
+    else {
+      genericSh "copy /b/v/y \$google-services-json ./app/google-services.json"
+    }
   }
 }
 
