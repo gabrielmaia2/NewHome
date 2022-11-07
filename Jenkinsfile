@@ -29,8 +29,8 @@ pipeline {
     stage('Build') {
       when {
         anyOf {
-          branch "main/*"
-          branch "develop/*"
+          branch "main"
+          branch "develop"
         }
       }
       steps {
@@ -43,8 +43,8 @@ pipeline {
     stage('Test') {
       when {
         anyOf {
-          branch "main/*"
-          branch "develop/*"
+          branch "main"
+          branch "develop"
         }
       }
       steps {
@@ -56,7 +56,7 @@ pipeline {
 
     stage('Deploy') {
       when {
-        branch "main/*"
+        branch "main"
       }
       steps {
         echo 'Deploying...'
