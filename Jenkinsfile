@@ -27,6 +27,12 @@ pipeline {
   
   stages {
     stage('Build') {
+      when {
+        anyOf {
+          branch "main/*"
+          branch "develop/*"
+        }
+      }
       steps {
         echo 'Building...'
         copyGoogleServicesSecret()
@@ -35,15 +41,26 @@ pipeline {
     }
 
     stage('Test') {
+      when {
+        anyOf {
+          branch "main/*"
+          branch "develop/*"
+        }
+      }
       steps {
         echo 'Testing...'
+        copyGoogleServicesSecret()
         genericSh './gradlew test'
       }
     }
 
     stage('Deploy') {
+      when {
+        branch "main/*"
+      }
       steps {
         echo 'Deploying...'
+        copyGoogleServicesSecret()
       }
     }
   }
