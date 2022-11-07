@@ -13,7 +13,7 @@ def copyGoogleServicesSecret() {
       genericSh "cp -f \$google-services-json ./app/google-services.json"
     }
     else {
-      genericSh "copy /b/v/y %google-services-json% .\\app\\google-services.json"
+      genericSh "copy /b/v/y \"%google-services-json%\" .\\app\\google-services.json"
     }
   }
 }
