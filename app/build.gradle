@@ -6,6 +6,8 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
+version = "0.1.0"
+
 android {
     compileSdk 33
 
@@ -13,8 +15,8 @@ android {
         applicationId "com.newhome"
         minSdk 21
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        versionCode 100 // 00 01 00
+        versionName "$version"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

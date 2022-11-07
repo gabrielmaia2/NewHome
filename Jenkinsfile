@@ -61,6 +61,8 @@ pipeline {
       steps {
         echo 'Deploying...'
         copyGoogleServicesSecret()
+        genericSh './gradlew clean'
+        genericSh './gradlew assembleRelease'
       }
     }
   }
