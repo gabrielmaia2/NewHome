@@ -19,8 +19,23 @@ class ContaService(
         return contaProvider.getContaID()
     }
 
+    override suspend fun enviarEmailConfirmacao(): Deferred<Unit> =
+        CoroutineScope(Dispatchers.IO).async {
+            contaProvider.enviarEmailConfirmacao().await()
+        }
+
     override suspend fun cadastrar(novaConta: NovaConta): Deferred<Unit> =
         CoroutineScope(Dispatchers.IO).async {
+            if (novaConta.nome.length < 4 || novaConta.nome.length > 128) {
+                throw Exception("Nome deve ter entre 4 e 128 caracteres.")
+            }
+            if (novaConta.idade < 18 || novaConta.idade > 80) {
+                throw Exception("Idade deve estar entre 18 e 80.")
+            }
+            if (novaConta.senha.length < 8 || novaConta.senha.length > 64) {
+                throw Exception("Senha deve ter entre 8 e 64 caracteres.")
+            }
+
             val credenciais = Credenciais(novaConta.email, novaConta.senha)
             contaProvider.criarConta(credenciais).await()
 
@@ -28,15 +43,30 @@ class ContaService(
 
             val usuario = NovoUsuario(uid, novaConta.nome, "", novaConta.idade)
             usuarioProvider.criarUsuario(usuario).await()
+
+            try {
+                contaProvider.enviarEmailConfirmacao().await()
+            } catch (_: Exception) {
+            }
         }
 
     override suspend fun logar(credenciais: Credenciais): Deferred<Unit> =
         CoroutineScope(Dispatchers.IO).async {
             contaProvider.logar(credenciais).await()
+
+            if (!contaProvider.emailConfirmacaoVerificado()) {
+                val enviarEmailTask = contaProvider.enviarEmailConfirmacao()
+                val sairTask = contaProvider.sair()
+
+                enviarEmailTask.await()
+                sairTask.await() // TODO fix check email without logging in
+
+                throw Exception("Email não foi verificado. Por favor, verifique o email enviado antes de logar.")
+            }
         }
 
     override fun tentarUsarContaLogada() {
-        if (contaProvider.getContaID() == null) throw Exception("User not signed in.")
+        if (contaProvider.getContaID() == null) throw Exception("Usuário não está logado.")
     }
 
     override suspend fun sair(): Deferred<Unit> =

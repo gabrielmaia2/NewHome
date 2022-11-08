@@ -34,7 +34,7 @@
             android:contentDescription="@string/editAnimalIconDescricao"
             app:layout_constraintBottom_toBottomOf="@+id/animalEditImage"
             app:layout_constraintEnd_toEndOf="@+id/animalEditImage"
-            app:srcCompat="@drawable/pen"
+            app:srcCompat="@drawable/pencil"
             tools:ignore="ImageContrastCheck" />
 
         <EditText
@@ -73,48 +73,44 @@
 
         <Button
             android:id="@+id/editarMapaAnimalButton"
+            style="@style/NewHomeDark.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="20dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
             android:text="Editar Mapa"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/descricaoAnimalEditText" />
 
         <Button
             android:id="@+id/cancelarEditarAnimalButton"
+            style="@style/NewHomeDark.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginEnd="5dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
             android:text="Cancelar"
-            app:layout_constraintBaseline_toBaselineOf="@+id/concluirEditarAnimalButton"
-            app:layout_constraintEnd_toStartOf="@+id/concluirEditarAnimalButton"
-            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/concluirEditarAnimalButton"
+            style="@style/NewHomeDark.ButtonSubmit"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="80dp"
             android:layout_marginEnd="20dp"
             android:layout_marginBottom="20dp"
             android:layout_weight="1.0"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:text="Concluir"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="Editar"
+            app:layout_constraintBottom_toTopOf="@+id/cancelarEditarAnimalButton"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/cancelarEditarAnimalButton"
-            app:layout_constraintTop_toBottomOf="@+id/editarMapaAnimalButton"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editarMapaAnimalButton" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

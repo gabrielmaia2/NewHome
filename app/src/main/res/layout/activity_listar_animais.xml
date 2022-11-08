@@ -33,13 +33,12 @@
 
     <Button
         android:id="@+id/solicitacoesRecebidasListarAnimaisButton"
+        style="@style/NewHomeDark.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="10dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
         android:text="Ver solicitações recebidas"
         app:layout_constraintBottom_toTopOf="@+id/solicitacoesFeitasListarAnimaisButton"
         app:layout_constraintEnd_toEndOf="parent"
@@ -47,13 +46,12 @@
 
     <Button
         android:id="@+id/solicitacoesFeitasListarAnimaisButton"
+        style="@style/NewHomeDark.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="10dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
         android:text="Ver solicitações feitas"
         app:layout_constraintBottom_toTopOf="@+id/porAdocaoListarAnimaisButton"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,13 +59,12 @@
 
     <Button
         android:id="@+id/porAdocaoListarAnimaisButton"
+        style="@style/NewHomeDark.Button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
         android:text="Por animal em adoção"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -88,29 +88,29 @@
 
     <Button
         android:id="@+id/cadastrarCriarContaButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:text="@string/buttonCriarContaPlaceholder"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/fazerLoginCriarContaButton" />
-
-    <Button
-        android:id="@+id/fazerLoginCriarContaButton"
+        style="@style/NewHomeDark.ButtonSubmit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginEnd="10dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:text="@string/buttonCriarContaPlaceholder"
+        app:layout_constraintBottom_toTopOf="@+id/fazerLoginCriarContaButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/fazerLoginCriarContaButton"
+        style="@style/NewHomeDark.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="30dp"
         android:text="@string/buttonFazerLoginPlaceholder"
-        app:layout_constraintBaseline_toBaselineOf="@+id/cadastrarCriarContaButton"
-        app:layout_constraintEnd_toStartOf="@+id/cadastrarCriarContaButton"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

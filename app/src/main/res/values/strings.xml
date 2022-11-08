@@ -3,13 +3,14 @@
     <string name="loginTitulo">Login</string>
     <string name="loginLoginPlaceholder">Email</string>
     <string name="loginSenhaPlaceholder">Senha</string>
-    <string name="criarContaTitulo">Criar conta</string>
+    <string name="criarContaTitulo">Cadastrar</string>
     <string name="criarContaNomePlaceholder">Nome completo</string>
     <string name="criarContaIdadePlaceholder">Idade</string>
     <string name="criarContaEmailPlaceholder">Email</string>
     <string name="criarContaSenhaPlaceholder">Senha</string>
     <string name="buttonCriarContaPlaceholder">Cadastrar</string>
-    <string name="buttonFazerLoginPlaceholder">Logar</string>
+    <string name="buttonFazerLoginPlaceholder">Fazer login</string>
+    <string name="logarButton">Entrar</string>
     <string name="animalImagemDescricao">Imagem do animal</string>
     <string name="animalNomePlaceholder">Nome do animal</string>
     <string name="animalDetalhesPlaceholder">Detalhes do animal</string>
@@ -28,4 +29,10 @@
     <string name="imagemSolicitacaoDescricao">Imagem do solicitador</string>
     <string name="tituloSolicitacaoPreview">Solicitação</string>
     <string name="descricaoSolicitacaoPreview">Descrição</string>
+    <string name="verMapa">Ver mapa</string>
+    <string name="verDetalhesBuscarAnimal">Ver detalhes</string>
+    <string name="cancelarSolicitacao">Cancelar solicitação</string>
+    <string name="marcarAnimalBuscado">Animal buscado</string>
+    <string name="solicitarAdocao">Solicitar adoção</string>
+    <string name="verAdotanteAnimal">Ver adotante</string>
 </resources>

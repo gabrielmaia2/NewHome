@@ -52,14 +52,16 @@ class CriarContaActivity : AppCompatActivity() {
 
         dialog.start()
 
-        val novaConta = NovaConta(
-            (emailText.text?.toString() ?: "").trim(),
-            senhaText.text?.toString() ?: "",
-            nomeText.text?.toString() ?: "",
-            (idadeText.text?.toString() ?: "0").toInt()
-        )
-
         try {
+            val idade = idadeText.text?.toString() ?: "0"
+
+            val novaConta = NovaConta(
+                (emailText.text?.toString() ?: "").trim(),
+                senhaText.text?.toString() ?: "",
+                nomeText.text?.toString() ?: "",
+                (if (idade.isEmpty()) "0" else idade).toInt()
+            )
+
             NewHomeApplication.contaService.cadastrar(novaConta).await()
         } catch (e:Exception) {
             dialogDisplayer.display("Falha ao realizar cadastro", e)
