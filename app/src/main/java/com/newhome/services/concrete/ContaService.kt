@@ -19,6 +19,11 @@ class ContaService(
         return contaProvider.getContaID()
     }
 
+    override suspend fun enviarEmailConfirmacao(): Deferred<Unit> =
+        CoroutineScope(Dispatchers.IO).async {
+            contaProvider.enviarEmailConfirmacao().await()
+        }
+
     override suspend fun cadastrar(novaConta: NovaConta): Deferred<Unit> =
         CoroutineScope(Dispatchers.IO).async {
             val credenciais = Credenciais(novaConta.email, novaConta.senha)
@@ -28,15 +33,30 @@ class ContaService(
 
             val usuario = NovoUsuario(uid, novaConta.nome, "", novaConta.idade)
             usuarioProvider.criarUsuario(usuario).await()
+
+            try {
+                contaProvider.enviarEmailConfirmacao().await()
+            } catch (_: Exception) {
+            }
         }
 
     override suspend fun logar(credenciais: Credenciais): Deferred<Unit> =
         CoroutineScope(Dispatchers.IO).async {
             contaProvider.logar(credenciais).await()
+
+            if (!contaProvider.emailConfirmacaoVerificado()) {
+                val enviarEmailTask = contaProvider.enviarEmailConfirmacao()
+                val sairTask = contaProvider.sair()
+
+                enviarEmailTask.await()
+                sairTask.await() // TODO fix check email without logging in
+
+                throw Exception("Email não foi verificado. Por favor, verifique o email enviado antes de logar.")
+            }
         }
 
     override fun tentarUsarContaLogada() {
-        if (contaProvider.getContaID() == null) throw Exception("User not signed in.")
+        if (contaProvider.getContaID() == null) throw Exception("Usuário não está logado.")
     }
 
     override suspend fun sair(): Deferred<Unit> =

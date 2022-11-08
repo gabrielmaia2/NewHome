@@ -13,6 +13,15 @@ class FirebaseContaProvider(private val context: Context) : IContaProvider {
         return FirebaseAuth.getInstance().currentUser?.uid
     }
 
+    override suspend fun enviarEmailConfirmacao(): Deferred<Unit> =
+        CoroutineScope(Dispatchers.IO).async {
+            FirebaseAuth.getInstance().currentUser!!.sendEmailVerification().await()
+        }
+
+    override fun emailConfirmacaoVerificado(): Boolean {
+        return FirebaseAuth.getInstance().currentUser!!.isEmailVerified
+    }
+
     override suspend fun criarConta(credenciais: Credenciais): Deferred<Unit> =
         CoroutineScope(Dispatchers.IO).async {
             FirebaseAuth.getInstance()
