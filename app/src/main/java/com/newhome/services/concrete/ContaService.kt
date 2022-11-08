@@ -26,6 +26,16 @@ class ContaService(
 
     override suspend fun cadastrar(novaConta: NovaConta): Deferred<Unit> =
         CoroutineScope(Dispatchers.IO).async {
+            if (novaConta.nome.length < 4 || novaConta.nome.length > 128) {
+                throw Exception("Nome deve ter entre 4 e 128 caracteres.")
+            }
+            if (novaConta.idade < 18 || novaConta.idade > 80) {
+                throw Exception("Idade deve estar entre 18 e 80.")
+            }
+            if (novaConta.senha.length < 8 || novaConta.senha.length > 64) {
+                throw Exception("Senha deve ter entre 8 e 64 caracteres.")
+            }
+
             val credenciais = Credenciais(novaConta.email, novaConta.senha)
             contaProvider.criarConta(credenciais).await()
 
