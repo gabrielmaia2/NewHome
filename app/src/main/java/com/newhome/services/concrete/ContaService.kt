@@ -45,8 +45,13 @@ class ContaService(
             contaProvider.logar(credenciais).await()
 
             if (!contaProvider.emailConfirmacaoVerificado()) {
-                contaProvider.sair().await() // TODO fix check email without logging in
-                throw Exception("Email não foi verificado. Por favor, verifique o email antes de logar.")
+                val enviarEmailTask = contaProvider.enviarEmailConfirmacao()
+                val sairTask = contaProvider.sair()
+
+                enviarEmailTask.await()
+                sairTask.await() // TODO fix check email without logging in
+
+                throw Exception("Email não foi verificado. Por favor, verifique o email enviado antes de logar.")
             }
         }
 
