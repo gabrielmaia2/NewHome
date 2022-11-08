@@ -78,6 +78,13 @@ class AnimalService(private val animalProvider: IAnimalProvider, private val usu
 
     override suspend fun adicionarAnimal(animal: Animal): Deferred<String> =
         CoroutineScope(Dispatchers.IO).async {
+            if (animal.nome.isEmpty() || animal.nome.length > 64) {
+                throw Exception("Nome deve ter entre 1 e 64 caracteres.")
+            }
+            if (animal.detalhes.length < 8 || animal.detalhes.length > 512) {
+                throw Exception("Descrição deve ter entre 8 e 512 caracteres.")
+            }
+
             return@async animalProvider.adicionarAnimal(animal).await()
         }
 
