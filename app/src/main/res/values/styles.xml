@@ -1,6 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="NewHomeDark" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">#00FF00</item>
+    <style name="NewHomeDark.Button" parent="@android:style/Widget.Button">
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:textColor">@color/colorText1</item>
+        <item name="android:shadowColor">#FF000000</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">-1</item>
+        <item name="android:shadowRadius">0.2</item>
+        <item name="android:textSize">16dip</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingTop">15dp</item>
+        <item name="android:paddingBottom">15dp</item>
+        <item name="android:paddingLeft">15dp</item>
+        <item name="android:paddingRight">15dp</item>
+        <item name="android:background">@drawable/button</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
     </style>
+    <style name="NewHomeDark.ButtonCancel" parent="NewHomeDark.Button">
+        <item name="android:background">@drawable/button_cancel</item>
+    </style>
+    <style name="NewHomeDark.ButtonSubmit" parent="NewHomeDark.Button">
+        <item name="android:background">@drawable/button_submit</item>
+    </style>
+    <style name="NewHomeDark" parent="Theme.AppCompat">
+        <item name="android:colorPrimary">@color/colorPrimary</item>
+        <item name="android:actionBarStyle">@style/NewHomeDark.ActionBar</item>
+        <item name="android:background">@color/windowBackground</item>
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorText1</item>
+        <item name="android:textColorSecondary">@color/colorText2</item>
+        <item name="android:textColorHint">@color/colorText3</item>
+    </style>
+    <style name="NewHomeDark.ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
+    <color name="colorPrimary">#18191C</color>
+    <color name="colorPrimaryDark">#121315</color>
+    <color name="windowBackground">#25262B</color>
+    <color name="colorAccent">#424554</color>
+
+    <color name="colorText1">#FFFFFF</color>
+    <color name="colorText2">#C0FFFFFF</color>
+    <color name="colorText3">#A0FFFFFF</color>
+    <color name="colorTitleBar">#18191C</color>
+    <color name="colorBackground">#25262B</color>
+
+    <color name="colorButton">#424554</color>
+    <color name="colorButtonPressed">#2F323C</color>
+    <color name="colorButtonDisabled">#3E3E3E</color>
+    <color name="colorButtonSubmit">#223CBC</color>
+    <color name="colorButtonSubmitPressed">#182B88</color>
+    <color name="colorButtonCancel">#E93131</color>
+    <color name="colorButtonCancelPressed">#A62424</color>
 </resources>

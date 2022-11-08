@@ -13,25 +13,23 @@
 
         <Button
             android:id="@+id/verDetalhesBuscaButton"
+            style="@style/NewHomeDark.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="20dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:text="VER HORÁRIOS E DETALHES"
+            android:text="@string/verMapa"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/verMapaAnimalButton"
             app:layout_constraintTop_toBottomOf="@+id/verMapaAnimalButton" />
 
         <Button
             android:id="@+id/verMapaAnimalButton"
+            style="@style/NewHomeDark.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:text="VER LOCAL MAPA"
+            android:text="@string/verDetalhesBuscarAnimal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/imagemDono" />
 
@@ -95,14 +93,13 @@
 
         <Button
             android:id="@+id/cancelarAdocaoButton"
+            style="@style/NewHomeDark.ButtonCancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:text="Cancelar solicitação"
+            android:layout_marginBottom="20dp"
+            android:text="@string/cancelarSolicitacao"
             app:layout_constraintBottom_toTopOf="@+id/solicitacarAdocaoButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -110,33 +107,30 @@
 
         <Button
             android:id="@+id/animalBuscadoButton"
+            style="@style/NewHomeDark.ButtonSubmit"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="80dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="20dp"
             android:layout_weight="1.0"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:text="ANIMAL BUSCADO"
+            android:text="@string/marcarAnimalBuscado"
             app:layout_constraintBottom_toTopOf="@+id/cancelarAdocaoButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/verDetalhesBuscaButton"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintTop_toBottomOf="@+id/verDetalhesBuscaButton" />
 
         <Button
             android:id="@+id/solicitacarAdocaoButton"
+            style="@style/NewHomeDark.ButtonSubmit"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:text="SOLICITAR ADOÇÃO"
+            android:layout_marginBottom="30dp"
+            android:text="@string/solicitarAdocao"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"

@@ -54,48 +54,40 @@
 
         <Button
             android:id="@+id/verMapaAnimalDonoButton"
+            style="@style/NewHomeDark.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
             android:layout_weight="1.0"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
             android:text="Ver mapa"
-            app:layout_constraintBottom_toTopOf="@+id/solicitacoesDonoButton"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/descricaoAnimalDonoText"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/descricaoAnimalDonoText" />
 
         <Button
             android:id="@+id/solicitacoesDonoButton"
+            style="@style/NewHomeDark.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
+            android:layout_marginTop="80dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
-            android:paddingLeft="16dp"
-            android:paddingTop="10dp"
-            android:paddingRight="16dp"
-            android:paddingBottom="10dp"
+            android:layout_marginBottom="20dp"
             android:text="Ver solicitações"
             app:layout_constraintBottom_toTopOf="@+id/removerAnimaDonolButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/verMapaAnimalDonoButton" />
 
         <Button
             android:id="@+id/removerAnimaDonolButton"
+            style="@style/NewHomeDark.ButtonCancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:paddingLeft="16dp"
-            android:paddingTop="10dp"
-            android:paddingRight="16dp"
-            android:paddingBottom="10dp"
+            android:layout_marginBottom="30dp"
             android:text="Remover animal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

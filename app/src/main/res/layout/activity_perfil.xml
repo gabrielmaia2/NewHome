@@ -56,15 +56,14 @@
 
         <Button
             android:id="@+id/animaisAdotadosButton"
+            style="@style/NewHomeDark.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="80dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="20dp"
             android:layout_weight="1.0"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
             android:text="@string/botaoAnimaisAdotados"
             app:layout_constraintBottom_toTopOf="@+id/animaisPostosAdocaoButton"
             app:layout_constraintEnd_toEndOf="parent"
@@ -75,13 +74,12 @@
 
         <Button
             android:id="@+id/animaisPostosAdocaoButton"
+            style="@style/NewHomeDark.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
+            android:layout_marginBottom="20dp"
             android:text="@string/botaoAnimaisPostosAdocao"
             app:layout_constraintBottom_toTopOf="@+id/sairPerfilButton"
             app:layout_constraintEnd_toEndOf="parent"
@@ -90,11 +88,12 @@
 
         <Button
             android:id="@+id/sairPerfilButton"
+            style="@style/NewHomeDark.ButtonCancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="30dp"
             android:text="Sair da conta"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
