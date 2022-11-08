@@ -7,6 +7,8 @@ import kotlinx.coroutines.Deferred
 interface IContaService {
     fun getContaID(): String?
 
+    suspend fun enviarEmailConfirmacao(): Deferred<Unit>
+
     suspend fun cadastrar(novaConta: NovaConta): Deferred<Unit>
 
     suspend fun logar(credenciais: Credenciais): Deferred<Unit>
