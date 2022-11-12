@@ -85,8 +85,4 @@ class FirebaseImageProvider(private val context: Context) : IImageProvider {
             }
             return@async imagem
         }
-
-    companion object {
-        lateinit var instance: FirebaseImageProvider
-    }
 }

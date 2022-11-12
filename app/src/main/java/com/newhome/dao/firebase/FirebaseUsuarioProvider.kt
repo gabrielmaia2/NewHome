@@ -1,9 +1,11 @@
 package com.newhome.dao.firebase
 
 import android.graphics.Bitmap
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.newhome.dao.IImageProvider
 import com.newhome.dao.IUsuarioProvider
 import com.newhome.dto.NovoUsuario
 import com.newhome.dto.Usuario
@@ -14,12 +16,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.tasks.await
 
-class FirebaseUsuarioProvider : IUsuarioProvider {
-    private val db = Firebase.firestore
-
+class FirebaseUsuarioProvider(
+    private val db: FirebaseFirestore,
+    private val imageProvider: IImageProvider
+) : IUsuarioProvider {
     override suspend fun getImagemUsuario(id: String): Deferred<Bitmap> =
         CoroutineScope(Dispatchers.IO).async {
-            return@async FirebaseImageProvider.instance.getImageOrDefault("usuarios/${id}").await()
+            return@async imageProvider.getImageOrDefault("usuarios/${id}").await()
         }
 
     override suspend fun getUsuario(id: String): Deferred<UsuarioData> =
@@ -56,7 +59,8 @@ class FirebaseUsuarioProvider : IUsuarioProvider {
             )
 
             db.collection("usuarios").document(usuario.id).set(docData, SetOptions.merge()).await()
-            FirebaseImageProvider.instance.saveImage("usuarios/${usuario.id}", usuario.imagem).await()
+            imageProvider.saveImage("usuarios/${usuario.id}", usuario.imagem)
+                .await()
         }
 
     override suspend fun deleteUsuario(id: String): Deferred<Unit> =

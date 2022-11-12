@@ -1,6 +1,8 @@
 package com.newhome
 
 import android.app.Application
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.newhome.dao.firebase.*
 import com.newhome.services.IAnimalService
 import com.newhome.services.IContaService
@@ -16,11 +18,11 @@ class NewHomeApplication : Application() {
         super.onCreate()
         val context = applicationContext
 
-        FirebaseImageProvider.instance = FirebaseImageProvider(context)
+        val imageProvider = FirebaseImageProvider(context)
 
         val contaProvider = FirebaseContaProvider(context)
-        val usuarioProvider = FirebaseUsuarioProvider()
-        val animalProvider = FirebaseAnimalProvider()
+        val usuarioProvider = FirebaseUsuarioProvider(Firebase.firestore, imageProvider)
+        val animalProvider = FirebaseAnimalProvider(imageProvider)
         val solicitacaoProvider = FirebaseSolicitacaoProvider()
 
         contaService = ContaService(usuarioProvider, contaProvider)

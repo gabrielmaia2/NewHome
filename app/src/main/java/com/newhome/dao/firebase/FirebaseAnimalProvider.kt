@@ -7,6 +7,7 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.newhome.dao.IAnimalProvider
+import com.newhome.dao.IImageProvider
 import com.newhome.dto.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -14,12 +15,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.tasks.await
 
-class FirebaseAnimalProvider : IAnimalProvider {
+class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnimalProvider {
     private val db = Firebase.firestore
 
     override suspend fun getImagemAnimal(id: String): Deferred<Bitmap> =
         CoroutineScope(Dispatchers.IO).async {
-            return@async FirebaseImageProvider.instance.getImageOrDefault("animais/${id}").await()
+            return@async imageProvider.getImageOrDefault("animais/${id}").await()
         }
 
     override suspend fun getTodosAnimais(): Deferred<List<AnimalData>> =
@@ -223,7 +224,7 @@ class FirebaseAnimalProvider : IAnimalProvider {
                 animalRef
             }.await()
 
-            FirebaseImageProvider.instance.saveImage("animais/${docRef.id}", animal.imagem).await()
+            imageProvider.saveImage("animais/${docRef.id}", animal.imagem).await()
 
             return@async docRef.id
         }
@@ -236,7 +237,7 @@ class FirebaseAnimalProvider : IAnimalProvider {
             )
 
             db.collection("animais").document(animal.id).set(docData, SetOptions.merge()).await()
-            FirebaseImageProvider.instance.saveImage("animais/${animal.id}", animal.imagem).await()
+            imageProvider.saveImage("animais/${animal.id}", animal.imagem).await()
         }
 
     override suspend fun removerAnimal(id: String): Deferred<Unit> =
@@ -244,7 +245,7 @@ class FirebaseAnimalProvider : IAnimalProvider {
             val animalRef = db.collection("animais").document(id)
             val usuariosRef = db.collection("usuarios")
 
-            FirebaseImageProvider.instance.removeImage("animais/${id}").await()
+            imageProvider.removeImage("animais/${id}").await()
 
             db.runTransaction { transaction ->
                 val animalData = transaction.get(animalRef)
