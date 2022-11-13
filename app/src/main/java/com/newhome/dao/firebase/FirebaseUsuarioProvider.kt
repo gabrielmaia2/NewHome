@@ -51,8 +51,6 @@ class FirebaseUsuarioProvider(
             )
 
             db.collection("usuarios").document(usuario.id).set(docData, SetOptions.merge()).await()
-            imageProvider.saveImage("usuarios/${usuario.id}", usuario.imagem)
-                .await()
         }
 
     override suspend fun deleteUser(id: String): Deferred<Unit> =
@@ -63,5 +61,10 @@ class FirebaseUsuarioProvider(
     override suspend fun getUserImage(id: String): Deferred<Bitmap> =
         CoroutineScope(Dispatchers.Main).async {
             return@async imageProvider.getImageOrDefault("usuarios/${id}").await()
+        }
+
+    override suspend fun setUserImage(id: String, image: Bitmap?): Deferred<Unit> =
+        CoroutineScope(Dispatchers.Main).async {
+            return@async imageProvider.saveImage("usuarios/${id}", image).await()
         }
 }

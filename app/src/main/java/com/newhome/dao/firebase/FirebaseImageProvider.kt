@@ -74,6 +74,7 @@ class FirebaseImageProvider(private val context: Context) : IImageProvider {
                 }
             }
             cache.remove(path)
+            return@async
         }
 
     override suspend fun getImageOrDefault(path: String): Deferred<Bitmap> =

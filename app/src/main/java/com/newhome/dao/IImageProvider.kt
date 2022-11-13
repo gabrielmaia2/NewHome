@@ -10,7 +10,7 @@ interface IImageProvider {
 
     suspend fun getImage(path: String): Deferred<Bitmap>
 
-    suspend fun removeImage(path: String): Deferred<ByteArray?>
+    suspend fun removeImage(path: String): Deferred<Unit>
 
     suspend fun getImageOrDefault(path: String): Deferred<Bitmap>
 }
