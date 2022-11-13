@@ -7,13 +7,13 @@ import com.newhome.dto.Usuario
 import com.newhome.dto.UsuarioData
 
 interface IUsuarioProvider {
-    suspend fun getImagemUsuario(id: String): Deferred<Bitmap>
+    suspend fun getUser(id: String): Deferred<UsuarioData>
 
-    suspend fun getUsuario(id: String): Deferred<UsuarioData>
+    suspend fun createUser(usuario: NovoUsuario): Deferred<Unit>
 
-    suspend fun criarUsuario(usuario: NovoUsuario): Deferred<Unit>
+    suspend fun updateUser(usuario: UsuarioData): Deferred<Unit>
 
-    suspend fun editarUsuario(usuario: Usuario): Deferred<Unit>
+    suspend fun deleteUser(id: String): Deferred<Unit>
 
-    suspend fun deleteUsuario(id: String): Deferred<Unit>
+    suspend fun getUserImage(id: String): Deferred<Bitmap>
 }

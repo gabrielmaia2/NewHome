@@ -20,12 +20,12 @@ class ContaService(
     }
 
     override suspend fun enviarEmailConfirmacao(): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             contaProvider.enviarEmailConfirmacao().await()
         }
 
     override suspend fun cadastrar(novaConta: NovaConta): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             if (novaConta.nome.length < 4 || novaConta.nome.length > 128) {
                 throw Exception("Nome deve ter entre 4 e 128 caracteres.")
             }
@@ -42,7 +42,7 @@ class ContaService(
             val uid = contaProvider.getContaID()!!
 
             val usuario = NovoUsuario(uid, novaConta.nome, "", novaConta.idade)
-            usuarioProvider.criarUsuario(usuario).await()
+            usuarioProvider.createUser(usuario).await()
 
             try {
                 contaProvider.enviarEmailConfirmacao().await()
@@ -51,7 +51,7 @@ class ContaService(
         }
 
     override suspend fun logar(credenciais: Credenciais): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             contaProvider.logar(credenciais).await()
 
             if (!contaProvider.emailConfirmacaoVerificado()) {
@@ -70,14 +70,14 @@ class ContaService(
     }
 
     override suspend fun sair(): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             contaProvider.sair().await()
         }
 
     override suspend fun excluirConta(): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             // TODO implementar
-            usuarioProvider.deleteUsuario(contaProvider.getContaID()!!).await()
+            usuarioProvider.deleteUser(contaProvider.getContaID()!!).await()
             contaProvider.excluirConta().await()
         }
 }

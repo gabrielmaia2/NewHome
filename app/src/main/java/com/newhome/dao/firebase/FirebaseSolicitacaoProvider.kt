@@ -16,7 +16,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
     private val db = Firebase.firestore
 
     override suspend fun getTodasSolicitacoes(): Deferred<List<SolicitacaoPreviewData>> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
         val usuario = FirebaseAuth.getInstance().currentUser!!
 
         val usuariosRef = db.collection("usuarios")
@@ -59,7 +59,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
     }
 
     override suspend fun getTodasSolicitacoesAnimal(animalId: String): Deferred<List<SolicitacaoPreviewData>> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val usuariosRef = db.collection("usuarios")
             val animaisRef = db.collection("animais")
 
@@ -95,7 +95,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
     }
 
     override suspend fun getSolicitacao(solicitacaoId: SolicitacaoID): Deferred<SolicitacaoData> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val solicitadorRef = db.collection("usuarios").document(solicitacaoId.solicitadorID)
             val animalRef = db.collection("animais").document(solicitacaoId.animalID)
 
@@ -128,7 +128,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
     }
 
     override suspend fun getStatusSolicitacao(animalId : String): Deferred<StatusSolicitacao> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             // TODO corrigir esse status tem que ser so pro id do solicitador
             val animalRef = db.collection("animais").document(animalId)
 
@@ -148,7 +148,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
     }
 
     override suspend fun solicitarAnimal(animalId: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val usuario = FirebaseAuth.getInstance().currentUser!!
 
             val solicitadorRef = db.collection("usuarios").document(usuario.uid)
@@ -189,7 +189,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
         solicitacaoId: SolicitacaoID,
         detalhesAdocao: String
     ): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val usuariosRef = db.collection("usuarios")
             val solicitadorRef = usuariosRef.document(solicitacaoId.solicitadorID)
             val animalRef = db.collection("animais").document(solicitacaoId.animalID)
@@ -227,7 +227,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
     }
 
     override suspend fun rejeitarSolicitacao(solicitacaoId: SolicitacaoID): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val usuariosRef = db.collection("usuarios")
             val solicitadorRef = usuariosRef.document(solicitacaoId.solicitadorID)
             val animalRef = db.collection("animais").document(solicitacaoId.animalID)
@@ -251,7 +251,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
     }
 
     override suspend fun cancelarSolicitacao(animalId: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val usuariosRef = db.collection("usuarios")
             val animalRef = db.collection("animais").document(animalId)
 
@@ -276,7 +276,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
     }
 
     override suspend fun cancelarSolicitacaoAceita(animalId: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val usuariosRef = db.collection("usuarios")
             val animalRef = db.collection("animais").document(animalId)
 

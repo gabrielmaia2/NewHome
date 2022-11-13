@@ -29,7 +29,7 @@ class FirebaseImageProvider(private val context: Context) : IImageProvider {
     }
 
     override suspend fun saveImage(path: String, bitmap: Bitmap?) =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             if (bitmap == null) {
                 return@async
             }
@@ -46,7 +46,7 @@ class FirebaseImageProvider(private val context: Context) : IImageProvider {
         }
 
     override suspend fun getImage(path: String): Deferred<Bitmap> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
 //            val cached = cache[path]
 //            if (cached != null) {
 //                return@async BitmapFactory.decodeByteArray(cached, 0, cached.size)
@@ -63,7 +63,7 @@ class FirebaseImageProvider(private val context: Context) : IImageProvider {
         }
 
     override suspend fun removeImage(path: String) =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val imgRef = storageRef.child("$path.jpg")
 
             try {
@@ -77,7 +77,7 @@ class FirebaseImageProvider(private val context: Context) : IImageProvider {
         }
 
     override suspend fun getImageOrDefault(path: String): Deferred<Bitmap> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val imagem = try {
                 getImage(path).await()
             } catch (e: Exception) {

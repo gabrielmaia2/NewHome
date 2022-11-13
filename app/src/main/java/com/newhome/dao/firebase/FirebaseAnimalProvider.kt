@@ -19,12 +19,12 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
     private val db = Firebase.firestore
 
     override suspend fun getImagemAnimal(id: String): Deferred<Bitmap> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             return@async imageProvider.getImageOrDefault("animais/${id}").await()
         }
 
     override suspend fun getTodosAnimais(): Deferred<List<AnimalData>> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val docs = db.collection("animais").get().await()
 
             val animais = ArrayList<AnimalData>()
@@ -41,7 +41,7 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
         }
 
     override suspend fun getAnimaisPostosAdocao(donoId: String): Deferred<List<AnimalData>> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val docRef = db.collection("usuarios").document(donoId)
             val animaisRef = db.collection("animais")
 
@@ -71,7 +71,7 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
         }
 
     override suspend fun getAnimaisAdotados(adotadorId: String): Deferred<List<AnimalData>> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val docRef = db.collection("usuarios").document(adotadorId)
             val animaisRef = db.collection("animais")
 
@@ -101,7 +101,7 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
         }
 
     override suspend fun getAnimaisSolicitados(solicitadorId: String): Deferred<List<AnimalData>> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val docRef = db.collection("usuarios").document(solicitadorId)
             val animaisRef = db.collection("animais")
 
@@ -131,7 +131,7 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
         }
 
     override suspend fun getDonoInicial(animalId: String): Deferred<UsuarioData> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val docRef = db.collection("animais").document(animalId)
             val usuariosRef = db.collection("usuarios")
 
@@ -155,7 +155,7 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
         }
 
     override suspend fun getAdotador(animalId: String): Deferred<UsuarioData?> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val docRef = db.collection("animais").document(animalId)
             val usuariosRef = db.collection("usuarios")
 
@@ -183,7 +183,7 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
         }
 
     override suspend fun getAnimal(id: String): Deferred<AnimalData> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val doc = db.collection("animais").document(id)
                 .get()
                 .await()
@@ -196,7 +196,7 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
         }
 
     override suspend fun adicionarAnimal(animal: Animal): Deferred<String> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val usuario = FirebaseAuth.getInstance().currentUser!!
 
             val animalRef = db.collection("animais").document()
@@ -230,7 +230,7 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
         }
 
     override suspend fun editarAnimal(animal: Animal): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val docData = hashMapOf(
                 "nome" to animal.nome,
                 "detalhes" to animal.detalhes,
@@ -241,7 +241,7 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
         }
 
     override suspend fun removerAnimal(id: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val animalRef = db.collection("animais").document(id)
             val usuariosRef = db.collection("usuarios")
 
@@ -305,7 +305,7 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
         }
 
     override suspend fun animalBuscado(id: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val animalRef = db.collection("animais").document(id)
             val usuariosRef = db.collection("usuarios")
 
@@ -350,7 +350,7 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
         }
 
     override suspend fun animalEnviado(id: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val animalRef = db.collection("animais").document(id)
             val usuariosRef = db.collection("usuarios")
 

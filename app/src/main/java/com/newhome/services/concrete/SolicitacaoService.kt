@@ -16,32 +16,32 @@ class SolicitacaoService(
     private val animalProvider: IAnimalProvider
 ) : ISolicitacaoService {
     override suspend fun getTodasSolicitacoes(): Deferred<List<SolicitacaoPreviewAsync>> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             solicitacaoProvider.getTodasSolicitacoes().await().map { s ->
                 SolicitacaoPreviewAsync(
                     s.id,
                     s.titulo,
                     s.descricao,
-                    usuarioProvider.getImagemUsuario(s.id!!.solicitadorID)
+                    usuarioProvider.getUserImage(s.id!!.solicitadorID)
                 )
             }
         }
 
     override suspend fun getTodasSolicitacoesAnimal(animalId: String): Deferred<List<SolicitacaoPreviewAsync>> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             solicitacaoProvider.getTodasSolicitacoesAnimal(animalId).await().map { s ->
                 SolicitacaoPreviewAsync(
                     s.id,
                     s.titulo,
                     s.descricao,
-                    usuarioProvider.getImagemUsuario(s.id!!.solicitadorID)
+                    usuarioProvider.getUserImage(s.id!!.solicitadorID)
                 )
             }
         }
 
     override suspend fun getSolicitacao(solicitacaoId: SolicitacaoID): Deferred<SolicitacaoAsync> =
-        CoroutineScope(Dispatchers.IO).async {
-            val solicitadorTask = usuarioProvider.getImagemUsuario(solicitacaoId.solicitadorID)
+        CoroutineScope(Dispatchers.Main).async {
+            val solicitadorTask = usuarioProvider.getUserImage(solicitacaoId.solicitadorID)
             val animalTask = animalProvider.getImagemAnimal(solicitacaoId.animalID)
             val s = solicitacaoProvider.getSolicitacao(solicitacaoId).await()
 
@@ -53,12 +53,12 @@ class SolicitacaoService(
         }
 
     override suspend fun getStatusSolicitacao(animalId: String): Deferred<StatusSolicitacao> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             solicitacaoProvider.getStatusSolicitacao(animalId).await()
         }
 
     override suspend fun solicitarAnimal(animalId: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             solicitacaoProvider.solicitarAnimal(animalId).await()
         }
 
@@ -66,22 +66,22 @@ class SolicitacaoService(
         solicitacaoId: SolicitacaoID,
         detalhesAdocao: String
     ): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             solicitacaoProvider.aceitarSolicitacao(solicitacaoId, detalhesAdocao).await()
         }
 
     override suspend fun rejeitarSolicitacao(solicitacaoId: SolicitacaoID): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             solicitacaoProvider.rejeitarSolicitacao(solicitacaoId).await()
         }
 
     override suspend fun cancelarSolicitacao(animalId: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             solicitacaoProvider.cancelarSolicitacao(animalId).await()
         }
 
     override suspend fun cancelarSolicitacaoAceita(animalId: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             solicitacaoProvider.cancelarSolicitacaoAceita(animalId).await()
         }
 }

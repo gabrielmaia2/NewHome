@@ -14,7 +14,7 @@ class FirebaseContaProvider(private val context: Context) : IContaProvider {
     }
 
     override suspend fun enviarEmailConfirmacao(): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             FirebaseAuth.getInstance().currentUser!!.sendEmailVerification().await()
         }
 
@@ -23,25 +23,25 @@ class FirebaseContaProvider(private val context: Context) : IContaProvider {
     }
 
     override suspend fun criarConta(credenciais: Credenciais): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             FirebaseAuth.getInstance()
                 .createUserWithEmailAndPassword(credenciais.email, credenciais.senha)
                 .await()
         }
 
     override suspend fun logar(credenciais: Credenciais): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             FirebaseAuth.getInstance()
                 .signInWithEmailAndPassword(credenciais.email, credenciais.senha).await()
         }
 
     override suspend fun sair(): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             AuthUI.getInstance().signOut(context).await()
         }
 
     override suspend fun excluirConta(): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             AuthUI.getInstance().delete(context).await()
         }
 }

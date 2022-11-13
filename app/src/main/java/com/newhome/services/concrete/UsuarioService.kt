@@ -2,9 +2,11 @@ package com.newhome.services.concrete
 
 import android.graphics.Bitmap
 import com.newhome.dao.IContaProvider
+import com.newhome.dao.IImageProvider
 import com.newhome.dao.IUsuarioProvider
 import com.newhome.dto.Usuario
 import com.newhome.dto.UsuarioAsync
+import com.newhome.dto.UsuarioData
 import com.newhome.services.IUsuarioService
 import kotlinx.coroutines.*
 
@@ -17,29 +19,29 @@ class UsuarioService(
     override fun getUsuarioAtual(): Usuario = usuario.copy()
 
     override suspend fun getImagemUsuario(id: String): Deferred<Bitmap> =
-        CoroutineScope(Dispatchers.IO).async {
-            return@async usuarioProvider.getImagemUsuario(id).await()
+        CoroutineScope(Dispatchers.Main).async {
+            return@async usuarioProvider.getUserImage(id).await()
         }
 
     override suspend fun getUsuarioSemImagem(id: String): Deferred<UsuarioAsync> =
-        CoroutineScope(Dispatchers.IO).async {
-            val usuario = usuarioProvider.getUsuario(id).await()
+        CoroutineScope(Dispatchers.Main).async {
+            val usuario = usuarioProvider.getUser(id).await()
             return@async UsuarioAsync(usuario.id, usuario.nome, usuario.detalhes)
         }
 
     override suspend fun getUsuario(id: String): Deferred<UsuarioAsync> =
-        CoroutineScope(Dispatchers.IO).async {
-            val imageTask = usuarioProvider.getImagemUsuario(id)
-            val usuario = usuarioProvider.getUsuario(id).await()
+        CoroutineScope(Dispatchers.Main).async {
+            val imageTask = usuarioProvider.getUserImage(id)
+            val usuario = usuarioProvider.getUser(id).await()
             return@async UsuarioAsync(usuario.id, usuario.nome, usuario.detalhes, imageTask)
         }
 
     override suspend fun carregarUsuarioAtual(): Deferred<Usuario> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             val uid = contaProvider.getContaID()!!
 
-            val imageTask = usuarioProvider.getImagemUsuario(uid)
-            val u = usuarioProvider.getUsuario(uid).await()
+            val imageTask = usuarioProvider.getUserImage(uid)
+            val u = usuarioProvider.getUser(uid).await()
 
             usuario = Usuario.fromData(u)
             usuario.imagem = imageTask.await()
@@ -48,10 +50,15 @@ class UsuarioService(
         }
 
     override suspend fun editarUsuarioAtual(usuario: Usuario): Deferred<Unit> =
-        CoroutineScope(Dispatchers.IO).async {
+        CoroutineScope(Dispatchers.Main).async {
             if (usuario.id != this@UsuarioService.usuario.id) {
                 throw Exception("Não pode editar outro perfil, apenas o seu próprio perfil")
             }
-            usuarioProvider.editarUsuario(usuario).await()
+            val updateUserTask =
+                usuarioProvider.updateUser(UsuarioData(usuario.id, usuario.nome, usuario.detalhes))
+            val updateImageTask = usuarioProvider.setUserImage(usuario.id, usuario.imagem)
+
+            updateUserTask.await()
+            updateImageTask.await()
         }
 }
