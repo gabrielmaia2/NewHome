@@ -18,3 +18,4 @@ app/google-services.json
 
 *.apk
 *.aab
+output-metadata.json
