@@ -16,17 +16,22 @@ class UsuarioService(
 ) : IUsuarioService {
     private lateinit var usuario: Usuario
 
-    override fun getUsuarioAtual(): Usuario = usuario.copy()
+    override fun getUsuarioAtual(): Usuario {
+        try {
+            return usuario.copy()
+        } catch (e: UninitializedPropertyAccessException) {
+            throw Exception("User not signed in.")
+        }
+    }
 
     override suspend fun getImagemUsuario(id: String): Deferred<Bitmap> =
         CoroutineScope(Dispatchers.Main).async {
             return@async usuarioProvider.getUserImage(id).await()
         }
 
-    override suspend fun getUsuarioSemImagem(id: String): Deferred<UsuarioAsync> =
+    override suspend fun getUsuarioSemImagem(id: String): Deferred<UsuarioData> =
         CoroutineScope(Dispatchers.Main).async {
-            val usuario = usuarioProvider.getUser(id).await()
-            return@async UsuarioAsync(usuario.id, usuario.nome, usuario.detalhes)
+            return@async usuarioProvider.getUser(id).await()
         }
 
     override suspend fun getUsuario(id: String): Deferred<UsuarioAsync> =
@@ -38,13 +43,10 @@ class UsuarioService(
 
     override suspend fun carregarUsuarioAtual(): Deferred<Usuario> =
         CoroutineScope(Dispatchers.Main).async {
-            val uid = contaProvider.getContaID()!!
+            val uid = contaProvider.getContaID() ?: throw Exception("User not signed in.")
 
-            val imageTask = usuarioProvider.getUserImage(uid)
-            val u = usuarioProvider.getUser(uid).await()
-
+            val u = getUsuario(uid).await()
             usuario = Usuario.fromData(u)
-            usuario.imagem = imageTask.await()
 
             return@async usuario
         }
@@ -52,7 +54,7 @@ class UsuarioService(
     override suspend fun editarUsuarioAtual(usuario: Usuario): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
             if (usuario.id != this@UsuarioService.usuario.id) {
-                throw Exception("Não pode editar outro perfil, apenas o seu próprio perfil")
+                throw Exception("A user can only edit its own profile.")
             }
             val updateUserTask =
                 usuarioProvider.updateUser(UsuarioData(usuario.id, usuario.nome, usuario.detalhes))

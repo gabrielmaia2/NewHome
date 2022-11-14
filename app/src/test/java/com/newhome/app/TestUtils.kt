@@ -2,10 +2,30 @@ package com.newhome.app
 
 import android.app.Activity
 import com.google.android.gms.tasks.*
+import com.google.firebase.inject.Deferred
+import org.junit.Assert
 import java.util.concurrent.Executor
 
-class TaskUtils {
+class TestUtils {
     companion object {
+        inline fun <reified E> assertThrowsAsync(message: String, testFunc: () -> Unit) : E {
+            lateinit var ex: Throwable
+
+            var exceptionThrown = false
+            try {
+                testFunc()
+            } catch (e: Throwable) {
+                ex = e
+                exceptionThrown = e is E
+            }
+
+            Assert.assertTrue(message, exceptionThrown)
+            return ex as E
+        }
+
+        inline fun <reified E> assertThrowsAsync(testFunc: () -> Unit) : E =
+            assertThrowsAsync("Exception was not thrown", testFunc)
+
         fun <T> createSuccessTask(result: T): Task<T> {
             val task = object : Task<T>() {
                 lateinit var task: Task<T>
@@ -74,7 +94,7 @@ class TaskUtils {
             return task
         }
 
-        fun createVoidSuccessTask(): Task<Void> = TaskUtils2.createVoidTask()
+        fun createVoidSuccessTask(): Task<Void> = TestUtils2.createVoidTask()
 
         inline fun <T, reified E : Exception> createFailureTask(exception: E): Task<T> {
             val task = object : Task<T>() {
