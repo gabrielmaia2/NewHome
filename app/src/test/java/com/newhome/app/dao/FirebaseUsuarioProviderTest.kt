@@ -43,7 +43,7 @@ class FirebaseUsuarioProviderTest {
 
             Dispatchers.setMain(StandardTestDispatcher())
 
-            val saveImageTask = CoroutineScope(Dispatchers.Main).async { println("aaa")}
+            val saveImageTask = CoroutineScope(Dispatchers.Main).async { }
             val removeImageTask = CoroutineScope(Dispatchers.Main).async { }
             val getImageTask = CoroutineScope(Dispatchers.Main).async { return@async defaultBitmap }
 
@@ -124,13 +124,7 @@ class FirebaseUsuarioProviderTest {
 
     @Test
     fun `verify get nonexistent user`() = runTest {
-        var exceptionThrown = false
-        try {
-            provider.getUser("nonexistentid").await()
-        } catch (e: Exception) {
-            exceptionThrown = true
-        }
-        assertTrue("Exception was not thrown", exceptionThrown)
+        TestUtils.assertThrowsAsync<Exception> { provider.getUser("nonexistentid").await() }
     }
 
     @Test
@@ -165,13 +159,7 @@ class FirebaseUsuarioProviderTest {
             "username",
             "details"
         )
-        var exceptionThrown = false
-        try {
-            provider.updateUser(user).await()
-        } catch (e: Exception) {
-            exceptionThrown = true
-        }
-        assertTrue("Exception was not thrown", exceptionThrown)
+        TestUtils.assertThrowsAsync<Exception> { provider.updateUser(user).await() }
     }
 
     @Test
@@ -185,6 +173,7 @@ class FirebaseUsuarioProviderTest {
     }
 
     @Test
+    @Suppress("DeferredResultUnused")
     fun `verify get user image`() = runTest {
         val image = provider.getUserImage("userid").await()
         coVerify(exactly = 1) { imageProvider.getImageOrDefault("usuarios/userid") }
@@ -192,6 +181,7 @@ class FirebaseUsuarioProviderTest {
     }
 
     @Test
+    @Suppress("DeferredResultUnused")
     fun `verify set user image`() = runTest {
         provider.setUserImage("userid", defaultBitmap).await()
         coVerify(exactly = 1) { imageProvider.saveImage("usuarios/userid", defaultBitmap) }

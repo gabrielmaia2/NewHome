@@ -8,6 +8,24 @@ import java.util.concurrent.Executor
 
 class TestUtils {
     companion object {
+        inline fun <reified E> assertThrowsAsync(message: String, testFunc: () -> Unit) : E {
+            lateinit var ex: Throwable
+
+            var exceptionThrown = false
+            try {
+                testFunc()
+            } catch (e: Throwable) {
+                ex = e
+                exceptionThrown = e is E
+            }
+
+            Assert.assertTrue(message, exceptionThrown)
+            return ex as E
+        }
+
+        inline fun <reified E> assertThrowsAsync(testFunc: () -> Unit) : E =
+            assertThrowsAsync("Exception was not thrown", testFunc)
+
         fun <T> createSuccessTask(result: T): Task<T> {
             val task = object : Task<T>() {
                 lateinit var task: Task<T>
