@@ -7,7 +7,7 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.newhome.app.TaskUtils
+import com.newhome.app.TestUtils
 import com.newhome.app.dao.firebase.FirebaseUsuarioProvider
 import com.newhome.app.dto.NovoUsuario
 import com.newhome.app.dto.UsuarioData
@@ -81,16 +81,16 @@ class FirebaseUsuarioProviderTest {
                 else anyDoc
             }
 
-            coEvery { userDoc.get() } returns TaskUtils.createSuccessTask(userSnap)
-            coEvery { anyDoc.get() } returns TaskUtils.createFailureTask(Exception())
-            coEvery { userDoc.set(any()) } returns TaskUtils.createVoidSuccessTask()
+            coEvery { userDoc.get() } returns TestUtils.createSuccessTask(userSnap)
+            coEvery { anyDoc.get() } returns TestUtils.createFailureTask(Exception())
+            coEvery { userDoc.set(any()) } returns TestUtils.createVoidSuccessTask()
             coEvery {
                 userDoc.set(
                     any(),
                     SetOptions.merge()
                 )
-            } returns TaskUtils.createVoidSuccessTask()
-            coEvery { anyDoc.set(any(), SetOptions.merge()) } returns TaskUtils.createFailureTask(
+            } returns TestUtils.createVoidSuccessTask()
+            coEvery { anyDoc.set(any(), SetOptions.merge()) } returns TestUtils.createFailureTask(
                 Exception()
             )
         }

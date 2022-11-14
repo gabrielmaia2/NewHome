@@ -2,9 +2,11 @@ package com.newhome.app
 
 import android.app.Activity
 import com.google.android.gms.tasks.*
+import com.google.firebase.inject.Deferred
+import org.junit.Assert
 import java.util.concurrent.Executor
 
-class TaskUtils {
+class TestUtils {
     companion object {
         fun <T> createSuccessTask(result: T): Task<T> {
             val task = object : Task<T>() {
@@ -74,7 +76,7 @@ class TaskUtils {
             return task
         }
 
-        fun createVoidSuccessTask(): Task<Void> = TaskUtils2.createVoidTask()
+        fun createVoidSuccessTask(): Task<Void> = TestUtils2.createVoidTask()
 
         inline fun <T, reified E : Exception> createFailureTask(exception: E): Task<T> {
             val task = object : Task<T>() {
