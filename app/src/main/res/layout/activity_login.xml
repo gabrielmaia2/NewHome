@@ -66,6 +66,23 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
+        android:id="@+id/googleSignInButton"
+        style="@style/NewHomeDark.GoogleButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:text="Entrar com Google"
+        android:drawableLeft="@drawable/googleg_standard_color_18"
+        android:paddingLeft="90dp"
+        android:drawablePadding="-80dp"
+        app:layout_constraintBottom_toTopOf="@+id/cadastrarLoginButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
         android:id="@+id/fazerLoginLoginButton"
         style="@style/NewHomeDark.ButtonSubmit"
         android:layout_width="0dp"
@@ -74,7 +91,7 @@
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
         android:text="@string/logarButton"
-        app:layout_constraintBottom_toTopOf="@+id/cadastrarLoginButton"
+        app:layout_constraintBottom_toTopOf="@+id/googleSignInButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
