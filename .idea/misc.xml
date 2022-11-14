@@ -1,51 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DesignSurface">
-    <option name="filePathToZoomLevelMap">
-      <map>
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_animal.xml" value="0.15" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_animal_adotado.xml" value="0.17" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_animal_dono.xml" value="0.17" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_animal_dono_adotado.xml" value="0.18" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_create_account.xml" value="0.20416666666666666" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_criar_conta.xml" value="0.2" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_editar_animal.xml" value="0.21" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_editar_perfil.xml" value="0.16" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_get_location.xml" value="0.1361111111111111" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_lista_solicitacao.xml" value="0.16" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_listar_adotadores.xml" value="0.20416666666666666" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_listar_animais.xml" value="0.15" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_login.xml" value="0.25" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_main.xml" value="0.1" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_novo_animal.xml" value="0.18" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_perfil.xml" value="0.22" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_solicitacao.xml" value="0.18" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_solicitacao_adicionar_detalhes.xml" value="0.1361111111111111" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_solicitacao_detalhes.xml" value="0.1361111111111111" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_solicitacao_view_dono.xml" value="0.20416666666666666" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/activity_start.xml" value="0.20416666666666666" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/editbar.xml" value="0.1361111111111111" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/fragment_animal_preview.xml" value="0.22" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/fragment_solicitacao_preview.xml" value="0.33" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/popup_solicitacao_detalhes.xml" value="0.25" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/layout/popup_solicitacao_dono.xml" value="0.2" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/menu/editar_menu.xml" value="0.1361111111111111" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/menu/main_menu.xml" value="0.21" />
-        <entry key="..\:/Users/gabri/Desktop/Projects/NewHome/app/src/main/res/xml/file_paths.xml" value="0.1361111111111111" />
-      </map>
-    </option>
-  </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
-  </component>
-  <component name="VisualizationToolProject">
-    <option name="state">
-      <ProjectState>
-        <option name="scale" value="0.20416666666666666" />
-      </ProjectState>
-    </option>
   </component>
 </project>

@@ -28,7 +28,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/animalDetalhesSolicitacaoFragment"
-            android:name="com.newhome.fragments.AnimalPreviewFragment"
+            android:name="com.newhome.app.fragments.AnimalPreviewFragment"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
