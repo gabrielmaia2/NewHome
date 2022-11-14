@@ -1,6 +1,7 @@
 package com.newhome.app
 
 import android.app.Application
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.newhome.app.dao.firebase.*
 import com.newhome.app.services.IAnimalService

@@ -6,6 +6,7 @@ import com.newhome.app.dao.IContaProvider
 import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.Usuario
 import com.newhome.app.dto.UsuarioAsync
+import com.newhome.app.dto.UsuarioData
 import com.newhome.app.services.IUsuarioService
 import kotlinx.coroutines.*
 
