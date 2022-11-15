@@ -46,7 +46,7 @@ class SolicitacaoViewModel : ViewModel() {
     }
 
     suspend fun animalBuscado() {
-        NewHomeApplication.animalService.animalEnviado(solicitacaoState.value.animal!!.id).await()
+        NewHomeApplication.animalService.animalBuscado(solicitacaoState.value.animal!!.id).await()
     }
 
     suspend fun cancelarSolicitacao() {

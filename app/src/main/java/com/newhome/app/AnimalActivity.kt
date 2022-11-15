@@ -36,7 +36,6 @@ class AnimalActivity : AppCompatActivity() {
     private lateinit var verDetalhesBuscaButton: Button
     private lateinit var solicitacarAdocaoButton: Button
 
-    private lateinit var animalBuscadoButton: Button
     private lateinit var cancelarAdocaoButton: Button
 
     private val loadingDialog = LoadingDialog(this)
@@ -61,7 +60,6 @@ class AnimalActivity : AppCompatActivity() {
         verMapaAnimalButton = findViewById(R.id.verMapaAnimalButton)
         verDetalhesBuscaButton = findViewById(R.id.verDetalhesBuscaButton)
 
-        animalBuscadoButton = findViewById(R.id.animalBuscadoButton)
         cancelarAdocaoButton = findViewById(R.id.cancelarAdocaoButton)
         solicitacarAdocaoButton = findViewById(R.id.solicitacarAdocaoButton)
 
@@ -70,7 +68,6 @@ class AnimalActivity : AppCompatActivity() {
         imagemDono.setOnClickListener { onVerDono() }
         verMapaAnimalButton.setOnClickListener { onVerMapa() }
         verDetalhesBuscaButton.setOnClickListener { onVerDetalhes() }
-        animalBuscadoButton.setOnClickListener { lifecycleScope.launch { onAnimalBuscado() } }
         cancelarAdocaoButton.setOnClickListener { lifecycleScope.launch { onCancelarAdocao() } }
         solicitacarAdocaoButton.setOnClickListener { lifecycleScope.launch { onSolicitarAdocao() } }
 
@@ -175,28 +172,6 @@ class AnimalActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private suspend fun onAnimalBuscado() {
-        // busca animal e vai pra tela de animal adotado
-
-        dialog.start()
-
-        try {
-            viewModel.animalBuscado()
-        } catch (e: Exception) {
-            dialogDisplayer.display("Falha ao marcar animal como buscado", e)
-            dialog.stop()
-            return
-        }
-
-        val intent = Intent(applicationContext, AnimalAdotadoActivity::class.java)
-        intent.putExtra("id", viewModel.animalState.value.id)
-
-        startActivity(intent)
-        finish()
-        dialogDisplayer.display("Animal buscado")
-        dialog.stop()
-    }
-
     private suspend fun onCancelarAdocao() {
         // cancela adocao
 
@@ -228,7 +203,7 @@ class AnimalActivity : AppCompatActivity() {
             return
         }
 
-        dialogDisplayer.display("Animal buscado")
+        dialogDisplayer.display("Animal solicitado")
         finish()
         dialog.stop()
     }

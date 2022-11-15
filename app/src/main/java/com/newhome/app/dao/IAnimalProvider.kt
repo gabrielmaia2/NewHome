@@ -33,7 +33,4 @@ interface IAnimalProvider {
 
     // adotador busca animal
     suspend fun animalBuscado(id: String): Deferred<Unit>
-
-    // dono envia animal
-    suspend fun animalEnviado(id: String): Deferred<Unit>
 }

@@ -102,9 +102,4 @@ class AnimalService(private val animalProvider: IAnimalProvider, private val usu
         CoroutineScope(Dispatchers.Main).async {
             return@async animalProvider.animalBuscado(id).await()
         }
-
-    override suspend fun animalEnviado(id: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.Main).async {
-            return@async animalProvider.animalEnviado(id).await()
-        }
 }
