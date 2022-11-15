@@ -1,6 +1,8 @@
 package com.newhome.app
 
 import android.app.Application
+import com.firebase.ui.auth.AuthUI
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.newhome.app.dao.firebase.*
@@ -16,11 +18,14 @@ import com.newhome.app.services.concrete.UsuarioService
 class NewHomeApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+
         val context = applicationContext
+        val auth = FirebaseAuth.getInstance()
+        val authUI = AuthUI.getInstance()
 
         val imageProvider = FirebaseImageProvider(context)
 
-        val contaProvider = FirebaseContaProvider(context)
+        val contaProvider = FirebaseContaProvider(auth, authUI,context)
         val usuarioProvider = FirebaseUsuarioProvider(Firebase.firestore, imageProvider)
         val animalProvider = FirebaseAnimalProvider(imageProvider)
         val solicitacaoProvider = FirebaseSolicitacaoProvider()

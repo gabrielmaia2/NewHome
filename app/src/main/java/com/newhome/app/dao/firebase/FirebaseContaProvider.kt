@@ -10,46 +10,46 @@ import com.newhome.app.dto.Credenciais
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 
-class FirebaseContaProvider(private val context: Context) : IContaProvider {
+class FirebaseContaProvider(private val auth: FirebaseAuth, private val authUI: AuthUI, private val context: Context) :
+    IContaProvider {
     override fun getContaID(): String? {
-        return FirebaseAuth.getInstance().currentUser?.uid
+        return auth.currentUser?.uid
     }
 
     override suspend fun enviarEmailConfirmacao(): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
-            FirebaseAuth.getInstance().currentUser!!.sendEmailVerification().await()
+            val currentUser = auth.currentUser ?: throw Exception("User not signed in.")
+            currentUser.sendEmailVerification().await()
         }
 
     override fun emailConfirmacaoVerificado(): Boolean {
-        return FirebaseAuth.getInstance().currentUser!!.isEmailVerified
+        val currentUser = auth.currentUser ?: throw Exception("User not signed in.")
+        return currentUser.isEmailVerified
     }
 
     override suspend fun criarConta(credenciais: Credenciais): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
-            FirebaseAuth.getInstance()
-                .createUserWithEmailAndPassword(credenciais.email, credenciais.senha)
-                .await()
+            auth.createUserWithEmailAndPassword(credenciais.email, credenciais.senha).await()
         }
 
     override suspend fun logar(credenciais: Credenciais): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
-            FirebaseAuth.getInstance()
-                .signInWithEmailAndPassword(credenciais.email, credenciais.senha).await()
+            auth.signInWithEmailAndPassword(credenciais.email, credenciais.senha).await()
         }
 
     override suspend fun entrarComGoogle(account: GoogleSignInAccount): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
             val firebaseCredential = GoogleAuthProvider.getCredential(account.idToken, null)
-            FirebaseAuth.getInstance().signInWithCredential(firebaseCredential).await()
+            auth.signInWithCredential(firebaseCredential).await()
         }
 
     override suspend fun sair(): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
-            AuthUI.getInstance().signOut(context).await()
+            authUI.signOut(context).await()
         }
 
     override suspend fun excluirConta(): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
-            AuthUI.getInstance().delete(context).await()
+            authUI.delete(context).await()
         }
 }
