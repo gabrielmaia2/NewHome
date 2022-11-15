@@ -132,12 +132,12 @@ class LoginActivity : AppCompatActivity() {
         googleSignInLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode != RESULT_OK) {
-                    dialog.stop()
                     dialogDisplayer.display("Falha ao fazer login. Erro: ${result.resultCode}")
                     return@registerForActivityResult
                 }
 
                 lifecycleScope.launch {
+                    dialog.start()
                     val account = GoogleSignIn.getSignedInAccountFromIntent(result.data!!).await()
                     onSignedIn(account)
                 }
@@ -151,7 +151,6 @@ class LoginActivity : AppCompatActivity() {
 
     private fun onGoogleSignIn() {
         googleSignInLauncher.launch(googleSignInClient.signInIntent)
-        dialog.start()
     }
 
     private suspend fun onSignedIn(account: GoogleSignInAccount) {
