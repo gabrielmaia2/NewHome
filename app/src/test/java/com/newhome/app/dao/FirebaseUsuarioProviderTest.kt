@@ -56,7 +56,7 @@ class FirebaseUsuarioProviderTest {
 
     @Test
     fun `verify get nonexistent user`() = runTest {
-        val e = TestUtils.assertThrowsAsync<Exception> {
+        val e = TestUtils.assertThrowsAsync<NoSuchElementException> {
             provider.getUser("nonexistentid").await()
         }
         assertEquals(e.message, "Couldn't find user with specified ID.")
@@ -94,7 +94,7 @@ class FirebaseUsuarioProviderTest {
             "username",
             "details"
         )
-        val e = TestUtils.assertThrowsAsync<Exception> { provider.updateUser(user).await() }
+        val e = TestUtils.assertThrowsAsync<NoSuchElementException> { provider.updateUser(user).await() }
         assertEquals(e.message, "Couldn't find user with specified ID.")
     }
 
@@ -119,7 +119,7 @@ class FirebaseUsuarioProviderTest {
     @Test
     @Suppress("DeferredResultUnused")
     fun `verify get nonexistent user image`() = runTest {
-        val e = TestUtils.assertThrowsAsync<Exception> {
+        val e = TestUtils.assertThrowsAsync<NoSuchElementException> {
             provider.getUserImage("nonexistentid").await()
         }
         assertEquals(e.message, "Couldn't find user with specified ID.")
@@ -135,7 +135,7 @@ class FirebaseUsuarioProviderTest {
     @Test
     @Suppress("DeferredResultUnused")
     fun `verify set nonexistent user image`() = runTest {
-        val e = TestUtils.assertThrowsAsync<Exception> {
+        val e = TestUtils.assertThrowsAsync<NoSuchElementException> {
             provider.setUserImage("nonexistentid", defaultBitmap).await()
         }
         assertEquals(e.message, "Couldn't find user with specified ID.")

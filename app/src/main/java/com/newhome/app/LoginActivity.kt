@@ -8,17 +8,21 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.GoogleAuthProvider
 import com.newhome.app.R
 import com.newhome.app.dto.Credenciais
 import com.newhome.app.utils.DialogDisplayer
 import com.newhome.app.utils.LoadingDialog
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 
 class LoginActivity : AppCompatActivity() {
@@ -84,13 +88,17 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        // clear task ta dizendo que esse intent é pra limpar as outras task
-        // new task usa a atual como a raiz
+        afterLogin()
+    }
 
+    private suspend fun afterLogin() {
         try {
             NewHomeApplication.usuarioService.carregarUsuarioAtual().await()
         } catch (e: Exception) {
             dialogDisplayer.display("Falha ao carregar usuário", e)
+
+            // clear task ta dizendo que esse intent é pra limpar as outras task
+            // new task usa a atual como a raiz
 
             val intent = Intent(applicationContext, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
@@ -123,34 +131,45 @@ class LoginActivity : AppCompatActivity() {
 
         googleSignInLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                //if (result.resultCode != RESULT_OK) return@registerForActivityResult
+                if (result.resultCode != RESULT_OK) {
+                    dialog.stop()
+                    dialogDisplayer.display("Falha ao fazer login. Erro: ${result.resultCode}")
+                    return@registerForActivityResult
+                }
 
-                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-                handleSignInResult(task)
+                lifecycleScope.launch {
+                    val account = GoogleSignIn.getSignedInAccountFromIntent(result.data!!).await()
+                    onSignedIn(account)
+                }
             }
     }
 
     private fun checkGoogleSignedIn() {
         val account = GoogleSignIn.getLastSignedInAccount(this)
-        if (account != null) onSignedIn(account)
+        if (account != null) lifecycleScope.launch { onSignedIn(account) }
     }
 
     private fun onGoogleSignIn() {
         googleSignInLauncher.launch(googleSignInClient.signInIntent)
+        dialog.start()
     }
 
-    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
+    private suspend fun onSignedIn(account: GoogleSignInAccount) {
         try {
-            val account = completedTask.getResult(ApiException::class.java)
-            onSignedIn(account)
-        } catch (e: ApiException) {
-            e.printStackTrace()
+            NewHomeApplication.contaService.entrarComGoogle(account).await()
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            try {
+                NewHomeApplication.contaService.sair().await()
+            } catch (_: Exception) {
+            }
+            dialog.stop()
+            return
+        } catch (e: Exception) {
             dialogDisplayer.display("Falha ao fazer login", e)
+            dialog.stop()
+            return
         }
-    }
 
-    private fun onSignedIn(account: GoogleSignInAccount) {
-        // TODO ja ta logado
-        dialogDisplayer.display("Logado com sucesso ${account.email}")
+        afterLogin()
     }
 }

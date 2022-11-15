@@ -1,15 +1,15 @@
 package com.newhome.app.services.concrete
 
+import android.graphics.BitmapFactory
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.newhome.app.dao.IContaProvider
 import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.Credenciais
 import com.newhome.app.dto.NovaConta
 import com.newhome.app.dto.NovoUsuario
 import com.newhome.app.services.IContaService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
+import java.net.URL
 
 class ContaService(
     private val usuarioProvider: IUsuarioProvider,
@@ -62,6 +62,23 @@ class ContaService(
                 sairTask.await() // TODO fix check email without logging in
 
                 throw Exception("Email não foi verificado. Por favor, verifique o email enviado antes de logar.")
+            }
+        }
+
+    override suspend fun entrarComGoogle(account: GoogleSignInAccount): Deferred<Unit> =
+        CoroutineScope(Dispatchers.Main).async {
+            contaProvider.entrarComGoogle(account).await()
+            val uid = contaProvider.getContaID()!!
+            try {
+                usuarioProvider.getUser(uid).await()
+            } catch (e: NoSuchElementException) {
+                val usuario = NovoUsuario(uid, account.displayName!!, "", 0)
+                usuarioProvider.createUser(usuario).await()
+                val url = URL(account.photoUrl.toString())
+                withContext(Dispatchers.IO) {
+                    val image = BitmapFactory.decodeStream(url.openStream())
+                    usuarioProvider.setUserImage(uid, image).await()
+                }
             }
         }
 
