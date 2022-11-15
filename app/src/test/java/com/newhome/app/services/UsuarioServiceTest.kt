@@ -91,7 +91,6 @@ class UsuarioServiceTest {
     }
 
     @Test
-    @Suppress("DeferredResultUnused")
     fun `verify update current user wrong id`() = runTest {
         service.carregarUsuarioAtual().await()
         val e = TestUtils.assertThrowsAsync<Exception> {

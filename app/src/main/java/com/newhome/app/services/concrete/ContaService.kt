@@ -1,15 +1,15 @@
 package com.newhome.app.services.concrete
 
+import android.graphics.BitmapFactory
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.newhome.app.dao.IContaProvider
 import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.Credenciais
 import com.newhome.app.dto.NovaConta
 import com.newhome.app.dto.NovoUsuario
 import com.newhome.app.services.IContaService
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
+import java.net.URL
 
 class ContaService(
     private val usuarioProvider: IUsuarioProvider,
@@ -61,12 +61,31 @@ class ContaService(
                 enviarEmailTask.await()
                 sairTask.await() // TODO fix check email without logging in
 
-                throw Exception("Email não foi verificado. Por favor, verifique o email enviado antes de logar.")
+                throw Exception("Email not verified. Please, verify your email address before signing in.")
+            }
+        }
+
+    override suspend fun entrarComGoogle(account: GoogleSignInAccount): Deferred<Unit> =
+        CoroutineScope(Dispatchers.Main).async {
+            contaProvider.entrarComGoogle(account).await()
+            val uid = contaProvider.getContaID()!!
+            try {
+                usuarioProvider.getUser(uid).await()
+            } catch (e: NoSuchElementException) {
+                val usuario = NovoUsuario(uid, account.displayName!!, "", 0)
+                usuarioProvider.createUser(usuario).await()
+
+                val photoUrl = account.photoUrl ?: return@async
+                val image = withContext(Dispatchers.IO) {
+                    val url = URL(photoUrl.toString())
+                    return@withContext BitmapFactory.decodeStream(url.openStream())
+                }
+                usuarioProvider.setUserImage(uid, image).await()
             }
         }
 
     override fun tentarUsarContaLogada() {
-        if (contaProvider.getContaID() == null) throw Exception("Usuário não está logado.")
+        if (contaProvider.getContaID() == null) throw Exception("User not signed in.")
     }
 
     override suspend fun sair(): Deferred<Unit> =

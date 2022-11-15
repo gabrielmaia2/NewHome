@@ -1,5 +1,6 @@
 package com.newhome.app.dao
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.newhome.app.dto.Credenciais
 import kotlinx.coroutines.Deferred
 
@@ -13,6 +14,8 @@ interface IContaProvider {
     suspend fun criarConta(credenciais: Credenciais): Deferred<Unit>
 
     suspend fun logar(credenciais: Credenciais) : Deferred<Unit>
+
+    suspend fun entrarComGoogle(account: GoogleSignInAccount): Deferred<Unit>
 
     suspend fun sair() : Deferred<Unit>
 
