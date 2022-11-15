@@ -107,7 +107,7 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
-        dialogDisplayer.display("Logado com sucesso")
+        dialogDisplayer.display("Logado com sucesso.")
 
         val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
@@ -132,7 +132,7 @@ class LoginActivity : AppCompatActivity() {
         googleSignInLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode != RESULT_OK) {
-                    dialogDisplayer.display("Falha ao fazer login. Erro: ${result.resultCode}")
+                    dialogDisplayer.display("Falha ao fazer login. Erro: ${result.resultCode}.")
                     return@registerForActivityResult
                 }
 

@@ -70,7 +70,7 @@ class CriarContaActivity : AppCompatActivity() {
             return
         }
 
-        dialogDisplayer.display("Cadastro realizado com sucesso")
+        dialogDisplayer.display("Cadastro realizado com sucesso, verifique o email de confirmação.")
 
         val intent = Intent(applicationContext, LoginActivity::class.java)
         startActivity(intent)
