@@ -117,7 +117,6 @@ class FirebaseUsuarioProviderTest {
     }
 
     @Test
-    @Suppress("DeferredResultUnused")
     fun `verify get nonexistent user image`() = runTest {
         val e = TestUtils.assertThrowsAsync<NoSuchElementException> {
             provider.getUserImage("nonexistentid").await()
@@ -133,7 +132,6 @@ class FirebaseUsuarioProviderTest {
     }
 
     @Test
-    @Suppress("DeferredResultUnused")
     fun `verify set nonexistent user image`() = runTest {
         val e = TestUtils.assertThrowsAsync<NoSuchElementException> {
             provider.setUserImage("nonexistentid", defaultBitmap).await()

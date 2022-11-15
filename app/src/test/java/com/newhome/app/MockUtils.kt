@@ -171,11 +171,12 @@ class MockUtils {
             coEvery { provider.criarConta(any()) } returns emptyTask
             coEvery { provider.logar(capture(credenciaisCapture)) } answers {
                 if (
-                    credenciaisCapture.captured.email == "emailvalido@email.com" &&
-                    credenciaisCapture.captured.senha == "#SenhaValida1"
+                    credenciaisCapture.captured.email == "emailcorreto@example.com" &&
+                    credenciaisCapture.captured.senha == "#SenhaCorreta123"
                 ) emptyTask
                 else exceptionTask
             }
+            coEvery { provider.entrarComGoogle(any()) } returns emptyTask
             coEvery { provider.sair() } returns emptyTask
             coEvery { provider.excluirConta() } returns emptyTask
 

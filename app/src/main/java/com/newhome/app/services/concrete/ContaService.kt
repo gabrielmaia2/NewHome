@@ -61,7 +61,7 @@ class ContaService(
                 enviarEmailTask.await()
                 sairTask.await() // TODO fix check email without logging in
 
-                throw Exception("Email não foi verificado. Por favor, verifique o email enviado antes de logar.")
+                throw Exception("Email not verified. Please, verify your email address before signing in.")
             }
         }
 
@@ -74,16 +74,18 @@ class ContaService(
             } catch (e: NoSuchElementException) {
                 val usuario = NovoUsuario(uid, account.displayName!!, "", 0)
                 usuarioProvider.createUser(usuario).await()
-                val url = URL(account.photoUrl.toString())
-                withContext(Dispatchers.IO) {
-                    val image = BitmapFactory.decodeStream(url.openStream())
-                    usuarioProvider.setUserImage(uid, image).await()
+
+                val photoUrl = account.photoUrl ?: return@async
+                val image = withContext(Dispatchers.IO) {
+                    val url = URL(photoUrl.toString())
+                    return@withContext BitmapFactory.decodeStream(url.openStream())
                 }
+                usuarioProvider.setUserImage(uid, image).await()
             }
         }
 
     override fun tentarUsarContaLogada() {
-        if (contaProvider.getContaID() == null) throw Exception("Usuário não está logado.")
+        if (contaProvider.getContaID() == null) throw Exception("User not signed in.")
     }
 
     override suspend fun sair(): Deferred<Unit> =
