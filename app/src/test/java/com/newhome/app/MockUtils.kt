@@ -1,12 +1,17 @@
 package com.newhome.app
 
 import android.graphics.Bitmap
+import com.firebase.ui.auth.AuthUI
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.AuthResult
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.newhome.app.dao.FirebaseUsuarioProviderTest
 import com.newhome.app.dao.IContaProvider
 import com.newhome.app.dao.IImageProvider
 import com.newhome.app.dao.IUsuarioProvider
@@ -34,6 +39,49 @@ class MockUtils {
             getImageTask = CoroutineScope(Dispatchers.Main).async { defaultBitmap }
             emptyTask = CoroutineScope(Dispatchers.Main).async { }
             exceptionTask = CoroutineScope(Dispatchers.Main).async { throw Exception() }
+        }
+
+        fun mockAuthUI(): AuthUI {
+            val authUI = mockk<AuthUI>()
+
+            coEvery { authUI.signOut(any()) } returns TestUtils.createVoidSuccessTask()
+            coEvery { authUI.delete(any()) } returns TestUtils.createVoidSuccessTask()
+
+            return authUI
+        }
+
+        fun mockFirebaseAuth(): FirebaseAuth {
+            val auth = mockk<FirebaseAuth>()
+
+            val credential = mockk<AuthCredential>()
+            mockkStatic(GoogleAuthProvider::getCredential)
+            every { GoogleAuthProvider.getCredential(any(), any()) } returns credential
+
+            val currentUser = mockk<FirebaseUser>()
+            coEvery { currentUser.uid } returns "currentuserid"
+            coEvery { currentUser.sendEmailVerification() } returns TestUtils.createVoidSuccessTask()
+            coEvery { currentUser.isEmailVerified } returns true
+
+            val emailCapture = slot<String>()
+            val senhaCapture = slot<String>()
+            coEvery { auth.currentUser } returns currentUser
+            coEvery {
+                auth.createUserWithEmailAndPassword(any(), any())
+            } returns TestUtils.createSuccessTask(mockk())
+            coEvery {
+                auth.signInWithEmailAndPassword(capture(emailCapture), capture(senhaCapture))
+            } answers {
+                if (
+                    emailCapture.captured == "emailcorreto@example.com" &&
+                    senhaCapture.captured == "#SenhaCorreta123"
+                ) TestUtils.createSuccessTask(mockk())
+                else TestUtils.createFailureTask(Exception())
+            }
+            coEvery {
+                auth.signInWithCredential(any())
+            } returns TestUtils.createSuccessTask(mockk())
+
+            return auth
         }
 
         fun mockFirestore(): FirebaseFirestore {
