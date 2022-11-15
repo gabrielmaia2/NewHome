@@ -6,4 +6,8 @@ data class UsuarioData(
     var id: String = "",
     var nome: String = "",
     var detalhes: String = ""
-) : Serializable
+) : Serializable {
+    companion object {
+        val empty = UsuarioData("0", "null", "null")
+    }
+}

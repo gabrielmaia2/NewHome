@@ -6,4 +6,8 @@ data class AnimalData(
     var id: String = "",
     var nome: String = "",
     var detalhes: String = ""
-) : Serializable
+) : Serializable {
+    companion object {
+        val empty = AnimalData("0", "null", "null")
+    }
+}
