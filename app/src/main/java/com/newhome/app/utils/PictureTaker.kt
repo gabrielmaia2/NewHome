@@ -36,7 +36,7 @@ class PictureTaker(
             photoFile = createImageFile()
             imageUri = FileProvider.getUriForFile(
                 activity,
-                "com.newhome.fileprovider",
+                "com.newhome.app.fileprovider",
                 photoFile!!
             )
             takePictureLauncher = createTakePictureLauncher()
