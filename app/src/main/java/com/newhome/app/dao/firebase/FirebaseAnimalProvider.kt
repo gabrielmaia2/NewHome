@@ -3,6 +3,7 @@ package com.newhome.app.dao.firebase
 import android.graphics.Bitmap
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -11,7 +12,6 @@ import com.newhome.app.dao.IImageProvider
 import com.newhome.app.dto.Animal
 import com.newhome.app.dto.AnimalData
 import com.newhome.app.dto.UsuarioData
-import com.newhome.app.dto.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -58,6 +58,8 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
                     val animalRef = animaisRef.document(id as String)
                     val animalData = transaction.get(animalRef)
 
+                    if (!animalData.exists()) continue
+
                     val animal = AnimalData(
                         animalData.id,
                         animalData.data!!["nome"] as String,
@@ -87,6 +89,8 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
                 for (id in idsAnimais) {
                     val animalRef = animaisRef.document(id as String)
                     val animalData = transaction.get(animalRef)
+
+                    if (!animalData.exists()) continue
 
                     val animal = AnimalData(
                         animalData.id,
@@ -118,6 +122,8 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
                     val animalRef = animaisRef.document(id as String)
                     val animalData = transaction.get(animalRef)
 
+                    if (!animalData.exists()) continue
+
                     val animal = AnimalData(
                         animalData.id,
                         animalData.data!!["nome"] as String,
@@ -144,6 +150,8 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
 
                 val donoRef = usuariosRef.document(donoId)
                 val donoData = transaction.get(donoRef)
+
+                if (!donoData.exists()) return@runTransaction UsuarioData.empty
 
                 val dono = UsuarioData(
                     donoData.id,
@@ -173,6 +181,8 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
                 val adotadorRef = usuariosRef.document(adotadorId)
                 val adotadorData = transaction.get(adotadorRef)
 
+                if (!adotadorData.exists()) return@runTransaction UsuarioData.empty
+
                 val dono = UsuarioData(
                     adotadorData.id,
                     adotadorData.data!!["nome"] as String,
@@ -190,6 +200,8 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
             val doc = db.collection("animais").document(id)
                 .get()
                 .await()
+
+            if (!doc.exists()) return@async AnimalData.empty
 
             return@async AnimalData(
                 doc.id,
@@ -253,6 +265,8 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
             db.runTransaction { transaction ->
                 val animalData = transaction.get(animalRef)
 
+                if (!animalData.exists()) throw Exception("Animal does not exist.")
+
                 val idDono = animalData.data!!["dono"] as String
                 val idAdotador = animalData.data!!["adotador"] as String
                 val idsSolicitadores = animalData.data!!["solicitadores"] as List<*>
@@ -261,16 +275,20 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
                 val donoRef = usuariosRef.document(idDono)
                 val donoData = transaction.get(donoRef)
 
-                val animaisDono = donoData.data!!["animais"] as List<*>
-                val novoAnimaisDono = animaisDono.filter { i -> i != id }
+                var novoAnimaisDono: List<*>? = null
+                if (donoData.exists()) {
+                    val animaisDono = donoData.data!!["animais"] as List<*>
+                    novoAnimaisDono = animaisDono.filter { i -> i != id }
+                }
 
                 // pega dados do adotador (se tiver)
                 var adotadorRef: DocumentReference? = null
                 var novoAdotadosAdotador: List<*>? = null
+                var adotadorData: DocumentSnapshot? = null
 
                 if (idAdotador != "") {
                     adotadorRef = usuariosRef.document(idAdotador)
-                    val adotadorData = transaction.get(adotadorRef)
+                    adotadorData = transaction.get(adotadorRef)
 
                     val adotadosAdotador = adotadorData.data!!["adotados"] as List<*>
                     novoAdotadosAdotador = adotadosAdotador.filter { i -> i != id }
@@ -283,6 +301,8 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
                     val solicitadorRef = usuariosRef.document(idSolicitador as String)
                     val solicitadorData = transaction.get(solicitadorRef)
 
+                    if (!solicitadorData.exists()) continue
+
                     val solicitados = solicitadorData.data!!["solicitados"] as List<*>
                     val novoSolicitados = solicitados.filter { i -> i != id }
 
@@ -290,9 +310,10 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
                     novoSolicitadosList.add(novoSolicitados)
                 }
 
-                transaction.update(donoRef, "animais", novoAnimaisDono)
+                if (donoData.exists())
+                    transaction.update(donoRef, "animais", novoAnimaisDono)
 
-                if (adotadorRef != null) {
+                if (adotadorRef != null && adotadorData!!.exists()) {
                     transaction.update(adotadorRef, "adotados", novoAdotadosAdotador)
                 }
 
@@ -315,10 +336,16 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
             val success = db.runTransaction { transaction ->
                 val animalData = transaction.get(animalRef)
 
+                if (!animalData.exists()) throw Exception("Animal does not exist.")
+
                 val buscando = animalData.data!!["buscando"] as Boolean
                 if (!buscando) {
                     return@runTransaction false
                 }
+
+                val idDono = animalData.data!!["dono"] as String
+                if (FirebaseAuth.getInstance().uid!! != idDono)
+                    throw Exception("You don't have permission for that.")
 
                 val idsSolicitadores = animalData.data!!["solicitadores"] as List<*>
                 val idSolicitador = idsSolicitadores[0]
@@ -326,57 +353,16 @@ class FirebaseAnimalProvider(private val imageProvider: IImageProvider) : IAnima
                 val solicitadorRef = usuariosRef.document(idSolicitador as String)
                 val solicitadorData = transaction.get(solicitadorRef)
 
-                val solicitados = solicitadorData.data!!["solicitados"] as List<*>
-                val novoSolicitados = solicitados.filter { i -> i != id }
+                var novoSolicitados: List<*>? = null
+                var novoAdotados: List<*>? = null
+                if (solicitadorData.exists()) {
+                    val solicitados = solicitadorData.data!!["solicitados"] as List<*>
+                    novoSolicitados = solicitados.filter { i -> i != id }
 
-                val adotados = solicitadorData.data!!["adotados"] as List<*>
-                val novoAdotados = ArrayList(adotados)
-                novoAdotados.add(id)
-
-                val novoAnimalData = hashMapOf(
-                    "adotador" to idSolicitador,
-                    "solicitadores" to ArrayList<String>(),
-                    "buscando" to false,
-                    "detalhesAdocao" to ""
-                )
-
-                transaction.update(animalRef, novoAnimalData as Map<String, Any>)
-                transaction.update(solicitadorRef, "solicitados", novoSolicitados)
-                transaction.update(solicitadorRef, "adotados", novoAdotados)
-
-                true
-            }.await()
-
-            if (!success) {
-                throw Exception("Não há solicitação aceita.")
-            }
-        }
-
-    override suspend fun animalEnviado(id: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.Main).async {
-            val animalRef = db.collection("animais").document(id)
-            val usuariosRef = db.collection("usuarios")
-
-            val success = db.runTransaction { transaction ->
-                val animalData = transaction.get(animalRef)
-
-                val buscando = animalData.data!!["buscando"] as Boolean
-                if (!buscando) {
-                    return@runTransaction false
+                    val adotados = solicitadorData.data!!["adotados"] as List<*>
+                    novoAdotados = ArrayList(adotados)
+                    novoAdotados.add(id)
                 }
-
-                val idsSolicitadores = animalData.data!!["solicitadores"] as List<*>
-                val idSolicitador = idsSolicitadores[0]
-
-                val solicitadorRef = usuariosRef.document(idSolicitador as String)
-                val solicitadorData = transaction.get(solicitadorRef)
-
-                val solicitados = solicitadorData.data!!["solicitados"] as List<*>
-                val novoSolicitados = solicitados.filter { i -> i != id }
-
-                val adotados = solicitadorData.data!!["adotados"] as List<*>
-                val novoAdotados = ArrayList(adotados)
-                novoAdotados.add(id)
 
                 val novoAnimalData = hashMapOf(
                     "adotador" to idSolicitador,

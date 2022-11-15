@@ -34,10 +34,14 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 val animalRef = animaisRef.document(idAnimal as String)
                 val animalData = transaction.get(animalRef)
 
+                if (!animalData.exists()) continue
+
                 val idsSolicitadores = animalData.data!!["solicitadores"] as List<*>
                 for (idSolicitador in idsSolicitadores) {
                     val solicitadorRef = usuariosRef.document(idSolicitador as String)
                     val solicitadorData = transaction.get(solicitadorRef)
+
+                    if (!solicitadorData.exists()) continue
 
                     val solicitacaoId = SolicitacaoID(
                         idAnimal,
@@ -70,10 +74,14 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 val animalRef = animaisRef.document(animalId)
                 val animalData = transaction.get(animalRef)
 
+                if (!animalData.exists()) throw Exception("Animal does not exist.")
+
                 val idsSolicitadores = animalData.data!!["solicitadores"] as List<*>
                 for (idSolicitador in idsSolicitadores) {
                     val solicitadorRef = usuariosRef.document(idSolicitador as String)
                     val solicitadorData = transaction.get(solicitadorRef)
+
+                    if (!solicitadorData.exists()) continue
 
                     val solicitacaoId = SolicitacaoID(
                         animalId,
@@ -103,6 +111,9 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
             val solicitacao = db.runTransaction { transaction ->
                 val animalData = transaction.get(animalRef)
                 val solicitadorData = transaction.get(solicitadorRef)
+
+                if (!animalData.exists()) throw Exception("Animal does not exist.")
+                if (!solicitadorData.exists()) throw Exception("User does not exist.")
 
                 val animal = AnimalData(
                     animalData.id,
@@ -136,6 +147,8 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
             val status = db.runTransaction { transaction ->
                 val animalData = transaction.get(animalRef)
 
+                if (!animalData.exists()) throw Exception("Animal does not exist.")
+
                 val status = StatusSolicitacao(
                     (animalData.data!!["solicitadores"] as List<*>).isNotEmpty(),
                     animalData.getBoolean("buscando")!!,
@@ -158,6 +171,8 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
             val success = db.runTransaction { transaction ->
                 val solicitadorData = transaction.get(solicitadorRef)
                 val animalData = transaction.get(animalRef)
+
+                if (!animalData.exists()) throw Exception("Animal does not exist.")
 
                 var podeSolicitar = !(animalData.getBoolean("buscando")!!)
                 podeSolicitar = podeSolicitar && animalData.getString("adotador")!! == ""
@@ -199,6 +214,9 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 val solicitadorData = transaction.get(solicitadorRef)
                 val animalData = transaction.get(animalRef)
 
+                if (!animalData.exists()) throw Exception("Animal does not exist.")
+                if (!solicitadorData.exists()) throw Exception("User does not exist.")
+
                 val idsSolicitadores = (animalData.data!!["solicitadores"] as List<*>)
                     .filter { i -> i != solicitadorData.id }
 
@@ -210,6 +228,8 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
 
                 for (solicitadorId in idsSolicitadores) {
                     val solicitador = transaction.get(usuariosRef.document(solicitadorId as String))
+                    if (!solicitador.exists()) continue
+
                     val newSolicitados = (solicitador.data!!["solicitados"] as List<*>)
                         .filter { i -> i != animalData.id }
 
@@ -237,6 +257,9 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 val solicitadorData = transaction.get(solicitadorRef)
                 val animalData = transaction.get(animalRef)
 
+                if (!animalData.exists()) throw Exception("Animal does not exist.")
+                if (!solicitadorData.exists()) throw Exception("User does not exist.")
+
                 val newSolicitadores = (animalData.data!!["solicitadores"] as List<*>)
                     .filter { i -> i != solicitadorData.id }
 
@@ -262,6 +285,9 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 val solicitadorRef = usuariosRef.document((animalData.data!!["solicitadores"] as List<*>)[0] as String)
                 val solicitadorData = transaction.get(solicitadorRef)
 
+                if (!animalData.exists()) throw Exception("Animal does not exist.")
+                if (!solicitadorData.exists()) throw Exception("User does not exist.")
+
                 val newSolicitadores = (animalData.data!!["solicitadores"] as List<*>)
                     .filter { i -> i != solicitadorData.id }
 
@@ -286,6 +312,9 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
 
                 val solicitadorRef = usuariosRef.document((animalData.data!!["solicitadores"] as List<*>)[0] as String)
                 val solicitadorData = transaction.get(solicitadorRef)
+
+                if (!animalData.exists()) throw Exception("Animal does not exist.")
+                if (!solicitadorData.exists()) throw Exception("User does not exist.")
 
                 val newSolicitadores = (animalData.data!!["solicitadores"] as List<*>)
                     .filter { i -> i != solicitadorData.id }

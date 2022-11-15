@@ -25,7 +25,7 @@ class FirebaseUsuarioProvider(
             val doc = db.collection("usuarios").document(id).get().await()
 
             val exists = doc.exists()
-            if (!exists) throw NoSuchElementException("Couldn't find user with specified ID.")
+            if (!exists) throw Exception("User does not exist.")
 
             return@async UsuarioData(
                 doc.id,
@@ -51,7 +51,7 @@ class FirebaseUsuarioProvider(
     override suspend fun updateUser(usuario: UsuarioData): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
             val exists = db.collection("usuarios").document(usuario.id).get().await().exists()
-            if (!exists) throw NoSuchElementException("Couldn't find user with specified ID.")
+            if (!exists) throw Exception("User does not exist.")
 
             // TODO editar idade
             val docData = hashMapOf(

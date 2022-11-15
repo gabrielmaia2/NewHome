@@ -23,9 +23,16 @@ class FirebaseImageProvider(private val context: Context) : IImageProvider {
     private val storage = Firebase.storage
     private val storageRef = storage.reference
 
+    private var bitmap: Bitmap? = null
+
     override fun getDefaultBitmap(): Bitmap {
+        var bmp = bitmap
+        if (bmp != null) return bmp
+
         val drawable = AppCompatResources.getDrawable(context, R.drawable.image_default)!!
-        return (drawable as BitmapDrawable).bitmap
+        bmp = (drawable as BitmapDrawable).bitmap
+        bitmap = bmp
+        return bmp
     }
 
     override suspend fun saveImage(path: String, bitmap: Bitmap?) =
