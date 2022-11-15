@@ -71,7 +71,6 @@ class AnimalActivity : AppCompatActivity() {
         cancelarAdocaoButton.setOnClickListener { lifecycleScope.launch { onCancelarAdocao() } }
         solicitacarAdocaoButton.setOnClickListener { lifecycleScope.launch { onSolicitarAdocao() } }
 
-        animalBuscadoButton.visibility = View.GONE
         cancelarAdocaoButton.visibility = View.GONE
         solicitacarAdocaoButton.visibility = View.GONE
         verDetalhesBuscaButton.visibility = View.GONE
@@ -137,15 +136,21 @@ class AnimalActivity : AppCompatActivity() {
 
         if (!status.solicitado) {
             solicitacarAdocaoButton.visibility = View.VISIBLE
+            cancelarAdocaoButton.visibility = View.GONE
+            verDetalhesBuscaButton.visibility = View.GONE
+            verMapaAnimalButton.visibility = View.GONE
             return
         }
 
+        solicitacarAdocaoButton.visibility = View.GONE
         cancelarAdocaoButton.visibility = View.VISIBLE
 
         if (status.solicitacaoAceita) {
-            animalBuscadoButton.visibility = View.VISIBLE
             verDetalhesBuscaButton.visibility = View.VISIBLE
             verMapaAnimalButton.visibility = View.VISIBLE
+        } else {
+            verDetalhesBuscaButton.visibility = View.GONE
+            verMapaAnimalButton.visibility = View.GONE
         }
     }
 

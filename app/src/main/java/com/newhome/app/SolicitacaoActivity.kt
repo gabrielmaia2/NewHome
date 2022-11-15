@@ -127,18 +127,24 @@ class SolicitacaoActivity : AppCompatActivity() {
     }
 
     private fun loadSolicitacao(solicitacao: Solicitacao) {
-        solicitacaoNomeText.text = solicitacao.solicitador!!.nome
-        solicitacaoPerfilDescricaoText.text = solicitacao.solicitador!!.detalhes
-        solicitacaoPerfilImage.setImageBitmap(solicitacao.solicitador!!.imagem)
+        solicitacaoNomeText.text = solicitacao.solicitador?.nome ?: ""
+        solicitacaoPerfilDescricaoText.text = solicitacao.solicitador?.detalhes ?: ""
+        solicitacaoPerfilImage.setImageBitmap(solicitacao.solicitador?.imagem)
 
-        animalDetalhesSolicitacaoFragment.carregarAnimal(solicitacao.animal!!)
+        if (solicitacao.animal != null)
+            animalDetalhesSolicitacaoFragment.carregarAnimal(solicitacao.animal!!)
     }
 
     private fun loadStatus(status: StatusSolicitacao) {
         if (status.solicitacaoAceita) {
             animalBuscadoButton.visibility = View.VISIBLE
             cancelarAdocaoButton.visibility = View.VISIBLE
+            aceitarSolicitacaoButton.visibility = View.GONE
+            rejeitarSolicitacaoButton.visibility = View.GONE
+            voltarButton.visibility = View.GONE
         } else {
+            animalBuscadoButton.visibility = View.GONE
+            cancelarAdocaoButton.visibility = View.GONE
             aceitarSolicitacaoButton.visibility = View.VISIBLE
             rejeitarSolicitacaoButton.visibility = View.VISIBLE
             voltarButton.visibility = View.VISIBLE
