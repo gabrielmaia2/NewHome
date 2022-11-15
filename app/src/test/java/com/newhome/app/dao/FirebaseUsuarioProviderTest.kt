@@ -56,10 +56,10 @@ class FirebaseUsuarioProviderTest {
 
     @Test
     fun `verify get nonexistent user`() = runTest {
-        val e = TestUtils.assertThrowsAsync<NoSuchElementException> {
+        val e = TestUtils.assertThrowsAsync<Exception> {
             provider.getUser("nonexistentid").await()
         }
-        assertEquals(e.message, "Couldn't find user with specified ID.")
+        assertEquals(e.message, "User does not exist.")
     }
 
     @Test
@@ -94,8 +94,8 @@ class FirebaseUsuarioProviderTest {
             "username",
             "details"
         )
-        val e = TestUtils.assertThrowsAsync<NoSuchElementException> { provider.updateUser(user).await() }
-        assertEquals(e.message, "Couldn't find user with specified ID.")
+        val e = TestUtils.assertThrowsAsync<Exception> { provider.updateUser(user).await() }
+        assertEquals(e.message, "User does not exist.")
     }
 
     @Test
