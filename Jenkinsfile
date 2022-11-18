@@ -71,7 +71,7 @@ pipeline {
       }
       steps {
         timeout(time: 4, unit: 'MINUTES') {
-          waitForQualityGate(abortPipeline: true, credentialsId: 'sonarqube-token', webhookSecretId: 'sonarqube-webhook-token', installationName: 'server-sonar')
+          waitForQualityGate(abortPipeline: true, credentialsId: 'sonarqube-token', webhookSecretId: 'sonarqube-webhook-token')
         }
       }
     }
