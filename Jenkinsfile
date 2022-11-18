@@ -59,9 +59,8 @@ pipeline {
         branch "main"
       }
       steps {
-        def scannerHome = tool 'qube-scanner';
-        withSonarQubeEnv(credentialsID: 'sonarqube-token') {
-          sh "${scannerHome}/bin/sonar-scanner"
+        withSonarQubeEnv(credentialsId: 'sonarqube-token') {
+          sh "${tool('qube-scanner')}/bin/sonar-scanner"
         }
       }
     }
@@ -72,7 +71,7 @@ pipeline {
       }
       steps {
         timeout(time: 4, unit: 'MINUTES') {
-          waitForQualityGate(abortPipeline: true, credentialsID: 'sonarqube-token', webhookSecretId: 'sonarqube-webhook-token')
+          waitForQualityGate(abortPipeline: true, credentialsId: 'sonarqube-token', webhookSecretId: 'sonarqube-webhook-token')
         }
       }
     }
