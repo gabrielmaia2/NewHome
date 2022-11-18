@@ -36,6 +36,7 @@ pipeline {
       steps {
         echo 'Building...'
         copyGoogleServicesSecret()
+        genericSh 'mvn clean install sonar:sonar'
         genericSh './gradlew assemble'
       }
     }
