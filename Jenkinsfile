@@ -55,13 +55,21 @@ pipeline {
     }
 
     stage('SonarQube Analysis') {
-      def scannerHome = tool 'qube-scanner';
-      withSonarQubeEnv(credentialsID: 'sonarqube-token') {
-        sh "${scannerHome}/bin/sonar-scanner"
+      when {
+        branch "main"
+      }
+      steps {
+        def scannerHome = tool 'qube-scanner';
+        withSonarQubeEnv(credentialsID: 'sonarqube-token') {
+          sh "${scannerHome}/bin/sonar-scanner"
+        }
       }
     }
     
     stage("Quality Gate") {
+      when {
+        branch "main"
+      }
       steps {
         timeout(time: 4, unit: 'MINUTES') {
           waitForQualityGate(abortPipeline: true, credentialsID: 'sonarqube-token', webhookSecretId: 'sonarqube-webhook-token')
