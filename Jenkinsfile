@@ -7,13 +7,22 @@ def genericSh(cmd) {
   }
 }
 
+def genericVariable(var) {
+  if (Boolean.valueOf(env.UNIX)) {
+    return '\$' + var
+  }
+  else {
+    return '%' + var + '%'
+  }
+}
+
 def copyGoogleServicesSecret() {
   withCredentials([file(credentialsId: 'google-services-json', variable: 'google-services-json')]) {
     if (Boolean.valueOf(env.UNIX)) {
-      genericSh "cp -f \$google-services-json ./app/google-services.json"
+      genericSh 'cp -f ' + genericVariable('google-services-json') + ' ./app/google-services.json'
     }
     else {
-      genericSh "copy /b/v/y \"%google-services-json%\" .\\app\\google-services.json"
+      genericSh 'copy /b/v/y "' + genericVariable('google-services-json') + '" .\\app\\google-services.json'
     }
   }
 }
@@ -29,8 +38,8 @@ pipeline {
     stage('Build') {
       when {
         anyOf {
-          branch "main"
-          branch "develop"
+          branch 'main'
+          branch 'develop'
         }
       }
       steps {
@@ -43,8 +52,8 @@ pipeline {
     stage('Test') {
       when {
         anyOf {
-          branch "main"
-          branch "develop"
+          branch 'main'
+          branch 'develop'
         }
       }
       steps {
@@ -56,14 +65,21 @@ pipeline {
 
     stage('SonarQube Analysis') {
       steps {
-        withSonarQubeEnv('server-sonar') {
-          sh "${tool('qube-scanner')}/bin/sonar-scanner"
+        echo 'Running SonarQube analysis...'
+        withSonarQubeEnv(installationName: 'server-sonar') {
+          withMaven() {
+            genericSh 'mvn clean package sonar:sonar'
+          }
+          withCredentials([string(credentialsId: 'sonarqube-token', variable: 'sonarqube-token')]) {
+            genericSh '${tool("qube-scanner")}/bin/sonar-scanner -Dsonar.login=' + genericVariable('sonarqube-token')
+          }
         }
       }
     }
     
-    stage("Quality Gate") {
+    stage('Quality Gate') {
       steps {
+        echo 'Waiting for quality gate...'
         timeout(time: 4, unit: 'MINUTES') {
           waitForQualityGate abortPipeline: true
         }
@@ -72,7 +88,7 @@ pipeline {
 
     stage('Deploy') {
       when {
-        branch "main"
+        branch 'main'
       }
       steps {
         echo 'Deploying...'
