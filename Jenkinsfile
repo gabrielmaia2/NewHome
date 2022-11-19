@@ -67,11 +67,12 @@ pipeline {
       steps {
         echo 'Running SonarQube analysis...'
         withSonarQubeEnv(installationName: 'server-sonar') {
+          echo tool("qube-scanner")
           withMaven() {
             genericSh 'mvn clean package sonar:sonar'
           }
           withCredentials([string(credentialsId: 'sonarqube-token', variable: 'sonarqube-token')]) {
-            genericSh '${tool("qube-scanner")}/bin/sonar-scanner -Dsonar.login=' + genericVariable('sonarqube-token')
+            genericSh(tool("qube-scanner") + '/bin/sonar-scanner -Dsonar.login=' + genericVariable('sonarqube-token'))
           }
         }
       }
