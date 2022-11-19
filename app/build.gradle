@@ -11,6 +11,8 @@ version = "0.1.0"
 android {
     compileSdk 33
 
+    namespace 'com.newhome.app'
+
     defaultConfig {
         applicationId "com.newhome.app"
         minSdk 21
@@ -34,7 +36,6 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    namespace 'com.newhome.app'
 }
 
 dependencies {
