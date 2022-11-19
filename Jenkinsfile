@@ -56,7 +56,7 @@ pipeline {
 
     stage('SonarQube Analysis') {
       steps {
-        withSonarQubeEnv(credentialsId: 'sonarqube-token', installationName: 'server-sonar') {
+        withSonarQubeEnv('server-sonar') {
           sh "${tool('qube-scanner')}/bin/sonar-scanner"
         }
       }
@@ -65,7 +65,7 @@ pipeline {
     stage("Quality Gate") {
       steps {
         timeout(time: 4, unit: 'MINUTES') {
-          waitForQualityGate(abortPipeline: true, credentialsId: 'sonarqube-token', webhookSecretId: 'sonarqube-webhook-token')
+          waitForQualityGate abortPipeline: true
         }
       }
     }
