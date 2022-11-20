@@ -160,6 +160,11 @@ pipeline {
       steps {
         echo 'Publishing release...'
         script {
+          // check if release already exists
+          boolean tagExists = genericSh("git tag -l \"${M_VERSION_NAME}\"")?.trim()
+          if (tagExists) {
+            error "Release already exists, aborting."
+          }
           // sign apk
           echo "Building and signing app..."
           withCredentials([
