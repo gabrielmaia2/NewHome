@@ -23,6 +23,10 @@
     <style name="NewHomeDark.ButtonSubmit" parent="NewHomeDark.Button">
         <item name="android:background">@drawable/button_submit</item>
     </style>
+    <style name="NewHomeDark.GoogleButton" parent="NewHomeDark.Button">
+        <item name="android:background">@drawable/button_google</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
     <style name="NewHomeDark" parent="Theme.AppCompat">
         <item name="android:colorPrimary">@color/colorPrimary</item>
         <item name="android:actionBarStyle">@style/NewHomeDark.ActionBar</item>

@@ -5,6 +5,7 @@
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
+/.idea/usage.statistics.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
@@ -15,3 +16,7 @@
 local.properties
 
 app/google-services.json
+
+*.apk
+*.aab
+output-metadata.json
