@@ -6,7 +6,10 @@ apply plugin: 'kotlin-android'
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
-version = "0.1.0"
+def myStoreFile = System.getenv('MY_STORE_FILE')
+def myStorePassword = System.getenv('MY_STORE_PASSWORD')
+def myKeyAlias = System.getenv('MY_KEY_ALIAS')
+def myKeyPassword = System.getenv('MY_KEY_PASSWORD')
 
 android {
     compileSdk 33
@@ -17,16 +20,31 @@ android {
         applicationId "com.newhome.app"
         minSdk 21
         targetSdk 33
-        versionCode 100 // 00 01 00
-        versionName "$version"
+        versionCode project.property('mVersionCode') as int
+        versionName project.property('mVersionName')
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            if (myStoreFile) {
+                storeFile rootProject.file(myStoreFile)
+                storePassword myStorePassword
+                keyAlias myKeyAlias
+                keyPassword myKeyPassword
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            if (myStoreFile && myStorePassword && myKeyAlias && myKeyPassword) {
+                signingConfig signingConfigs.release
+            }
         }
     }
     compileOptions {
