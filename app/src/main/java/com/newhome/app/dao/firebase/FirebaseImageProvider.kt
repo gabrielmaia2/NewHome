@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.ktx.storage
 import com.newhome.app.R
@@ -17,10 +18,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 
-class FirebaseImageProvider(private val context: Context) : IImageProvider {
+class FirebaseImageProvider(private val context: Context, storage: FirebaseStorage) : IImageProvider {
     private val cache: HashMap<String, ByteArray> = HashMap()
 
-    private val storage = Firebase.storage
     private val storageRef = storage.reference
 
     private var bitmap: Bitmap? = null
