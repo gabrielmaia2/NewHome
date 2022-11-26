@@ -61,9 +61,16 @@ class UsuarioServiceTest {
         coVerify(exactly = 1) { contaProvider.getContaID() }
         coVerify(exactly = 1) { usuarioProvider.getUser("currentuserid") }
         coVerify(exactly = 1) { usuarioProvider.getUserImage("currentuserid") }
+
+        // getUsuarioAtual() should always return a copy of the original object
         assertEquals("currentuserid", usuario.id)
         assertEquals(usuario, usuario2)
         assertNotSame(usuario, usuario2)
+
+        // carregarUsuarioAtual() should always return a copy of the original object
+        usuario.id = "changedid"
+        val usuario3 = service.getUsuarioAtual()
+        assertEquals("currentuserid", usuario3.id)
     }
 
     @Test
