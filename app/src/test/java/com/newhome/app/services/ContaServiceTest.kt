@@ -1,6 +1,9 @@
 package com.newhome.app.services
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.firebase.firestore.*
 import com.newhome.app.MockUtils
 import com.newhome.app.TestUtils
@@ -9,6 +12,7 @@ import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.Credenciais
 import com.newhome.app.dto.NovaConta
 import com.newhome.app.services.concrete.ContaService
+import com.newhome.app.utils.Utils
 import org.junit.Assert.*
 import io.mockk.*
 import kotlinx.coroutines.*
@@ -25,6 +29,8 @@ class ContaServiceTest {
         }
     }
 
+    private lateinit var nonDefaultBitmap: Bitmap
+
     private lateinit var usuarioProvider: IUsuarioProvider
     private lateinit var contaProvider: IContaProvider
 
@@ -32,6 +38,8 @@ class ContaServiceTest {
 
     @Before
     fun setup() {
+        nonDefaultBitmap = MockUtils.nonDefaultBitmap
+
         usuarioProvider = MockUtils.mockUsuarioProvider()
         contaProvider = MockUtils.mockContaProvider()
 
@@ -147,27 +155,30 @@ class ContaServiceTest {
     @Test
     @Suppress("DeferredResultUnused")
     fun `verify sign in with google first time`() = runTest {
-//        val usuarioProvider = MockUtils.mockUsuarioProvider()
-//        val service = ContaService(usuarioProvider, contaProvider)
-//
-//        val account = mockk<GoogleSignInAccount>()
-//        val photoUrl = mockk<Uri>()
-//        coEvery { account.displayName } returns "Nome Correto"
-//        coEvery { account.photoUrl } returns photoUrl
-//        coEvery { photoUrl.toString() } returns "https://www.example.com"
-//
-//        mockkStatic(Utils::class)
-//        every { Utils.uriToBitmap(photoUrl) } returns defaultBitmap
-//
-//        val exceptionTask = CoroutineScope(Dispatchers.Main).async {
-//            throw NoSuchElementException("Couldn't find user with specified ID.")
-//        }
-//        coEvery { usuarioProvider.getUser(any()) } returns exceptionTask
-//
-//        service.entrarComGoogle(account).await()
-//        coVerify(exactly = 1) { contaProvider.entrarComGoogle(any()) }
-//        coVerify(exactly = 1) { usuarioProvider.createUser(any()) }
-//        coVerify(exactly = 1) { usuarioProvider.setUserImage(any(), defaultBitmap) }
+        val usuarioProvider = MockUtils.mockUsuarioProvider()
+        val service = ContaService(usuarioProvider, contaProvider)
+
+        val account = mockk<GoogleSignInAccount>()
+        val photoUrl = mockk<Uri>()
+        coEvery { account.displayName } returns "Nome Correto"
+        coEvery { account.photoUrl } returns photoUrl
+        coEvery { photoUrl.toString() } returns "https://www.example.com"
+
+        mockkObject(Utils)
+        coEvery { Utils.decodeBitmap(any()) } returns nonDefaultBitmap
+
+        mockkStatic(BitmapFactory::class)
+        every { BitmapFactory.decodeStream(any()) } returns nonDefaultBitmap
+
+        val exceptionTask = CoroutineScope(Dispatchers.Main).async {
+            throw NoSuchElementException("Couldn't find user with specified ID.")
+        }
+        coEvery { usuarioProvider.getUser(any()) } returns exceptionTask
+
+        service.entrarComGoogle(account).await()
+        coVerify(exactly = 1) { contaProvider.entrarComGoogle(any()) }
+        coVerify(exactly = 1) { usuarioProvider.createUser(any()) }
+        coVerify(exactly = 1) { usuarioProvider.setUserImage(any(), nonDefaultBitmap) }
     }
 
     @Test
