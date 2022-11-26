@@ -41,7 +41,7 @@ class ContaServiceTest {
     @Test
     fun `verify get account id`() = runTest {
         val contaId = service.getContaID()
-        assertEquals(contaId, "currentuserid")
+        assertEquals("currentuserid", contaId)
     }
 
     @Test
@@ -55,36 +55,36 @@ class ContaServiceTest {
     fun `verify sign up invalid name`() = runTest {
         val novaConta = NovaConta("emailcorreto@example.com", "#SenhaCorreta", "Nom", 18)
         var e = TestUtils.assertThrowsAsync<Exception> { service.cadastrar(novaConta).await() }
-        assertEquals(e.message, "Nome deve ter entre 4 e 128 caracteres.")
+        assertEquals("Nome deve ter entre 4 e 128 caracteres.", e.message)
 
         // length is 129
         novaConta.nome = "Nomemuitogrande Nomemuitogrande Nomemuitogrande Nomemuitogrande " +
                 "Nomemuitogrande Nomemuitogrande Nomemuitogrande Nomemuitogrande N"
         e = TestUtils.assertThrowsAsync { service.cadastrar(novaConta).await() }
-        assertEquals(e.message, "Nome deve ter entre 4 e 128 caracteres.")
+        assertEquals("Nome deve ter entre 4 e 128 caracteres.", e.message)
     }
 
     @Test
     fun `verify sign up invalid age`() = runTest {
         val novaConta = NovaConta("emailcorreto@example.com", "#SenhaCorreta", "Nome Correto", 17)
         var e = TestUtils.assertThrowsAsync<Exception> { service.cadastrar(novaConta).await() }
-        assertEquals(e.message, "Idade deve estar entre 18 e 80.")
+        assertEquals("Idade deve estar entre 18 e 80.", e.message)
 
         novaConta.idade = 81
         e = TestUtils.assertThrowsAsync { service.cadastrar(novaConta).await() }
-        assertEquals(e.message, "Idade deve estar entre 18 e 80.")
+        assertEquals("Idade deve estar entre 18 e 80.", e.message)
     }
 
     @Test
     fun `verify sign up invalid password`() = runTest {
         val novaConta = NovaConta("emailcorreto@example.com", "#Senha1", "Nome Correto", 18)
         var e = TestUtils.assertThrowsAsync<Exception> { service.cadastrar(novaConta).await() }
-        assertEquals(e.message, "Senha deve ter entre 8 e 64 caracteres.")
+        assertEquals("Senha deve ter entre 8 e 64 caracteres.", e.message)
 
         // length is 65
         novaConta.senha = "#SenhaMuitoGra12#SenhaMuitoGra12#SenhaMuitoGra12#SenhaMuitoGra123"
         e = TestUtils.assertThrowsAsync { service.cadastrar(novaConta).await() }
-        assertEquals(e.message, "Senha deve ter entre 8 e 64 caracteres.")
+        assertEquals("Senha deve ter entre 8 e 64 caracteres.", e.message)
     }
 
     @Test
@@ -130,8 +130,8 @@ class ContaServiceTest {
         coVerify(exactly = 1) { contaProvider.enviarEmailConfirmacao() }
         coVerify(exactly = 1) { contaProvider.sair() }
         assertEquals(
-            e.message,
-            "Email not verified. Please, verify your email address before signing in."
+            "Email not verified. Please, verify your email address before signing in.",
+            e.message
         )
     }
 
@@ -186,13 +186,13 @@ class ContaServiceTest {
         every { contaProvider.getContaID() } returns null
 
         val e = TestUtils.assertThrowsAsync<Exception> { service.tentarUsarContaLogada() }
-        assertEquals(e.message, "User not signed in.")
+        assertEquals("User not signed in.", e.message)
     }
 
     @Test
     fun `verify try use signed in account`() = runTest {
         service.tentarUsarContaLogada()
-        assertEquals(service.getContaID(), "currentuserid")
+        assertEquals("currentuserid", service.getContaID())
     }
 
     @Test

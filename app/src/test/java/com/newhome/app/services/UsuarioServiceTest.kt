@@ -50,7 +50,7 @@ class UsuarioServiceTest {
         coEvery { contaProvider.getContaID() } returns null
 
         val e = TestUtils.assertThrowsAsync<Exception> { service.getUsuarioAtual() }
-        assertEquals(e.message, "User not signed in.")
+        assertEquals("User not signed in.", e.message)
     }
 
     @Test
@@ -61,7 +61,7 @@ class UsuarioServiceTest {
         coVerify(exactly = 1) { contaProvider.getContaID() }
         coVerify(exactly = 1) { usuarioProvider.getUser("currentuserid") }
         coVerify(exactly = 1) { usuarioProvider.getUserImage("currentuserid") }
-        assertEquals(usuario.id, "currentuserid")
+        assertEquals("currentuserid", usuario.id)
         assertEquals(usuario, usuario2)
         assertNotSame(usuario, usuario2)
     }
@@ -71,7 +71,7 @@ class UsuarioServiceTest {
     fun `verify get user image`() = runTest {
         val imagem = service.getImagemUsuario("userid").await()
         coVerify(exactly = 1) { usuarioProvider.getUserImage("userid") }
-        assertEquals(imagem, defaultBitmap)
+        assertEquals(nonDefaultBitmap, imagem)
     }
 
     @Test
@@ -79,7 +79,7 @@ class UsuarioServiceTest {
     fun `verify get user without image`() = runTest {
         val usuario = service.getUsuarioSemImagem("userid").await()
         coVerify(exactly = 1) { usuarioProvider.getUser("userid") }
-        assertEquals(usuario.id, "userid")
+        assertEquals("userid", usuario.id)
     }
 
     @Test
@@ -88,7 +88,7 @@ class UsuarioServiceTest {
         val usuario = service.getUsuario("userid").await()
         coVerify(exactly = 1) { usuarioProvider.getUser("userid") }
         coVerify(exactly = 1) { usuarioProvider.getUserImage("userid") }
-        assertEquals(usuario.id, "userid")
+        assertEquals("userid", usuario.id)
     }
 
     @Test
@@ -98,7 +98,7 @@ class UsuarioServiceTest {
             service.editarUsuarioAtual(Usuario("userid", "nome2", "detalhes2", defaultBitmap))
                 .await()
         }
-        assertEquals(e.message, "A user can only edit its own profile.")
+        assertEquals("A user can only edit its own profile.", e.message)
     }
 
     @Test

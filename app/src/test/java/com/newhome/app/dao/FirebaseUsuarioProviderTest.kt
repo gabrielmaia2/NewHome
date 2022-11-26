@@ -49,9 +49,9 @@ class FirebaseUsuarioProviderTest {
         val user = provider.getUser("userid").await()
         val doc = firestore.collection("usuarios").document("userid")
         coVerify(exactly = 1) { doc.get() }
-        assertEquals(user.id, "userid")
-        assertEquals(user.nome, "username")
-        assertEquals(user.detalhes, "details")
+        assertEquals("userid", user.id)
+        assertEquals("username", user.nome)
+        assertEquals("details", user.detalhes)
     }
 
     @Test
@@ -59,7 +59,7 @@ class FirebaseUsuarioProviderTest {
         val e = TestUtils.assertThrowsAsync<Exception> {
             provider.getUser("nonexistentid").await()
         }
-        assertEquals(e.message, "User does not exist.")
+        assertEquals("User does not exist.", e.message)
     }
 
     @Test
@@ -95,7 +95,7 @@ class FirebaseUsuarioProviderTest {
             "details"
         )
         val e = TestUtils.assertThrowsAsync<Exception> { provider.updateUser(user).await() }
-        assertEquals(e.message, "User does not exist.")
+        assertEquals("User does not exist.", e.message)
     }
 
     @Test
@@ -113,7 +113,7 @@ class FirebaseUsuarioProviderTest {
     fun `verify get user image`() = runTest {
         val image = provider.getUserImage("userid").await()
         coVerify(exactly = 1) { imageProvider.getImageOrDefault("usuarios/userid") }
-        assertEquals(image, nonDefaultBitmap)
+        assertEquals(nonDefaultBitmap, image)
     }
 
     @Test
@@ -121,7 +121,7 @@ class FirebaseUsuarioProviderTest {
         val e = TestUtils.assertThrowsAsync<NoSuchElementException> {
             provider.getUserImage("nonexistentid").await()
         }
-        assertEquals(e.message, "Couldn't find user with specified ID.")
+        assertEquals("Couldn't find user with specified ID.", e.message)
     }
 
     @Test
@@ -136,6 +136,6 @@ class FirebaseUsuarioProviderTest {
         val e = TestUtils.assertThrowsAsync<NoSuchElementException> {
             provider.setUserImage("nonexistentid", nonDefaultBitmap).await()
         }
-        assertEquals(e.message, "Couldn't find user with specified ID.")
+        assertEquals("Couldn't find user with specified ID.", e.message)
     }
 }
