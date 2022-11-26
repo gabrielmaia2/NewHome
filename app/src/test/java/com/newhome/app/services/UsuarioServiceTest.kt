@@ -25,6 +25,7 @@ class UsuarioServiceTest {
     }
 
     private lateinit var defaultBitmap: Bitmap
+    private lateinit var nonDefaultBitmap: Bitmap
 
     private lateinit var usuarioProvider: IUsuarioProvider
     private lateinit var contaProvider: IContaProvider
@@ -34,6 +35,7 @@ class UsuarioServiceTest {
     @Before
     fun setup() {
         defaultBitmap = MockUtils.defaultBitmap
+        nonDefaultBitmap = MockUtils.nonDefaultBitmap
 
         usuarioProvider = MockUtils.mockUsuarioProvider()
         contaProvider = MockUtils.mockContaProvider()
@@ -49,7 +51,7 @@ class UsuarioServiceTest {
         coEvery { contaProvider.getContaID() } returns null
 
         val e = TestUtils.assertThrowsAsync<Exception> { service.getUsuarioAtual() }
-        assertEquals(e.message, "User not signed in.")
+        assertEquals("User not signed in.", e.message)
     }
 
     @Test
@@ -60,9 +62,16 @@ class UsuarioServiceTest {
         coVerify(exactly = 1) { contaProvider.getContaID() }
         coVerify(exactly = 1) { usuarioProvider.getUser("currentuserid") }
         coVerify(exactly = 1) { usuarioProvider.getUserImage("currentuserid") }
-        assertEquals(usuario.id, "currentuserid")
+
+        // getUsuarioAtual() should always return a copy of the original object
+        assertEquals("currentuserid", usuario.id)
         assertEquals(usuario, usuario2)
         assertNotSame(usuario, usuario2)
+
+        // carregarUsuarioAtual() should always return a copy of the original object
+        usuario.id = "changedid"
+        val usuario3 = service.getUsuarioAtual()
+        assertEquals("currentuserid", usuario3.id)
     }
 
     @Test
@@ -70,7 +79,7 @@ class UsuarioServiceTest {
     fun `verify get user image`() = runTest {
         val imagem = service.getImagemUsuario("userid").await()
         coVerify(exactly = 1) { usuarioProvider.getUserImage("userid") }
-        assertEquals(imagem, defaultBitmap)
+        assertEquals(nonDefaultBitmap, imagem)
     }
 
     @Test
@@ -78,7 +87,7 @@ class UsuarioServiceTest {
     fun `verify get user without image`() = runTest {
         val usuario = service.getUsuarioSemImagem("userid").await()
         coVerify(exactly = 1) { usuarioProvider.getUser("userid") }
-        assertEquals(usuario.id, "userid")
+        assertEquals("userid", usuario.id)
     }
 
     @Test
@@ -87,26 +96,33 @@ class UsuarioServiceTest {
         val usuario = service.getUsuario("userid").await()
         coVerify(exactly = 1) { usuarioProvider.getUser("userid") }
         coVerify(exactly = 1) { usuarioProvider.getUserImage("userid") }
-        assertEquals(usuario.id, "userid")
+        assertEquals("userid", usuario.id)
     }
 
     @Test
     fun `verify update current user wrong id`() = runTest {
         service.carregarUsuarioAtual().await()
         val e = TestUtils.assertThrowsAsync<Exception> {
-            service.editarUsuarioAtual(Usuario("userid", "nome2", "detalhes2", defaultBitmap))
+            service.editarUsuarioAtual(Usuario("userid", "nome2", "detalhes2", nonDefaultBitmap))
                 .await()
         }
-        assertEquals(e.message, "A user can only edit its own profile.")
+        assertEquals("A user can only edit its own profile.", e.message)
     }
 
     @Test
     @Suppress("DeferredResultUnused")
     fun `verify update current user`() = runTest {
         service.carregarUsuarioAtual().await()
-        service.editarUsuarioAtual(Usuario("currentuserid", "nome2", "detalhes2", defaultBitmap))
+        service.editarUsuarioAtual(
+            Usuario(
+                "currentuserid",
+                "nome2",
+                "detalhes2",
+                nonDefaultBitmap
+            )
+        )
             .await()
         coVerify(exactly = 1) { usuarioProvider.updateUser(any()) }
-        coVerify(exactly = 1) { usuarioProvider.setUserImage("currentuserid", defaultBitmap) }
+        coVerify(exactly = 1) { usuarioProvider.setUserImage("currentuserid", nonDefaultBitmap) }
     }
 }

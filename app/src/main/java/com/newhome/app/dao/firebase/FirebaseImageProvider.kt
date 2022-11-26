@@ -5,11 +5,12 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.content.res.AppCompatResources
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageException
-import com.google.firebase.storage.ktx.storage
+import com.google.firebase.storage.ktx.storageMetadata
 import com.newhome.app.R
 import com.newhome.app.dao.IImageProvider
+import com.newhome.app.utils.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -17,21 +18,20 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 
-class FirebaseImageProvider(private val context: Context) : IImageProvider {
-    private val cache: HashMap<String, ByteArray> = HashMap()
+class FirebaseImageProvider(private val context: Context, storage: FirebaseStorage) : IImageProvider {
+    var cache: HashMap<String, ByteArray> = HashMap()
 
-    private val storage = Firebase.storage
     private val storageRef = storage.reference
 
-    private var bitmap: Bitmap? = null
+    private var defaultBitmap: Bitmap? = null
 
     override fun getDefaultBitmap(): Bitmap {
-        var bmp = bitmap
+        var bmp = defaultBitmap
         if (bmp != null) return bmp
 
-        val drawable = AppCompatResources.getDrawable(context, R.drawable.image_default)!!
-        bmp = (drawable as BitmapDrawable).bitmap
-        bitmap = bmp
+        bmp = BitmapFactory.decodeResource(context.resources, R.drawable.image_default)
+
+        defaultBitmap = bmp
         return bmp
     }
 
@@ -40,32 +40,43 @@ class FirebaseImageProvider(private val context: Context) : IImageProvider {
             if (bitmap == null) {
                 return@async
             }
+            if (bitmap == getDefaultBitmap()) {
+                throw Exception("Trying to save the default bitmap on firebase.")
+            }
 
             val imgRef = storageRef.child("${path}.jpg")
 
-            val baos = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 95, baos)
-            val data = baos.toByteArray()
+            val data = Utils.bitmapToJPEGByteArray(bitmap, 95)
 
-            imgRef.putBytes(data).await()
+            val sha256sum = Utils.sha256(data)
+            val metadata = storageMetadata {
+                setCustomMetadata("sha256sum", sha256sum)
+            }
+            imgRef.putBytes(data, metadata).await()
 
-            cache[path] = data
+            cache[sha256sum] = data
         }
 
     override suspend fun getImage(path: String): Deferred<Bitmap> =
         CoroutineScope(Dispatchers.Main).async {
-//            val cached = cache[path]
-//            if (cached != null) {
-//                return@async BitmapFactory.decodeByteArray(cached, 0, cached.size)
-//            }
-
             val imgRef = storageRef.child("$path.jpg")
 
             val oneGigabyte: Long = 1024 * 1024 * 1024
-            val bytes = imgRef.getBytes(oneGigabyte).await()
+            var sha256 = imgRef.metadata.await().getCustomMetadata("sha256sum")
+            var bytes = if (sha256 != null) cache[sha256] else null
 
+            if (bytes == null) {
+                val bytesTask = imgRef.getBytes(oneGigabyte)
+                val mdTask = imgRef.metadata
+
+                sha256 = mdTask.await().getCustomMetadata("sha256sum")
+                bytes = bytesTask.await()
+            }
+
+            bytes!!
             val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-            cache[path] = bytes
+            if (sha256 != null) cache[sha256] = bytes
+
             return@async bitmap
         }
 
@@ -74,14 +85,17 @@ class FirebaseImageProvider(private val context: Context) : IImageProvider {
             val imgRef = storageRef.child("$path.jpg")
 
             try {
-                imgRef.delete().await()
+                val mdTask = imgRef.metadata
+                val deleteTask = imgRef.delete()
+
+                val sha256 = mdTask.await().getCustomMetadata("sha256sum")
+                deleteTask.await()
+                if (sha256 != null) cache.remove(sha256)
             } catch (e: StorageException) {
                 if (e.errorCode != StorageException.ERROR_OBJECT_NOT_FOUND) {
                     throw e
                 }
             }
-            cache.remove(path)
-            return@async
         }
 
     override suspend fun getImageOrDefault(path: String): Deferred<Bitmap> =

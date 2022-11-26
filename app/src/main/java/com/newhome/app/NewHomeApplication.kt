@@ -5,6 +5,7 @@ import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.newhome.app.dao.firebase.*
 import com.newhome.app.services.IAnimalService
 import com.newhome.app.services.IContaService
@@ -23,7 +24,7 @@ class NewHomeApplication : Application() {
         val auth = FirebaseAuth.getInstance()
         val authUI = AuthUI.getInstance()
 
-        val imageProvider = FirebaseImageProvider(context)
+        val imageProvider = FirebaseImageProvider(context, Firebase.storage)
 
         val contaProvider = FirebaseContaProvider(auth, authUI,context)
         val usuarioProvider = FirebaseUsuarioProvider(Firebase.firestore, imageProvider)

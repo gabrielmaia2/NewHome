@@ -48,7 +48,7 @@ class UsuarioService(
             val u = getUsuario(uid).await()
             usuario = Usuario.fromData(u)
 
-            return@async usuario
+            return@async usuario.copy()
         }
 
     override suspend fun editarUsuarioAtual(usuario: Usuario): Deferred<Unit> =

@@ -1,6 +1,5 @@
 package com.newhome.app.services.concrete
 
-import android.graphics.BitmapFactory
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.newhome.app.dao.IContaProvider
 import com.newhome.app.dao.IUsuarioProvider
@@ -8,8 +7,8 @@ import com.newhome.app.dto.Credenciais
 import com.newhome.app.dto.NovaConta
 import com.newhome.app.dto.NovoUsuario
 import com.newhome.app.services.IContaService
+import com.newhome.app.utils.Utils
 import kotlinx.coroutines.*
-import java.net.URL
 
 class ContaService(
     private val usuarioProvider: IUsuarioProvider,
@@ -76,10 +75,7 @@ class ContaService(
                 usuarioProvider.createUser(usuario).await()
 
                 val photoUrl = account.photoUrl ?: return@async
-                val image = withContext(Dispatchers.IO) {
-                    val url = URL(photoUrl.toString())
-                    return@withContext BitmapFactory.decodeStream(url.openStream())
-                }
+                val image = Utils.decodeBitmap(photoUrl.toString())
                 usuarioProvider.setUserImage(uid, image).await()
             }
         }

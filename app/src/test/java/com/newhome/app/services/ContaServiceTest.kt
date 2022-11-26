@@ -1,6 +1,9 @@
 package com.newhome.app.services
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.firebase.firestore.*
 import com.newhome.app.MockUtils
 import com.newhome.app.TestUtils
@@ -9,6 +12,7 @@ import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.Credenciais
 import com.newhome.app.dto.NovaConta
 import com.newhome.app.services.concrete.ContaService
+import com.newhome.app.utils.Utils
 import org.junit.Assert.*
 import io.mockk.*
 import kotlinx.coroutines.*
@@ -25,7 +29,7 @@ class ContaServiceTest {
         }
     }
 
-    private lateinit var defaultBitmap: Bitmap
+    private lateinit var nonDefaultBitmap: Bitmap
 
     private lateinit var usuarioProvider: IUsuarioProvider
     private lateinit var contaProvider: IContaProvider
@@ -34,7 +38,7 @@ class ContaServiceTest {
 
     @Before
     fun setup() {
-        defaultBitmap = MockUtils.defaultBitmap
+        nonDefaultBitmap = MockUtils.nonDefaultBitmap
 
         usuarioProvider = MockUtils.mockUsuarioProvider()
         contaProvider = MockUtils.mockContaProvider()
@@ -45,7 +49,7 @@ class ContaServiceTest {
     @Test
     fun `verify get account id`() = runTest {
         val contaId = service.getContaID()
-        assertEquals(contaId, "currentuserid")
+        assertEquals("currentuserid", contaId)
     }
 
     @Test
@@ -59,36 +63,36 @@ class ContaServiceTest {
     fun `verify sign up invalid name`() = runTest {
         val novaConta = NovaConta("emailcorreto@example.com", "#SenhaCorreta", "Nom", 18)
         var e = TestUtils.assertThrowsAsync<Exception> { service.cadastrar(novaConta).await() }
-        assertEquals(e.message, "Nome deve ter entre 4 e 128 caracteres.")
+        assertEquals("Nome deve ter entre 4 e 128 caracteres.", e.message)
 
         // length is 129
         novaConta.nome = "Nomemuitogrande Nomemuitogrande Nomemuitogrande Nomemuitogrande " +
                 "Nomemuitogrande Nomemuitogrande Nomemuitogrande Nomemuitogrande N"
         e = TestUtils.assertThrowsAsync { service.cadastrar(novaConta).await() }
-        assertEquals(e.message, "Nome deve ter entre 4 e 128 caracteres.")
+        assertEquals("Nome deve ter entre 4 e 128 caracteres.", e.message)
     }
 
     @Test
     fun `verify sign up invalid age`() = runTest {
         val novaConta = NovaConta("emailcorreto@example.com", "#SenhaCorreta", "Nome Correto", 17)
         var e = TestUtils.assertThrowsAsync<Exception> { service.cadastrar(novaConta).await() }
-        assertEquals(e.message, "Idade deve estar entre 18 e 80.")
+        assertEquals("Idade deve estar entre 18 e 80.", e.message)
 
         novaConta.idade = 81
         e = TestUtils.assertThrowsAsync { service.cadastrar(novaConta).await() }
-        assertEquals(e.message, "Idade deve estar entre 18 e 80.")
+        assertEquals("Idade deve estar entre 18 e 80.", e.message)
     }
 
     @Test
     fun `verify sign up invalid password`() = runTest {
         val novaConta = NovaConta("emailcorreto@example.com", "#Senha1", "Nome Correto", 18)
         var e = TestUtils.assertThrowsAsync<Exception> { service.cadastrar(novaConta).await() }
-        assertEquals(e.message, "Senha deve ter entre 8 e 64 caracteres.")
+        assertEquals("Senha deve ter entre 8 e 64 caracteres.", e.message)
 
         // length is 65
         novaConta.senha = "#SenhaMuitoGra12#SenhaMuitoGra12#SenhaMuitoGra12#SenhaMuitoGra123"
         e = TestUtils.assertThrowsAsync { service.cadastrar(novaConta).await() }
-        assertEquals(e.message, "Senha deve ter entre 8 e 64 caracteres.")
+        assertEquals("Senha deve ter entre 8 e 64 caracteres.", e.message)
     }
 
     @Test
@@ -134,8 +138,8 @@ class ContaServiceTest {
         coVerify(exactly = 1) { contaProvider.enviarEmailConfirmacao() }
         coVerify(exactly = 1) { contaProvider.sair() }
         assertEquals(
-            e.message,
-            "Email not verified. Please, verify your email address before signing in."
+            "Email not verified. Please, verify your email address before signing in.",
+            e.message
         )
     }
 
@@ -151,27 +155,30 @@ class ContaServiceTest {
     @Test
     @Suppress("DeferredResultUnused")
     fun `verify sign in with google first time`() = runTest {
-//        val usuarioProvider = MockUtils.mockUsuarioProvider()
-//        val service = ContaService(usuarioProvider, contaProvider)
-//
-//        val account = mockk<GoogleSignInAccount>()
-//        val photoUrl = mockk<Uri>()
-//        coEvery { account.displayName } returns "Nome Correto"
-//        coEvery { account.photoUrl } returns photoUrl
-//        coEvery { photoUrl.toString() } returns "https://www.example.com"
-//
-//        mockkStatic(Utils::class)
-//        every { Utils.uriToBitmap(photoUrl) } returns defaultBitmap
-//
-//        val exceptionTask = CoroutineScope(Dispatchers.Main).async {
-//            throw NoSuchElementException("Couldn't find user with specified ID.")
-//        }
-//        coEvery { usuarioProvider.getUser(any()) } returns exceptionTask
-//
-//        service.entrarComGoogle(account).await()
-//        coVerify(exactly = 1) { contaProvider.entrarComGoogle(any()) }
-//        coVerify(exactly = 1) { usuarioProvider.createUser(any()) }
-//        coVerify(exactly = 1) { usuarioProvider.setUserImage(any(), defaultBitmap) }
+        val usuarioProvider = MockUtils.mockUsuarioProvider()
+        val service = ContaService(usuarioProvider, contaProvider)
+
+        val account = mockk<GoogleSignInAccount>()
+        val photoUrl = mockk<Uri>()
+        coEvery { account.displayName } returns "Nome Correto"
+        coEvery { account.photoUrl } returns photoUrl
+        coEvery { photoUrl.toString() } returns "https://www.example.com"
+
+        mockkObject(Utils)
+        coEvery { Utils.decodeBitmap(any()) } returns nonDefaultBitmap
+
+        mockkStatic(BitmapFactory::class)
+        every { BitmapFactory.decodeStream(any()) } returns nonDefaultBitmap
+
+        val exceptionTask = CoroutineScope(Dispatchers.Main).async {
+            throw NoSuchElementException("Couldn't find user with specified ID.")
+        }
+        coEvery { usuarioProvider.getUser(any()) } returns exceptionTask
+
+        service.entrarComGoogle(account).await()
+        coVerify(exactly = 1) { contaProvider.entrarComGoogle(any()) }
+        coVerify(exactly = 1) { usuarioProvider.createUser(any()) }
+        coVerify(exactly = 1) { usuarioProvider.setUserImage(any(), nonDefaultBitmap) }
     }
 
     @Test
@@ -190,13 +197,13 @@ class ContaServiceTest {
         every { contaProvider.getContaID() } returns null
 
         val e = TestUtils.assertThrowsAsync<Exception> { service.tentarUsarContaLogada() }
-        assertEquals(e.message, "User not signed in.")
+        assertEquals("User not signed in.", e.message)
     }
 
     @Test
     fun `verify try use signed in account`() = runTest {
         service.tentarUsarContaLogada()
-        assertEquals(service.getContaID(), "currentuserid")
+        assertEquals("currentuserid", service.getContaID())
     }
 
     @Test

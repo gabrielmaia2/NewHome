@@ -51,20 +51,20 @@ class FirebaseContaProviderTest {
     fun `verify get account id before sign in`() = runTest {
         val provider = providerBeforeSignIn
         val contaId = provider.getContaID()
-        assertEquals(contaId, null)
+        assertEquals(null, contaId)
     }
 
     @Test
     fun `verify get account id`() = runTest {
         val contaId = provider.getContaID()
-        assertEquals(contaId, "currentuserid")
+        assertEquals("currentuserid", contaId)
     }
 
     @Test
     fun `verify send email verification before sign in`() = runTest {
         val provider = providerBeforeSignIn
         val e = TestUtils.assertThrowsAsync<Exception> { provider.enviarEmailConfirmacao().await() }
-        assertEquals(e.message, "User not signed in.")
+        assertEquals("User not signed in.", e.message)
     }
 
     @Test
@@ -78,7 +78,7 @@ class FirebaseContaProviderTest {
     fun `verify confirmation email verified before sign in`() = runTest {
         val provider = providerBeforeSignIn
         val e = TestUtils.assertThrowsAsync<Exception> { provider.emailConfirmacaoVerificado() }
-        assertEquals(e.message, "User not signed in.")
+        assertEquals("User not signed in.", e.message)
     }
 
     @Test
