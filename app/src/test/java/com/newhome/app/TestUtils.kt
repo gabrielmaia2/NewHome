@@ -2,9 +2,8 @@ package com.newhome.app
 
 import android.app.Activity
 import com.google.android.gms.tasks.*
-import com.google.firebase.inject.Deferred
-import org.junit.Assert
 import java.util.concurrent.Executor
+import org.junit.Assert.*
 
 class TestUtils {
     companion object {
@@ -19,7 +18,7 @@ class TestUtils {
                 exceptionThrown = e is E
             }
 
-            Assert.assertTrue(message, exceptionThrown)
+            assertTrue(message, exceptionThrown)
             return ex as E
         }
 

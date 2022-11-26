@@ -1,9 +1,9 @@
 package com.newhome.app
 
 import android.graphics.Bitmap
+import androidx.appcompat.content.res.AppCompatResources
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -21,22 +21,27 @@ import io.mockk.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.setMain
+import org.junit.Assert.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MockUtils {
     companion object {
-        lateinit var defaultBitmap: Bitmap
+        lateinit var defaultBitmap: Bitmap; private set
+        lateinit var nonDefaultBitmap: Bitmap; private set
 
-        lateinit var getImageTask: Deferred<Bitmap>
-        lateinit var emptyTask: Deferred<Unit>
-        lateinit var exceptionTask: Deferred<Nothing>
+        lateinit var getDefaultImageTask: Deferred<Bitmap>; private set
+        lateinit var getImageTask: Deferred<Bitmap>; private set
+        lateinit var emptyTask: Deferred<Unit>; private set
+        lateinit var exceptionTask: Deferred<Nothing>; private set
 
         fun init() {
             Dispatchers.setMain(StandardTestDispatcher())
 
             defaultBitmap = mockk()
+            nonDefaultBitmap = mockk()
 
-            getImageTask = CoroutineScope(Dispatchers.Main).async { defaultBitmap }
+            getDefaultImageTask = CoroutineScope(Dispatchers.Main).async { defaultBitmap }
+            getImageTask = CoroutineScope(Dispatchers.Main).async { nonDefaultBitmap }
             emptyTask = CoroutineScope(Dispatchers.Main).async { }
             exceptionTask = CoroutineScope(Dispatchers.Main).async { throw Exception() }
         }
@@ -139,23 +144,33 @@ class MockUtils {
             return firestore
         }
 
-        fun mockImageProvider(imagePath: String): IImageProvider {
+        /**
+         * Mocks image provider, asserting when saving or removing that
+         * the path is one of the paths provided when mocking
+         */
+        fun mockImageProvider(vararg imagePath: String): IImageProvider {
             val provider = mockk<IImageProvider>()
-
-            val getImageTask = CoroutineScope(Dispatchers.Main).async { return@async defaultBitmap }
 
             val pathCapture = slot<String>()
             coEvery { provider.saveImage(capture(pathCapture), any()) } answers {
-                if (pathCapture.captured == imagePath) emptyTask
-                else exceptionTask
+                CoroutineScope(Dispatchers.Main).async {
+                    assertTrue(
+                        "Wrong path provided",
+                        imagePath.contains(pathCapture.captured)
+                    )
+                }
             }
             coEvery { provider.removeImage(capture(pathCapture)) } answers {
-                if (pathCapture.captured == imagePath) emptyTask
-                else exceptionTask
+                CoroutineScope(Dispatchers.Main).async {
+                    assertTrue(
+                        "Wrong path provided",
+                        imagePath.contains(pathCapture.captured)
+                    )
+                }
             }
             coEvery { provider.getImageOrDefault(capture(pathCapture)) } answers {
-                if (pathCapture.captured == imagePath) getImageTask
-                else exceptionTask
+                if (imagePath.contains(pathCapture.captured)) getImageTask
+                else getDefaultImageTask
             }
 
             return provider
@@ -213,7 +228,7 @@ class MockUtils {
             coEvery { provider.getUserImage(capture(userId)) } answers {
                 if (userId.captured == "currentuserid") getImageTask
                 else if (userId.captured == "userid") getImageTask
-                else exceptionTask
+                else getDefaultImageTask
             }
             coEvery { provider.setUserImage(capture(userId), any()) } answers {
                 if (userId.captured == "currentuserid") emptyTask

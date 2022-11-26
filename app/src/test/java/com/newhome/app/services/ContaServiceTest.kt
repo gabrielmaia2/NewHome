@@ -25,8 +25,6 @@ class ContaServiceTest {
         }
     }
 
-    private lateinit var defaultBitmap: Bitmap
-
     private lateinit var usuarioProvider: IUsuarioProvider
     private lateinit var contaProvider: IContaProvider
 
@@ -34,8 +32,6 @@ class ContaServiceTest {
 
     @Before
     fun setup() {
-        defaultBitmap = MockUtils.defaultBitmap
-
         usuarioProvider = MockUtils.mockUsuarioProvider()
         contaProvider = MockUtils.mockContaProvider()
 

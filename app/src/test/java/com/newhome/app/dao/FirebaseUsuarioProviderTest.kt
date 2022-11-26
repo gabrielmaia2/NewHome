@@ -27,7 +27,7 @@ class FirebaseUsuarioProviderTest {
         }
     }
 
-    private lateinit var defaultBitmap: Bitmap
+    private lateinit var nonDefaultBitmap: Bitmap
 
     private lateinit var firestore: FirebaseFirestore
     private lateinit var imageProvider: IImageProvider
@@ -36,7 +36,7 @@ class FirebaseUsuarioProviderTest {
 
     @Before
     fun setup() {
-        defaultBitmap = MockUtils.defaultBitmap
+        nonDefaultBitmap = MockUtils.nonDefaultBitmap
 
         firestore = MockUtils.mockFirestore()
         imageProvider = MockUtils.mockImageProvider("usuarios/userid")
@@ -113,7 +113,7 @@ class FirebaseUsuarioProviderTest {
     fun `verify get user image`() = runTest {
         val image = provider.getUserImage("userid").await()
         coVerify(exactly = 1) { imageProvider.getImageOrDefault("usuarios/userid") }
-        assertEquals(image, defaultBitmap)
+        assertEquals(image, nonDefaultBitmap)
     }
 
     @Test
@@ -127,14 +127,14 @@ class FirebaseUsuarioProviderTest {
     @Test
     @Suppress("DeferredResultUnused")
     fun `verify set user image`() = runTest {
-        provider.setUserImage("userid", defaultBitmap).await()
-        coVerify(exactly = 1) { imageProvider.saveImage("usuarios/userid", defaultBitmap) }
+        provider.setUserImage("userid", nonDefaultBitmap).await()
+        coVerify(exactly = 1) { imageProvider.saveImage("usuarios/userid", nonDefaultBitmap) }
     }
 
     @Test
     fun `verify set nonexistent user image`() = runTest {
         val e = TestUtils.assertThrowsAsync<NoSuchElementException> {
-            provider.setUserImage("nonexistentid", defaultBitmap).await()
+            provider.setUserImage("nonexistentid", nonDefaultBitmap).await()
         }
         assertEquals(e.message, "Couldn't find user with specified ID.")
     }

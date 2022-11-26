@@ -25,6 +25,7 @@ class UsuarioServiceTest {
     }
 
     private lateinit var defaultBitmap: Bitmap
+    private lateinit var nonDdefaultBitmap: Bitmap
 
     private lateinit var usuarioProvider: IUsuarioProvider
     private lateinit var contaProvider: IContaProvider
