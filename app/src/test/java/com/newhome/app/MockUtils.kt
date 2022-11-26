@@ -1,33 +1,40 @@
 package com.newhome.app
 
+import android.content.Context
 import android.graphics.Bitmap
-import androidx.appcompat.content.res.AppCompatResources
+import android.graphics.BitmapFactory
+import android.text.TextUtils
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.*
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageException
+import com.google.firebase.storage.StorageMetadata
+import com.google.firebase.storage.StorageReference
 import com.newhome.app.dao.IContaProvider
 import com.newhome.app.dao.IImageProvider
 import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.Credenciais
 import com.newhome.app.dto.UsuarioData
+import com.newhome.app.utils.Utils
 import io.mockk.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.setMain
 import org.junit.Assert.*
+import java.nio.charset.Charset
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MockUtils {
     companion object {
+        lateinit var applicationContext: Context; private set
+
         lateinit var defaultBitmap: Bitmap; private set
         lateinit var nonDefaultBitmap: Bitmap; private set
+        lateinit var byteArray: ByteArray
 
         lateinit var getDefaultImageTask: Deferred<Bitmap>; private set
         lateinit var getImageTask: Deferred<Bitmap>; private set
@@ -37,13 +44,83 @@ class MockUtils {
         fun init() {
             Dispatchers.setMain(StandardTestDispatcher())
 
+            applicationContext = mockk()
+
             defaultBitmap = mockk()
             nonDefaultBitmap = mockk()
+            byteArray = "awdkfosigmeuslzo".toByteArray(Charset.forName("ascii"))
 
             getDefaultImageTask = CoroutineScope(Dispatchers.Main).async { defaultBitmap }
             getImageTask = CoroutineScope(Dispatchers.Main).async { nonDefaultBitmap }
             emptyTask = CoroutineScope(Dispatchers.Main).async { }
             exceptionTask = CoroutineScope(Dispatchers.Main).async { throw Exception() }
+        }
+
+        fun mockFirebaseStorage(vararg imagePath: String): FirebaseStorage {
+            val storage = mockk<FirebaseStorage>()
+            val storageRef = mockk<StorageReference>()
+
+            every { storage.reference } returns storageRef
+
+            mockkStatic(TextUtils::class)
+            every { TextUtils.isEmpty(any()) } answers { arg<String>(0).isEmpty() }
+
+            mockkObject(Utils)
+            val btCapture = slot<ByteArray>()
+            every { Utils.sha256(capture(btCapture)) } answers {
+                @Suppress("ReplaceArrayEqualityOpWithArraysEquals")
+                if (btCapture.captured == byteArray) "shaByteArray"
+                else "defaultsha"
+            }
+            val imgCapture = slot<Bitmap>()
+            every { Utils.bitmapToJPEGByteArray(capture(imgCapture), any()) } answers {
+                if (imgCapture.captured == nonDefaultBitmap) byteArray
+                else "awdkfosigmeufslz".toByteArray(Charset.forName("ascii"))
+            }
+
+            val pathRef = mockk<StorageReference>()
+            val anyRef = mockk<StorageReference>()
+
+            mockkStatic(BitmapFactory::class)
+            val baCapture = slot<ByteArray>()
+            every { BitmapFactory.decodeByteArray(capture(baCapture), any(), any()) } answers {
+                @Suppress("ReplaceArrayEqualityOpWithArraysEquals")
+                if (baCapture.captured == byteArray) nonDefaultBitmap
+                else defaultBitmap
+            }
+            every {
+                BitmapFactory.decodeResource(
+                    applicationContext.resources,
+                    R.drawable.image_default
+                )
+            } returns defaultBitmap
+
+            val pathCapture = slot<String>()
+            every { storageRef.child(capture(pathCapture)) } answers {
+                if (imagePath.contains(pathCapture.captured.dropLast(4))) pathRef
+                else anyRef
+            }
+
+            val md1 = mockk<StorageMetadata>()
+            every { md1.getCustomMetadata("sha256sum") } returns "shaByteArray"
+            val md2 = mockk<StorageMetadata>()
+            every { md2.getCustomMetadata("sha256sum") } returns null
+
+            val storageException = mockk<StorageException>()
+            every { storageException.errorCode } returns StorageException.ERROR_OBJECT_NOT_FOUND
+            every { storageException.cause } returns null
+
+            coEvery { pathRef.putBytes(any(), any()) } returns TestUtils.createSuccessTask(mockk())
+            coEvery { pathRef.getBytes(any()) } returns TestUtils.createSuccessTask(byteArray)
+            coEvery { pathRef.delete() } returns TestUtils.createSuccessTask(mockk())
+            coEvery { pathRef.metadata } returns TestUtils.createSuccessTask(md1)
+
+            coEvery { anyRef.putBytes(any(), any()) } returns TestUtils.createSuccessTask(mockk())
+            coEvery { anyRef.getBytes(any()) } returns TestUtils.createFailureTask(storageException)
+            coEvery { anyRef.delete() } returns TestUtils.createFailureTask(storageException)
+            coEvery { anyRef.metadata } returns TestUtils.createSuccessTask(md2)
+
+            return storage
         }
 
         fun mockAuthUI(): AuthUI {
