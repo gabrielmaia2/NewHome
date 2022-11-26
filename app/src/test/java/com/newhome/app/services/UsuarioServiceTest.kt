@@ -25,7 +25,7 @@ class UsuarioServiceTest {
     }
 
     private lateinit var defaultBitmap: Bitmap
-    private lateinit var nonDdefaultBitmap: Bitmap
+    private lateinit var nonDefaultBitmap: Bitmap
 
     private lateinit var usuarioProvider: IUsuarioProvider
     private lateinit var contaProvider: IContaProvider
@@ -35,6 +35,7 @@ class UsuarioServiceTest {
     @Before
     fun setup() {
         defaultBitmap = MockUtils.defaultBitmap
+        nonDefaultBitmap = MockUtils.nonDefaultBitmap
 
         usuarioProvider = MockUtils.mockUsuarioProvider()
         contaProvider = MockUtils.mockContaProvider()
@@ -102,7 +103,7 @@ class UsuarioServiceTest {
     fun `verify update current user wrong id`() = runTest {
         service.carregarUsuarioAtual().await()
         val e = TestUtils.assertThrowsAsync<Exception> {
-            service.editarUsuarioAtual(Usuario("userid", "nome2", "detalhes2", defaultBitmap))
+            service.editarUsuarioAtual(Usuario("userid", "nome2", "detalhes2", nonDefaultBitmap))
                 .await()
         }
         assertEquals("A user can only edit its own profile.", e.message)
@@ -112,9 +113,16 @@ class UsuarioServiceTest {
     @Suppress("DeferredResultUnused")
     fun `verify update current user`() = runTest {
         service.carregarUsuarioAtual().await()
-        service.editarUsuarioAtual(Usuario("currentuserid", "nome2", "detalhes2", defaultBitmap))
+        service.editarUsuarioAtual(
+            Usuario(
+                "currentuserid",
+                "nome2",
+                "detalhes2",
+                nonDefaultBitmap
+            )
+        )
             .await()
         coVerify(exactly = 1) { usuarioProvider.updateUser(any()) }
-        coVerify(exactly = 1) { usuarioProvider.setUserImage("currentuserid", defaultBitmap) }
+        coVerify(exactly = 1) { usuarioProvider.setUserImage("currentuserid", nonDefaultBitmap) }
     }
 }
