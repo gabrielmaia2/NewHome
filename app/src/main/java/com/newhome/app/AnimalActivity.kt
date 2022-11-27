@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.newhome.app.R
 import com.newhome.app.dto.Animal
 import com.newhome.app.dto.StatusSolicitacao
 import com.newhome.app.dto.Usuario

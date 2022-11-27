@@ -18,7 +18,6 @@ import kotlinx.coroutines.launch
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.newhome.app.R
 import com.newhome.app.dto.Solicitacao
 import com.newhome.app.dto.SolicitacaoID
 import com.newhome.app.dto.StatusSolicitacao

@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.newhome.app.R
 import com.newhome.app.adapters.AnimalAdapter
 import com.newhome.app.dto.Animal
 import com.newhome.app.dto.AnimalAsync

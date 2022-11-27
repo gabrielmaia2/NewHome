@@ -4,11 +4,7 @@ import android.content.Context
 import com.firebase.ui.auth.AuthUI
 import com.google.android.gms.tasks.*
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.newhome.app.MockUtils
-import com.newhome.app.TestUtils
 import com.newhome.app.dao.firebase.FirebaseContaProvider
-import com.newhome.app.dto.Credenciais
 import com.newhome.app.utils.Utils
 import io.mockk.*
 import kotlinx.coroutines.*
@@ -16,8 +12,6 @@ import org.junit.Before
 import org.junit.Test
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
-import org.junit.BeforeClass
-import org.mockito.kotlin.mock
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class UtilsTest {

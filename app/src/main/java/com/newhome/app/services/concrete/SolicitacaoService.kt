@@ -7,7 +7,6 @@ import com.newhome.app.dto.SolicitacaoAsync
 import com.newhome.app.dto.SolicitacaoID
 import com.newhome.app.dto.SolicitacaoPreviewAsync
 import com.newhome.app.dto.StatusSolicitacao
-import com.newhome.app.dto.*
 import com.newhome.app.services.ISolicitacaoService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred

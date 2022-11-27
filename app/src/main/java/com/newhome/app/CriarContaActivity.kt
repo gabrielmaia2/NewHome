@@ -6,7 +6,6 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.newhome.app.R
 import com.newhome.app.dto.NovaConta
 import com.newhome.app.utils.DialogDisplayer
 import com.newhome.app.utils.LoadingDialog

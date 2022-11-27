@@ -3,7 +3,6 @@ package com.newhome.app.dao
 import android.graphics.Bitmap
 import com.newhome.app.dto.NovoUsuario
 import kotlinx.coroutines.Deferred
-import com.newhome.app.dto.Usuario
 import com.newhome.app.dto.UsuarioData
 
 interface IUsuarioProvider {

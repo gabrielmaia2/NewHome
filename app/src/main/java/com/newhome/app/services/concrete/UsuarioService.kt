@@ -1,7 +1,6 @@
 package com.newhome.app.services.concrete
 
 import android.graphics.Bitmap
-import com.newhome.app.dao.IImageProvider
 import com.newhome.app.dao.IContaProvider
 import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.Usuario

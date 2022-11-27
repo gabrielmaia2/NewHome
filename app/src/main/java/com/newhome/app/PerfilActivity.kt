@@ -10,7 +10,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.newhome.app.R
 import com.newhome.app.dto.Usuario
 import com.newhome.app.utils.DialogDisplayer
 import com.newhome.app.utils.LoadingDialog
