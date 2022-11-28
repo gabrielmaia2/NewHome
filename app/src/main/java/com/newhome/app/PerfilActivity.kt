@@ -10,7 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.newhome.app.dto.Usuario
+import com.newhome.app.dto.User
 import com.newhome.app.utils.DialogDisplayer
 import com.newhome.app.utils.LoadingDialog
 import kotlinx.coroutines.launch
@@ -25,7 +25,7 @@ class PerfilActivity : AppCompatActivity() {
     private lateinit var animaisPostosAdocaoButton: Button
     private lateinit var sairPerfilButton: Button
 
-    private lateinit var usuario: Usuario
+    private lateinit var user: User
     private var eProprioPerfil = false
 
     private val loadingDialog = LoadingDialog(this)
@@ -96,14 +96,14 @@ class PerfilActivity : AppCompatActivity() {
         eProprioPerfil = id == NewHomeApplication.usuarioService.getUsuarioAtual().id
 
         if (eProprioPerfil) {
-            usuario = NewHomeApplication.usuarioService.getUsuarioAtual()
+            user = NewHomeApplication.usuarioService.getUsuarioAtual()
         } else {
             loadingDialog.start()
 
             try {
                 val u = NewHomeApplication.usuarioService.getUsuario(id).await()
-                usuario = Usuario.fromData(u)
-                perfilImage.setImageBitmap(usuario.imagem)
+                user = User.fromData(u)
+                perfilImage.setImageBitmap(user.image)
             } catch (e: Exception) {
                 dialogDisplayer.display("Falha ao carregar perfil", e)
                 finish()
@@ -114,9 +114,9 @@ class PerfilActivity : AppCompatActivity() {
             loadingDialog.stop()
         }
 
-        nomePerfilText.text = usuario.nome
-        descricaoPerfilText.text = usuario.detalhes
-        perfilImage.setImageBitmap(usuario.imagem)
+        nomePerfilText.text = user.name
+        descricaoPerfilText.text = user.details
+        perfilImage.setImageBitmap(user.image)
 
         sairPerfilButton.visibility = View.VISIBLE
     }
@@ -135,7 +135,7 @@ class PerfilActivity : AppCompatActivity() {
         val intent = Intent(applicationContext, ListarAnimaisActivity::class.java)
         intent.putExtra("tipo", "postosAdocao")
         if (!eProprioPerfil) {
-            intent.putExtra("usuarioId", usuario.id)
+            intent.putExtra("usuarioId", user.id)
         }
         startActivity(intent)
     }

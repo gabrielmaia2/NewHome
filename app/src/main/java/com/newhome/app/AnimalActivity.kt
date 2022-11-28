@@ -14,7 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.newhome.app.dto.Animal
 import com.newhome.app.dto.StatusSolicitacao
-import com.newhome.app.dto.Usuario
+import com.newhome.app.dto.User
 import com.newhome.app.utils.DialogDisplayer
 import com.newhome.app.utils.LoadingDialog
 import com.newhome.app.viewmodels.AnimalViewModel
@@ -121,13 +121,13 @@ class AnimalActivity : AppCompatActivity() {
     }
 
     private fun loadAnimal(animal: Animal) {
-        nomeAnimalText.text = animal.nome
-        descricaoAnimalText.text = animal.detalhes
-        animalImage.setImageBitmap(animal.imagem)
+        nomeAnimalText.text = animal.name
+        descricaoAnimalText.text = animal.details
+        animalImage.setImageBitmap(animal.image)
     }
 
-    private fun loadDono(dono: Usuario) {
-        imagemDono.setImageBitmap(dono.imagem)
+    private fun loadDono(dono: User) {
+        imagemDono.setImageBitmap(dono.image)
     }
 
     private fun loadStatus(status: StatusSolicitacao) {

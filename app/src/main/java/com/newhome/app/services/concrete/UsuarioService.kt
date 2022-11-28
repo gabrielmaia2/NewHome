@@ -3,9 +3,9 @@ package com.newhome.app.services.concrete
 import android.graphics.Bitmap
 import com.newhome.app.dao.IContaProvider
 import com.newhome.app.dao.IUsuarioProvider
-import com.newhome.app.dto.Usuario
+import com.newhome.app.dto.User
 import com.newhome.app.dto.UsuarioAsync
-import com.newhome.app.dto.UsuarioData
+import com.newhome.app.dto.UserData
 import com.newhome.app.services.IUsuarioService
 import kotlinx.coroutines.*
 
@@ -13,11 +13,11 @@ class UsuarioService(
     private val usuarioProvider: IUsuarioProvider,
     private val contaProvider: IContaProvider
 ) : IUsuarioService {
-    private lateinit var usuario: Usuario
+    private lateinit var user: User
 
-    override fun getUsuarioAtual(): Usuario {
+    override fun getUsuarioAtual(): User {
         try {
-            return usuario.copy()
+            return user.copy()
         } catch (e: UninitializedPropertyAccessException) {
             throw Exception("User not signed in.")
         }
@@ -28,7 +28,7 @@ class UsuarioService(
             return@async usuarioProvider.getUserImage(id).await()
         }
 
-    override suspend fun getUsuarioSemImagem(id: String): Deferred<UsuarioData> =
+    override suspend fun getUsuarioSemImagem(id: String): Deferred<UserData> =
         CoroutineScope(Dispatchers.Main).async {
             return@async usuarioProvider.getUser(id).await()
         }
@@ -37,27 +37,27 @@ class UsuarioService(
         CoroutineScope(Dispatchers.Main).async {
             val imageTask = usuarioProvider.getUserImage(id)
             val usuario = usuarioProvider.getUser(id).await()
-            return@async UsuarioAsync(usuario.id, usuario.nome, usuario.detalhes, imageTask)
+            return@async UsuarioAsync(usuario.id, usuario.name, usuario.details, imageTask)
         }
 
-    override suspend fun carregarUsuarioAtual(): Deferred<Usuario> =
+    override suspend fun carregarUsuarioAtual(): Deferred<User> =
         CoroutineScope(Dispatchers.Main).async {
             val uid = contaProvider.getContaID() ?: throw Exception("User not signed in.")
 
             val u = getUsuario(uid).await()
-            usuario = Usuario.fromData(u)
+            user = User.fromData(u)
 
-            return@async usuario.copy()
+            return@async user.copy()
         }
 
-    override suspend fun editarUsuarioAtual(usuario: Usuario): Deferred<Unit> =
+    override suspend fun editarUsuarioAtual(user: User): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
-            if (usuario.id != this@UsuarioService.usuario.id) {
+            if (user.id != this@UsuarioService.user.id) {
                 throw Exception("A user can only edit its own profile.")
             }
             val updateUserTask =
-                usuarioProvider.updateUser(UsuarioData(usuario.id, usuario.nome, usuario.detalhes))
-            val updateImageTask = usuarioProvider.setUserImage(usuario.id, usuario.imagem)
+                usuarioProvider.updateUser(UserData(user.id, user.name, user.details))
+            val updateImageTask = usuarioProvider.setUserImage(user.id, user.image)
 
             updateUserTask.await()
             updateImageTask.await()

@@ -11,10 +11,7 @@ import com.newhome.app.services.IAnimalService
 import com.newhome.app.services.IContaService
 import com.newhome.app.services.ISolicitacaoService
 import com.newhome.app.services.IUsuarioService
-import com.newhome.app.services.concrete.AnimalService
-import com.newhome.app.services.concrete.ContaService
-import com.newhome.app.services.concrete.SolicitacaoService
-import com.newhome.app.services.concrete.UsuarioService
+import com.newhome.app.services.concrete.*
 
 class NewHomeApplication : Application() {
     override fun onCreate() {
@@ -28,13 +25,14 @@ class NewHomeApplication : Application() {
 
         val contaProvider = FirebaseContaProvider(auth, authUI,context)
         val usuarioProvider = FirebaseUsuarioProvider(Firebase.firestore, imageProvider)
-        val animalProvider = FirebaseAnimalProvider(imageProvider)
+        val animalProvider = FirebaseAnimalProvider(Firebase.firestore, imageProvider)
+        val animalProviderTemp = FirebaseAnimalProviderTemp(Firebase.firestore, imageProvider)
         val solicitacaoProvider = FirebaseSolicitacaoProvider()
 
         contaService = ContaService(usuarioProvider, contaProvider)
         usuarioService = UsuarioService(usuarioProvider, contaProvider)
-        animalService = AnimalService(animalProvider, usuarioProvider)
-        solicitacaoService = SolicitacaoService(solicitacaoProvider, usuarioProvider, animalProvider)
+        animalService = AnimalService(animalProvider, usuarioProvider, contaProvider, imageProvider)
+        solicitacaoService = SolicitacaoService(solicitacaoProvider, usuarioProvider, animalProviderTemp)
 
         instance = this
     }

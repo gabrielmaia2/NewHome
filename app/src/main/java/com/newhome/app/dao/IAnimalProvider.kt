@@ -1,36 +1,32 @@
 package com.newhome.app.dao
 
 import android.graphics.Bitmap
-import com.newhome.app.dto.Animal
 import com.newhome.app.dto.AnimalData
-import com.newhome.app.dto.UsuarioData
+import com.newhome.app.dto.NewAnimalData
+import com.newhome.app.dto.UpdateAnimalData
 import kotlinx.coroutines.Deferred
 
 interface IAnimalProvider {
-    suspend fun getImagemAnimal(id: String): Deferred<Bitmap>
+    suspend fun getAnimalImage(id: String): Deferred<Bitmap>
 
-    suspend fun getTodosAnimais(): Deferred<List<AnimalData>>
+    suspend fun getAllAnimals(): Deferred<List<AnimalData>>
 
-    suspend fun getAnimaisPostosAdocao(donoId: String): Deferred<List<AnimalData>>
+    suspend fun getAnimalsIdsFromList(userId: String, listType: AnimalList): Deferred<List<String>>
 
-    suspend fun getAnimaisAdotados(adotadorId: String): Deferred<List<AnimalData>>
-
-    suspend fun getAnimaisSolicitados(solicitadorId: String): Deferred<List<AnimalData>>
-
-    suspend fun getDonoInicial(animalId: String): Deferred<UsuarioData>
+    suspend fun getDonorId(animalId: String): Deferred<String>
 
     // retorna adotador se tiver ou nulo se nao foi adotado
-    suspend fun getAdotador(animalId: String): Deferred<UsuarioData?>
+    suspend fun getAdopterId(animalId: String): Deferred<String>
 
     suspend fun getAnimal(id: String): Deferred<AnimalData>
 
     // returna id do animal
-    suspend fun adicionarAnimal(animal: Animal): Deferred<String>
+    suspend fun criarAnimal(animal: NewAnimalData): Deferred<String>
 
-    suspend fun editarAnimal(animal: Animal): Deferred<Unit>
+    suspend fun editarAnimal(animal: UpdateAnimalData): Deferred<Unit>
 
     suspend fun removerAnimal(id: String): Deferred<Unit>
 
-    // adotador busca animal
-    suspend fun animalBuscado(id: String): Deferred<Unit>
+    // adotador marca animal como adotado
+    suspend fun marcarAnimalAdotado(id: String): Deferred<Unit>
 }

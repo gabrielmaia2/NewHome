@@ -6,7 +6,7 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.newhome.app.dto.NovaConta
+import com.newhome.app.dto.NewAccount
 import com.newhome.app.utils.DialogDisplayer
 import com.newhome.app.utils.LoadingDialog
 import kotlinx.coroutines.launch
@@ -55,14 +55,14 @@ class CriarContaActivity : AppCompatActivity() {
         try {
             val idade = idadeText.text?.toString() ?: "0"
 
-            val novaConta = NovaConta(
+            val newAccount = NewAccount(
                 (emailText.text?.toString() ?: "").trim(),
                 senhaText.text?.toString() ?: "",
                 nomeText.text?.toString() ?: "",
                 (if (idade.isEmpty()) "0" else idade).toInt()
             )
 
-            NewHomeApplication.contaService.cadastrar(novaConta).await()
+            NewHomeApplication.contaService.cadastrar(newAccount).await()
         } catch (e:Exception) {
             dialogDisplayer.display("Falha ao realizar cadastro", e)
             dialog.stop()

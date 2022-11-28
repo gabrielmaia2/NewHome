@@ -13,7 +13,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.newhome.app.dto.Credenciais
+import com.newhome.app.dto.Credentials
 import com.newhome.app.utils.DialogDisplayer
 import com.newhome.app.utils.LoadingDialog
 import kotlinx.coroutines.launch
@@ -71,12 +71,12 @@ class LoginActivity : AppCompatActivity() {
 
         dialog.start()
 
-        val credenciais = Credenciais()
-        credenciais.email = (loginLoginText.text?.toString() ?: "").trim()
-        credenciais.senha = senhaLoginText.text?.toString() ?: ""
+        val credentials = Credentials()
+        credentials.email = (loginLoginText.text?.toString() ?: "").trim()
+        credentials.password = senhaLoginText.text?.toString() ?: ""
 
         try {
-            NewHomeApplication.contaService.logar(credenciais).await()
+            NewHomeApplication.contaService.logar(credentials).await()
         } catch (e: Exception) {
             dialogDisplayer.display("Falha ao fazer login", e)
             dialog.stop()

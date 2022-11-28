@@ -126,9 +126,9 @@ class SolicitacaoActivity : AppCompatActivity() {
     }
 
     private fun loadSolicitacao(solicitacao: Solicitacao) {
-        solicitacaoNomeText.text = solicitacao.solicitador?.nome ?: ""
-        solicitacaoPerfilDescricaoText.text = solicitacao.solicitador?.detalhes ?: ""
-        solicitacaoPerfilImage.setImageBitmap(solicitacao.solicitador?.imagem)
+        solicitacaoNomeText.text = solicitacao.solicitador?.name ?: ""
+        solicitacaoPerfilDescricaoText.text = solicitacao.solicitador?.details ?: ""
+        solicitacaoPerfilImage.setImageBitmap(solicitacao.solicitador?.image)
 
         if (solicitacao.animal != null)
             animalDetalhesSolicitacaoFragment.carregarAnimal(solicitacao.animal!!)

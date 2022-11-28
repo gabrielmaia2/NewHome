@@ -1,8 +1,8 @@
 package com.newhome.app.services
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.newhome.app.dto.Credenciais
-import com.newhome.app.dto.NovaConta
+import com.newhome.app.dto.Credentials
+import com.newhome.app.dto.NewAccount
 import kotlinx.coroutines.Deferred
 
 interface IContaService {
@@ -10,9 +10,9 @@ interface IContaService {
 
     suspend fun enviarEmailConfirmacao(): Deferred<Unit>
 
-    suspend fun cadastrar(novaConta: NovaConta): Deferred<Unit>
+    suspend fun cadastrar(newAccount: NewAccount): Deferred<Unit>
 
-    suspend fun logar(credenciais: Credenciais): Deferred<Unit>
+    suspend fun logar(credentials: Credentials): Deferred<Unit>
 
     suspend fun entrarComGoogle(account: GoogleSignInAccount): Deferred<Unit>
 

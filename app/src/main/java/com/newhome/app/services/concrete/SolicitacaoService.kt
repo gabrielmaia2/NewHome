@@ -1,6 +1,6 @@
 package com.newhome.app.services.concrete
 
-import com.newhome.app.dao.IAnimalProvider
+import com.newhome.app.dao.IAnimalProviderTemp
 import com.newhome.app.dao.ISolicitacaoProvider
 import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.SolicitacaoAsync
@@ -16,7 +16,7 @@ import kotlinx.coroutines.async
 class SolicitacaoService(
     private val solicitacaoProvider: ISolicitacaoProvider,
     private val usuarioProvider: IUsuarioProvider,
-    private val animalProvider: IAnimalProvider
+    private val animalProvider: IAnimalProviderTemp
 ) : ISolicitacaoService {
     override suspend fun getTodasSolicitacoes(): Deferred<List<SolicitacaoPreviewAsync>> =
         CoroutineScope(Dispatchers.Main).async {
@@ -49,8 +49,8 @@ class SolicitacaoService(
             val s = solicitacaoProvider.getSolicitacao(solicitacaoId).await()
 
             val solicitacao = SolicitacaoAsync.fromData(s)
-            solicitacao.solicitador!!.getImagem = solicitadorTask
-            solicitacao.animal!!.getImagem = animalTask
+            solicitacao.solicitador!!.getImage = solicitadorTask
+            solicitacao.animal!!.getImage = animalTask
 
             return@async solicitacao
         }

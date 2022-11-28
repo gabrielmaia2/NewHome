@@ -3,9 +3,9 @@ package com.newhome.app.services.concrete
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.newhome.app.dao.IContaProvider
 import com.newhome.app.dao.IUsuarioProvider
-import com.newhome.app.dto.Credenciais
-import com.newhome.app.dto.NovaConta
-import com.newhome.app.dto.NovoUsuario
+import com.newhome.app.dto.Credentials
+import com.newhome.app.dto.NewAccount
+import com.newhome.app.dto.NewUser
 import com.newhome.app.services.IContaService
 import com.newhome.app.utils.Utils
 import kotlinx.coroutines.*
@@ -23,24 +23,24 @@ class ContaService(
             contaProvider.enviarEmailConfirmacao().await()
         }
 
-    override suspend fun cadastrar(novaConta: NovaConta): Deferred<Unit> =
+    override suspend fun cadastrar(newAccount: NewAccount): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
-            if (novaConta.nome.length < 4 || novaConta.nome.length > 128) {
+            if (newAccount.name.length < 4 || newAccount.name.length > 128) {
                 throw Exception("Nome deve ter entre 4 e 128 caracteres.")
             }
-            if (novaConta.idade < 18 || novaConta.idade > 80) {
+            if (newAccount.age < 18 || newAccount.age > 80) {
                 throw Exception("Idade deve estar entre 18 e 80.")
             }
-            if (novaConta.senha.length < 8 || novaConta.senha.length > 64) {
+            if (newAccount.password.length < 8 || newAccount.password.length > 64) {
                 throw Exception("Senha deve ter entre 8 e 64 caracteres.")
             }
 
-            val credenciais = Credenciais(novaConta.email, novaConta.senha)
-            contaProvider.criarConta(credenciais).await()
+            val credentials = Credentials(newAccount.email, newAccount.password)
+            contaProvider.criarConta(credentials).await()
 
             val uid = contaProvider.getContaID()!!
 
-            val usuario = NovoUsuario(uid, novaConta.nome, "", novaConta.idade)
+            val usuario = NewUser(uid, newAccount.name, "", newAccount.age)
             usuarioProvider.createUser(usuario).await()
 
             try {
@@ -49,9 +49,9 @@ class ContaService(
             }
         }
 
-    override suspend fun logar(credenciais: Credenciais): Deferred<Unit> =
+    override suspend fun logar(credentials: Credentials): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
-            contaProvider.logar(credenciais).await()
+            contaProvider.logar(credentials).await()
 
             if (!contaProvider.emailConfirmacaoVerificado()) {
                 val enviarEmailTask = contaProvider.enviarEmailConfirmacao()
@@ -71,7 +71,7 @@ class ContaService(
             try {
                 usuarioProvider.getUser(uid).await()
             } catch (e: NoSuchElementException) {
-                val usuario = NovoUsuario(uid, account.displayName!!, "", 0)
+                val usuario = NewUser(uid, account.displayName!!, "", 0)
                 usuarioProvider.createUser(usuario).await()
 
                 val photoUrl = account.photoUrl ?: return@async

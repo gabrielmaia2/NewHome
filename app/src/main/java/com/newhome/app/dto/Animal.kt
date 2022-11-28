@@ -4,24 +4,24 @@ import android.graphics.Bitmap
 
 data class Animal(
     var id: String = "",
-    var nome: String = "",
-    var detalhes: String = "",
-    var imagem: Bitmap? = null
+    var name: String = "",
+    var details: String = "",
+    var image: Bitmap? = null
 ) {
     // TODO location on maps
 
     // para poder pesquisar animal na lista de animais
     override fun toString(): String {
-        return nome.lowercase() + detalhes.lowercase()
+        return name.lowercase() + details.lowercase()
     }
 
     companion object {
         fun fromData(data: AnimalData): Animal {
-            return Animal(data.id, data.nome, data.detalhes)
+            return Animal(data.id, data.name, data.details)
         }
 
         suspend fun fromData(data: AnimalAsync): Animal {
-            return Animal(data.id, data.nome, data.detalhes, data.getImagem!!.await())
+            return Animal(data.id, data.name, data.details, data.getImage!!.await())
         }
     }
 }

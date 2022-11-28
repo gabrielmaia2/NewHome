@@ -84,10 +84,10 @@ class EditarAnimalActivity : AppCompatActivity() {
         try {
             val a = NewHomeApplication.animalService.getAnimal(id).await()
             animal = Animal.fromData(a)
-            nomeAnimalEditText.setText(animal.nome)
-            descricaoAnimalEditText.setText(animal.detalhes)
+            nomeAnimalEditText.setText(animal.name)
+            descricaoAnimalEditText.setText(animal.details)
 
-            animalEditImage.setImageBitmap(animal.imagem)
+            animalEditImage.setImageBitmap(animal.image)
         } catch (e: Exception) {
             errorLoading(e)
             return
@@ -104,7 +104,7 @@ class EditarAnimalActivity : AppCompatActivity() {
 
     private fun createPictureTaker() {
         pictureTaker = PictureTaker(this, { bitmap ->
-            animal.imagem = bitmap
+            animal.image = bitmap
             animalEditImage.setImageBitmap(bitmap)
         }, { e ->
             dialogDisplayer.display("Falha ao acessar câmera", e)
@@ -114,8 +114,8 @@ class EditarAnimalActivity : AppCompatActivity() {
     private suspend fun onConcluir() {
         // conclui a edicao e retorna para a tela de animal dono enviando o novo animal editado
 
-        animal.nome = nomeAnimalEditText.text.toString()
-        animal.detalhes = descricaoAnimalEditText.text.toString()
+        animal.name = nomeAnimalEditText.text.toString()
+        animal.details = descricaoAnimalEditText.text.toString()
         // TODO enviar posicao no mapa
 
         dialog.start()

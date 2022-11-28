@@ -9,8 +9,8 @@ import com.newhome.app.MockUtils
 import com.newhome.app.TestUtils
 import com.newhome.app.dao.IContaProvider
 import com.newhome.app.dao.IUsuarioProvider
-import com.newhome.app.dto.Credenciais
-import com.newhome.app.dto.NovaConta
+import com.newhome.app.dto.Credentials
+import com.newhome.app.dto.NewAccount
 import com.newhome.app.services.concrete.ContaService
 import com.newhome.app.utils.Utils
 import org.junit.Assert.*
@@ -61,63 +61,63 @@ class ContaServiceTest {
 
     @Test
     fun `verify sign up invalid name`() = runTest {
-        val novaConta = NovaConta("emailcorreto@example.com", "#SenhaCorreta", "Nom", 18)
-        var e = TestUtils.assertThrowsAsync<Exception> { service.cadastrar(novaConta).await() }
+        val newAccount = NewAccount("emailcorreto@example.com", "#SenhaCorreta", "Nom", 18)
+        var e = TestUtils.assertThrowsAsync<Exception> { service.cadastrar(newAccount).await() }
         assertEquals("Nome deve ter entre 4 e 128 caracteres.", e.message)
 
         // length is 129
-        novaConta.nome = "Nomemuitogrande Nomemuitogrande Nomemuitogrande Nomemuitogrande " +
+        newAccount.name = "Nomemuitogrande Nomemuitogrande Nomemuitogrande Nomemuitogrande " +
                 "Nomemuitogrande Nomemuitogrande Nomemuitogrande Nomemuitogrande N"
-        e = TestUtils.assertThrowsAsync { service.cadastrar(novaConta).await() }
+        e = TestUtils.assertThrowsAsync { service.cadastrar(newAccount).await() }
         assertEquals("Nome deve ter entre 4 e 128 caracteres.", e.message)
     }
 
     @Test
     fun `verify sign up invalid age`() = runTest {
-        val novaConta = NovaConta("emailcorreto@example.com", "#SenhaCorreta", "Nome Correto", 17)
-        var e = TestUtils.assertThrowsAsync<Exception> { service.cadastrar(novaConta).await() }
+        val newAccount = NewAccount("emailcorreto@example.com", "#SenhaCorreta", "Nome Correto", 17)
+        var e = TestUtils.assertThrowsAsync<Exception> { service.cadastrar(newAccount).await() }
         assertEquals("Idade deve estar entre 18 e 80.", e.message)
 
-        novaConta.idade = 81
-        e = TestUtils.assertThrowsAsync { service.cadastrar(novaConta).await() }
+        newAccount.age = 81
+        e = TestUtils.assertThrowsAsync { service.cadastrar(newAccount).await() }
         assertEquals("Idade deve estar entre 18 e 80.", e.message)
     }
 
     @Test
     fun `verify sign up invalid password`() = runTest {
-        val novaConta = NovaConta("emailcorreto@example.com", "#Senha1", "Nome Correto", 18)
-        var e = TestUtils.assertThrowsAsync<Exception> { service.cadastrar(novaConta).await() }
+        val newAccount = NewAccount("emailcorreto@example.com", "#Senha1", "Nome Correto", 18)
+        var e = TestUtils.assertThrowsAsync<Exception> { service.cadastrar(newAccount).await() }
         assertEquals("Senha deve ter entre 8 e 64 caracteres.", e.message)
 
         // length is 65
-        novaConta.senha = "#SenhaMuitoGra12#SenhaMuitoGra12#SenhaMuitoGra12#SenhaMuitoGra123"
-        e = TestUtils.assertThrowsAsync { service.cadastrar(novaConta).await() }
+        newAccount.password = "#SenhaMuitoGra12#SenhaMuitoGra12#SenhaMuitoGra12#SenhaMuitoGra123"
+        e = TestUtils.assertThrowsAsync { service.cadastrar(newAccount).await() }
         assertEquals("Senha deve ter entre 8 e 64 caracteres.", e.message)
     }
 
     @Test
     @Suppress("DeferredResultUnused")
     fun `verify sign up valid data`() = runTest {
-        val novaConta = NovaConta("emailcorreto@example.com", "#SenhaCorreta123", "Nome", 18)
-        service.cadastrar(novaConta).await()
+        val newAccount = NewAccount("emailcorreto@example.com", "#SenhaCorreta123", "Nome", 18)
+        service.cadastrar(newAccount).await()
 
         // length is 128
-        novaConta.nome = "Nomemuitogrande Nomemuitogrande Nomemuitogrande Nomemuitogrande " +
+        newAccount.name = "Nomemuitogrande Nomemuitogrande Nomemuitogrande Nomemuitogrande " +
                 "Nomemuitogrande Nomemuitogrande Nomemuitogrande Nomemuitogrande "
-        service.cadastrar(novaConta).await()
+        service.cadastrar(newAccount).await()
 
-        novaConta.idade = 18
-        service.cadastrar(novaConta).await()
+        newAccount.age = 18
+        service.cadastrar(newAccount).await()
 
-        novaConta.idade = 80
-        service.cadastrar(novaConta).await()
+        newAccount.age = 80
+        service.cadastrar(newAccount).await()
 
-        novaConta.senha = "#Senha12"
-        service.cadastrar(novaConta).await()
+        newAccount.password = "#Senha12"
+        service.cadastrar(newAccount).await()
 
         // length is 64
-        novaConta.senha = "#SenhaMuitoGra12#SenhaMuitoGra12#SenhaMuitoGra12#SenhaMuitoGra12"
-        service.cadastrar(novaConta).await()
+        newAccount.password = "#SenhaMuitoGra12#SenhaMuitoGra12#SenhaMuitoGra12#SenhaMuitoGra12"
+        service.cadastrar(newAccount).await()
 
         coVerify(exactly = 6) { contaProvider.criarConta(any()) }
         coVerify(exactly = 6) { contaProvider.enviarEmailConfirmacao() }
@@ -132,7 +132,7 @@ class ContaServiceTest {
         every { contaProvider.emailConfirmacaoVerificado() } returns false
 
         val e = TestUtils.assertThrowsAsync<Exception> {
-            service.logar(Credenciais("emailcorreto@example.com", "#SenhaCorreta123")).await()
+            service.logar(Credentials("emailcorreto@example.com", "#SenhaCorreta123")).await()
         }
         coVerify(exactly = 1) { contaProvider.logar(any()) }
         coVerify(exactly = 1) { contaProvider.enviarEmailConfirmacao() }
@@ -146,7 +146,7 @@ class ContaServiceTest {
     @Test
     @Suppress("DeferredResultUnused")
     fun `verify sign in`() = runTest {
-        service.logar(Credenciais("emailcorreto@example.com", "#SenhaCorreta123")).await()
+        service.logar(Credentials("emailcorreto@example.com", "#SenhaCorreta123")).await()
         coVerify(exactly = 1) { contaProvider.logar(any()) }
         coVerify(exactly = 0) { contaProvider.enviarEmailConfirmacao() }
         coVerify(exactly = 0) { contaProvider.sair() }

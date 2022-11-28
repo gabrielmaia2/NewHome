@@ -2,20 +2,20 @@ package com.newhome.app.services
 
 import android.graphics.Bitmap
 import kotlinx.coroutines.Deferred
-import com.newhome.app.dto.Usuario
+import com.newhome.app.dto.User
 import com.newhome.app.dto.UsuarioAsync
-import com.newhome.app.dto.UsuarioData
+import com.newhome.app.dto.UserData
 
 interface IUsuarioService {
-    fun getUsuarioAtual(): Usuario
+    fun getUsuarioAtual(): User
 
     suspend fun getImagemUsuario(id: String): Deferred<Bitmap>
 
-    suspend fun getUsuarioSemImagem(id: String): Deferred<UsuarioData>
+    suspend fun getUsuarioSemImagem(id: String): Deferred<UserData>
 
     suspend fun getUsuario(id: String): Deferred<UsuarioAsync>
 
-    suspend fun carregarUsuarioAtual(): Deferred<Usuario>
+    suspend fun carregarUsuarioAtual(): Deferred<User>
 
-    suspend fun editarUsuarioAtual(usuario: Usuario): Deferred<Unit>
+    suspend fun editarUsuarioAtual(user: User): Deferred<Unit>
 }

@@ -114,13 +114,15 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 if (!animalData.exists()) throw Exception("Animal does not exist.")
                 if (!solicitadorData.exists()) throw Exception("User does not exist.")
 
+                // TODO remove usar animalprovider
                 val animal = AnimalData(
                     animalData.id,
                     animalData.data!!["nome"] as String,
                     animalData.data!!["detalhes"] as String
                 )
 
-                val solicitador = UsuarioData(
+                // TODO remove usar usuarioprovider
+                val solicitador = UserData(
                     solicitadorData.id,
                     solicitadorData.data!!["nome"] as String,
                     solicitadorData.data!!["detalhes"] as String

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.newhome.app.NewHomeApplication
 import com.newhome.app.dto.Animal
 import com.newhome.app.dto.StatusSolicitacao
-import com.newhome.app.dto.Usuario
+import com.newhome.app.dto.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,8 +14,8 @@ class AnimalViewModel: ViewModel() {
     private val _animalState = MutableStateFlow(Animal())
     val animalState: StateFlow<Animal> = _animalState.asStateFlow()
 
-    private val _donoState = MutableStateFlow(Usuario())
-    val donoState: StateFlow<Usuario> = _donoState.asStateFlow()
+    private val _donoState = MutableStateFlow(User())
+    val donoState: StateFlow<User> = _donoState.asStateFlow()
 
     private val _statusState = MutableStateFlow(StatusSolicitacao())
     val statusState: StateFlow<StatusSolicitacao> = _statusState.asStateFlow()
@@ -27,12 +27,12 @@ class AnimalViewModel: ViewModel() {
         val a = taskAnimal.await()
         val u = taskDono.await()
 
-        val animalImageTask = a.getImagem!!
-        val donoImageTask = u.getImagem!!
+        val animalImageTask = a.getImage!!
+        val donoImageTask = u.getImage!!
         val statusSolicitacaoTask = NewHomeApplication.solicitacaoService.getStatusSolicitacao(a.id)
 
-        _animalState.update { Animal(a.id, a.nome, a.detalhes, animalImageTask.await()) }
-        _donoState.update { Usuario(u.id, u.nome, u.detalhes, donoImageTask.await()) }
+        _animalState.update { Animal(a.id, a.name, a.details, animalImageTask.await()) }
+        _donoState.update { User(u.id, u.name, u.details, donoImageTask.await()) }
         _statusState.update { statusSolicitacaoTask.await() }
     }
 

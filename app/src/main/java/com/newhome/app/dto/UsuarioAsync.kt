@@ -5,13 +5,13 @@ import kotlinx.coroutines.Deferred
 
 class UsuarioAsync(
     var id: String = "",
-    var nome: String = "",
-    var detalhes: String = "",
-    var getImagem: Deferred<Bitmap>? = null
+    var name: String = "",
+    var details: String = "",
+    var getImage: Deferred<Bitmap>? = null
 ) {
     companion object {
-        fun fromData(data: UsuarioData): UsuarioAsync {
-            return UsuarioAsync(data.id, data.nome, data.detalhes)
+        fun fromData(data: UserData): UsuarioAsync {
+            return UsuarioAsync(data.id, data.name, data.details)
         }
     }
 }

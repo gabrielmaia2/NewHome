@@ -14,12 +14,13 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageMetadata
 import com.google.firebase.storage.StorageReference
+import com.newhome.app.utils.Utils
+import com.newhome.app.dao.AnimalList
 import com.newhome.app.dao.IContaProvider
 import com.newhome.app.dao.IImageProvider
 import com.newhome.app.dao.IUsuarioProvider
-import com.newhome.app.dto.Credenciais
-import com.newhome.app.dto.UsuarioData
-import com.newhome.app.utils.Utils
+import com.newhome.app.dto.Credentials
+import com.newhome.app.dto.UserData
 import io.mockk.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -31,6 +32,7 @@ import java.nio.charset.Charset
 class MockUtils {
     companion object {
         lateinit var applicationContext: Context; private set
+        lateinit var transaction: Transaction; private set
 
         lateinit var defaultBitmap: Bitmap; private set
         lateinit var nonDefaultBitmap: Bitmap; private set
@@ -45,6 +47,8 @@ class MockUtils {
             Dispatchers.setMain(StandardTestDispatcher())
 
             applicationContext = mockk()
+
+            transaction = mockk()
 
             defaultBitmap = mockk()
             nonDefaultBitmap = mockk()
@@ -218,6 +222,29 @@ class MockUtils {
                 )
             } returns TestUtils.createVoidSuccessTask()
 
+            val func = slot<Transaction.Function<Unit>>()
+            coEvery { firestore.runTransaction(capture(func)) } answers {
+                TestUtils.createSuccessTask(func.captured.apply(transaction))
+            }
+
+            val userData = mockk<DocumentSnapshot>()
+            val anyData = mockk<DocumentSnapshot>()
+            every { userData.getData() } returns hashMapOf<String, Any>(
+                AnimalList.placedForAdoption.toString() to arrayListOf("animalid"),
+                AnimalList.adopted.toString() to arrayListOf("animalid"),
+                AnimalList.adoptionRequested.toString() to arrayListOf("animalid")
+            )
+            every { userData.exists() } returns true
+            every { anyData.exists() } returns false
+
+            val captureRef = slot<DocumentReference>()
+            every { transaction.get(capture(captureRef)) } answers {
+                if (captureRef.captured == userDoc) userData
+                else anyData
+            }
+            every { transaction.update(any(), any()) } returns transaction
+            every { transaction.update(any(), any<String>(), any()) } returns transaction
+
             return firestore
         }
 
@@ -256,15 +283,15 @@ class MockUtils {
         fun mockContaProvider(): IContaProvider {
             val provider = mockk<IContaProvider>()
 
-            val credenciaisCapture = slot<Credenciais>()
+            val credentialsCapture = slot<Credentials>()
             coEvery { provider.getContaID() } returns "currentuserid"
             coEvery { provider.enviarEmailConfirmacao() } returns emptyTask
             coEvery { provider.emailConfirmacaoVerificado() } returns true
             coEvery { provider.criarConta(any()) } returns emptyTask
-            coEvery { provider.logar(capture(credenciaisCapture)) } answers {
+            coEvery { provider.logar(capture(credentialsCapture)) } answers {
                 if (
-                    credenciaisCapture.captured.email == "emailcorreto@example.com" &&
-                    credenciaisCapture.captured.senha == "#SenhaCorreta123"
+                    credentialsCapture.captured.email == "emailcorreto@example.com" &&
+                    credentialsCapture.captured.password == "#SenhaCorreta123"
                 ) emptyTask
                 else exceptionTask
             }
@@ -278,14 +305,14 @@ class MockUtils {
         fun mockUsuarioProvider(): IUsuarioProvider {
             val provider = mockk<IUsuarioProvider>()
 
-            val currentUser = UsuarioData("currentuserid", "username", "details")
-            val user = UsuarioData("userid", "username", "details")
+            val currentUser = UserData("currentuserid", "username", "details")
+            val user = UserData("userid", "username", "details")
 
             val getCurrentUserTask = CoroutineScope(Dispatchers.Main).async { currentUser }
             val getUserTask = CoroutineScope(Dispatchers.Main).async { user }
 
             val userId = slot<String>()
-            val userCapture = slot<UsuarioData>()
+            val userCapture = slot<UserData>()
             coEvery { provider.getUser(capture(userId)) } answers {
                 if (userId.captured == "currentuserid") getCurrentUserTask
                 else if (userId.captured == "userid") getUserTask

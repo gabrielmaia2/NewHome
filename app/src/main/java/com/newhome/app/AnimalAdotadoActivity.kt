@@ -76,11 +76,11 @@ class AnimalAdotadoActivity : AppCompatActivity() {
             return
         }
 
-        nomeAnimalAdotadoText.text = animal.nome
-        descricaoAnimalAdotadoText.text = animal.detalhes
+        nomeAnimalAdotadoText.text = animal.name
+        descricaoAnimalAdotadoText.text = animal.details
 
         val imagem = try {
-            animal.getImagem!!.await()
+            animal.getImage!!.await()
         } catch (e: Exception) {
             errorLoading(e)
             return

@@ -6,7 +6,7 @@ import com.newhome.app.MockUtils
 import com.newhome.app.TestUtils
 import com.newhome.app.dao.IContaProvider
 import com.newhome.app.dao.IUsuarioProvider
-import com.newhome.app.dto.Usuario
+import com.newhome.app.dto.User
 import com.newhome.app.services.concrete.UsuarioService
 import org.junit.Assert.*
 import io.mockk.*
@@ -15,7 +15,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class UsuarioServiceTest {
+class UserServiceTest {
     companion object {
         @BeforeClass
         @JvmStatic
@@ -103,7 +103,7 @@ class UsuarioServiceTest {
     fun `verify update current user wrong id`() = runTest {
         service.carregarUsuarioAtual().await()
         val e = TestUtils.assertThrowsAsync<Exception> {
-            service.editarUsuarioAtual(Usuario("userid", "nome2", "detalhes2", nonDefaultBitmap))
+            service.editarUsuarioAtual(User("userid", "nome2", "detalhes2", nonDefaultBitmap))
                 .await()
         }
         assertEquals("A user can only edit its own profile.", e.message)
@@ -114,7 +114,7 @@ class UsuarioServiceTest {
     fun `verify update current user`() = runTest {
         service.carregarUsuarioAtual().await()
         service.editarUsuarioAtual(
-            Usuario(
+            User(
                 "currentuserid",
                 "nome2",
                 "detalhes2",
