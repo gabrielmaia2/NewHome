@@ -2,6 +2,7 @@ package com.newhome.app.services.concrete
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.newhome.app.dao.IContaProvider
+import com.newhome.app.dao.IImageProvider
 import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.Credentials
 import com.newhome.app.dto.NewAccount
@@ -12,7 +13,8 @@ import kotlinx.coroutines.*
 
 class ContaService(
     private val usuarioProvider: IUsuarioProvider,
-    private val contaProvider: IContaProvider
+    private val contaProvider: IContaProvider,
+    private val imageProvider: IImageProvider
 ) : IContaService {
     override fun getContaID(): String? {
         return contaProvider.getContaID()
@@ -76,7 +78,7 @@ class ContaService(
 
                 val photoUrl = account.photoUrl ?: return@async
                 val image = Utils.decodeBitmap(photoUrl.toString())
-                usuarioProvider.setUserImage(uid, image).await()
+                imageProvider.saveUserImage(uid, image).await()
             }
         }
 

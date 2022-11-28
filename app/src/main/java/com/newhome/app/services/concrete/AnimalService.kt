@@ -14,14 +14,12 @@ class AnimalService(
 ) :
     IAnimalService {
     override suspend fun getImagemAnimal(id: String): Deferred<Bitmap> =
-        CoroutineScope(Dispatchers.Main).async {
-            return@async animalProvider.getAnimalImage(id).await()
-        }
+        imageProvider.getAnimalImage(id)
 
     override suspend fun getTodosAnimais(): Deferred<List<AnimalAsync>> =
         CoroutineScope(Dispatchers.Main).async {
             return@async animalProvider.getAllAnimals().await().map { a ->
-                AnimalAsync(a.id, a.name, a.details, animalProvider.getAnimalImage(a.id))
+                AnimalAsync(a.id, a.name, a.details, getImagemAnimal(a.id))
             }
         }
 
@@ -37,7 +35,7 @@ class AnimalService(
             for (id in animaisIds.await()) {
                 tasks.add(CoroutineScope(Dispatchers.Main).async {
                     val a = getAnimal(id).await()
-                    AnimalAsync(a.id, a.name, a.details, animalProvider.getAnimalImage(a.id))
+                    AnimalAsync(a.id, a.name, a.details, getImagemAnimal(a.id))
                 })
             }
 
@@ -48,26 +46,20 @@ class AnimalService(
         }
 
     override suspend fun getAnimaisPostosAdocao(donoId: String): Deferred<List<AnimalAsync>> =
-        CoroutineScope(Dispatchers.Main).async {
-            return@async getAnimalsFromUserList(donoId, AnimalList.placedForAdoption).await()
-        }
+        getAnimalsFromUserList(donoId, AnimalList.placedForAdoption)
 
     override suspend fun getAnimaisAdotados(adotadorId: String): Deferred<List<AnimalAsync>> =
-        CoroutineScope(Dispatchers.Main).async {
-            return@async getAnimalsFromUserList(adotadorId, AnimalList.adopted).await()
-        }
+        getAnimalsFromUserList(adotadorId, AnimalList.adopted)
 
     override suspend fun getAnimaisSolicitados(solicitadorId: String): Deferred<List<AnimalAsync>> =
-        CoroutineScope(Dispatchers.Main).async {
-            return@async getAnimalsFromUserList(solicitadorId, AnimalList.adoptionRequested).await()
-        }
+        getAnimalsFromUserList(solicitadorId, AnimalList.adoptionRequested)
 
     override suspend fun getDonoInicial(animalId: String): Deferred<UsuarioAsync> =
         CoroutineScope(Dispatchers.Main).async {
             val donorId = animalProvider.getDonorId(animalId).await()
             val d = usuarioProvider.getUser(donorId).await()
             return@async UsuarioAsync(
-                d.id, d.name, d.details, usuarioProvider.getUserImage(d.id)
+                d.id, d.name, d.details, imageProvider.getUserImage(d.id)
             )
         }
 
@@ -78,7 +70,7 @@ class AnimalService(
 
             val a = usuarioProvider.getUser(adopterId).await()
             return@async UsuarioAsync(
-                a.id, a.name, a.details, usuarioProvider.getUserImage(a.id)
+                a.id, a.name, a.details, imageProvider.getUserImage(a.id)
             )
         }
 
@@ -90,7 +82,7 @@ class AnimalService(
 
     override suspend fun getAnimal(id: String): Deferred<AnimalAsync> =
         CoroutineScope(Dispatchers.Main).async {
-            val imageTask = animalProvider.getAnimalImage(id)
+            val imageTask = getImagemAnimal(id)
             val animal = animalProvider.getAnimal(id).await()
             return@async AnimalAsync(animal.id, animal.name, animal.details, imageTask)
         }
@@ -110,7 +102,7 @@ class AnimalService(
             val aid = animalProvider.criarAnimal(a).await()
 
             val task1 = usuarioProvider.addAnimalIdToList(uid, aid, AnimalList.placedForAdoption)
-            val task2 = imageProvider.saveImage("animais/${aid}", animal.image)
+            val task2 = imageProvider.saveAnimalImage(aid, animal.image)
 
             task1.await()
             task2.await()
@@ -130,7 +122,7 @@ class AnimalService(
             val a = UpdateAnimalData(animal.id, animal.name, animal.details)
 
             val task1 = animalProvider.editarAnimal(a)
-            val task2 = imageProvider.saveImage("animais/${animal.id}", animal.image)
+            val task2 = imageProvider.saveAnimalImage(animal.id, animal.image)
 
             task1.await()
             task2.await()

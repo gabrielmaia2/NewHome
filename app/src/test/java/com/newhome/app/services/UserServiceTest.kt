@@ -5,6 +5,7 @@ import com.google.firebase.firestore.*
 import com.newhome.app.MockUtils
 import com.newhome.app.TestUtils
 import com.newhome.app.dao.IContaProvider
+import com.newhome.app.dao.IImageProvider
 import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.User
 import com.newhome.app.services.concrete.UsuarioService
@@ -29,6 +30,7 @@ class UserServiceTest {
 
     private lateinit var usuarioProvider: IUsuarioProvider
     private lateinit var contaProvider: IContaProvider
+    private lateinit var imageProvider: IImageProvider
 
     private lateinit var service: UsuarioService
 
@@ -39,14 +41,15 @@ class UserServiceTest {
 
         usuarioProvider = MockUtils.mockUsuarioProvider()
         contaProvider = MockUtils.mockContaProvider()
+        imageProvider = MockUtils.mockImageProvider("usuarios/currentuserid", "usuarios/userid")
 
-        service = UsuarioService(usuarioProvider, contaProvider)
+        service = UsuarioService(usuarioProvider, contaProvider, imageProvider)
     }
 
     @Test
     fun `verify get current user before sign in`() = runTest {
         val contaProvider = MockUtils.mockContaProvider()
-        val service = UsuarioService(usuarioProvider, contaProvider)
+        val service = UsuarioService(usuarioProvider, contaProvider, imageProvider)
 
         coEvery { contaProvider.getContaID() } returns null
 
@@ -61,7 +64,7 @@ class UserServiceTest {
         val usuario2 = service.getUsuarioAtual()
         coVerify(exactly = 1) { contaProvider.getContaID() }
         coVerify(exactly = 1) { usuarioProvider.getUser("currentuserid") }
-        coVerify(exactly = 1) { usuarioProvider.getUserImage("currentuserid") }
+        coVerify(exactly = 1) { imageProvider.getUserImage("currentuserid") }
 
         // getUsuarioAtual() should always return a copy of the original object
         assertEquals("currentuserid", usuario.id)
@@ -78,7 +81,7 @@ class UserServiceTest {
     @Suppress("DeferredResultUnused")
     fun `verify get user image`() = runTest {
         val imagem = service.getImagemUsuario("userid").await()
-        coVerify(exactly = 1) { usuarioProvider.getUserImage("userid") }
+        coVerify(exactly = 1) { imageProvider.getUserImage("userid") }
         assertEquals(nonDefaultBitmap, imagem)
     }
 
@@ -95,7 +98,7 @@ class UserServiceTest {
     fun `verify get user`() = runTest {
         val usuario = service.getUsuario("userid").await()
         coVerify(exactly = 1) { usuarioProvider.getUser("userid") }
-        coVerify(exactly = 1) { usuarioProvider.getUserImage("userid") }
+        coVerify(exactly = 1) { imageProvider.getUserImage("userid") }
         assertEquals("userid", usuario.id)
     }
 
@@ -123,6 +126,6 @@ class UserServiceTest {
         )
             .await()
         coVerify(exactly = 1) { usuarioProvider.updateUser(any()) }
-        coVerify(exactly = 1) { usuarioProvider.setUserImage("currentuserid", nonDefaultBitmap) }
+        coVerify(exactly = 1) { imageProvider.saveUserImage("currentuserid", nonDefaultBitmap) }
     }
 }

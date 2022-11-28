@@ -16,8 +16,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.tasks.await
 
 class FirebaseUsuarioProvider(
-    private val db: FirebaseFirestore,
-    private val imageProvider: IImageProvider
+    private val db: FirebaseFirestore
 ) : IUsuarioProvider {
     private fun snapshotToUserData(snapshot: DocumentSnapshot): UserData {
         // TODO use this
@@ -73,20 +72,6 @@ class FirebaseUsuarioProvider(
     override suspend fun deleteUser(id: String): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
             // TODO implementar
-        }
-
-    override suspend fun getUserImage(id: String): Deferred<Bitmap> =
-        CoroutineScope(Dispatchers.Main).async {
-            val exists = db.collection("usuarios").document(id).get().await().exists()
-            if (!exists) throw NoSuchElementException("Couldn't find user with specified ID.")
-            return@async imageProvider.getImageOrDefault("usuarios/${id}").await()
-        }
-
-    override suspend fun setUserImage(id: String, image: Bitmap?): Deferred<Unit> =
-        CoroutineScope(Dispatchers.Main).async {
-            val exists = db.collection("usuarios").document(id).get().await().exists()
-            if (!exists) throw NoSuchElementException("Couldn't find user with specified ID.")
-            return@async imageProvider.saveImage("usuarios/${id}", image).await()
         }
 
     override suspend fun addAnimalIdToList(

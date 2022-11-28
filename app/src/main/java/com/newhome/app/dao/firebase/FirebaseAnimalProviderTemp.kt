@@ -22,9 +22,7 @@ class FirebaseAnimalProviderTemp(
     private val imageProvider: IImageProvider
 ) : IAnimalProviderTemp {
     override suspend fun getImagemAnimal(id: String): Deferred<Bitmap> =
-        CoroutineScope(Dispatchers.Main).async {
-            return@async imageProvider.getImageOrDefault("animais/${id}").await()
-        }
+        imageProvider.getAnimalImage(id)
 
     override suspend fun getTodosAnimais(): Deferred<List<AnimalData>> =
         CoroutineScope(Dispatchers.Main).async {
@@ -184,7 +182,7 @@ class FirebaseAnimalProviderTemp(
                 animalRef
             }.await()
 
-            imageProvider.saveImage("animais/${docRef.id}", animal.image).await()
+            imageProvider.saveAnimalImage(docRef.id, animal.image).await()
 
             return@async docRef.id
         }
@@ -197,7 +195,7 @@ class FirebaseAnimalProviderTemp(
             )
 
             db.collection("animais").document(animal.id).set(docData, SetOptions.merge()).await()
-            imageProvider.saveImage("animais/${animal.id}", animal.image).await()
+            imageProvider.saveAnimalImage(animal.id, animal.image).await()
         }
 
     override suspend fun removerAnimal(id: String): Deferred<Unit> =

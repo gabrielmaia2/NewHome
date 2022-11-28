@@ -45,7 +45,11 @@ class FirebaseImageProviderTest {
         defaultBitmap = MockUtils.defaultBitmap
         nonDefaultBitmap = MockUtils.nonDefaultBitmap
 
-        firebaseStorage = MockUtils.mockFirebaseStorage("path/valid1", "path/valid2")
+        firebaseStorage = MockUtils.mockFirebaseStorage(
+            "path/valid1",
+            "usuarios/userid.jpg",
+            "animais/animalid.jpg"
+        )
 
         provider = FirebaseImageProvider(applicationContext, firebaseStorage)
     }
@@ -179,5 +183,49 @@ class FirebaseImageProviderTest {
 
         // check caching
         assertEquals(null, provider.cache[sha256])
+    }
+
+    @Test
+    @Suppress("DeferredResultUnused")
+    fun `verify get animal image`() = runTest {
+        provider = spyk(provider)
+        coEvery { provider.getImage(any()) } answers { callOriginal() }
+
+        val image = provider.getAnimalImage("animalid").await()
+
+        coVerify(exactly = 1) { provider.getImage("animais/animalid") }
+    }
+
+    @Test
+    @Suppress("DeferredResultUnused")
+    fun `verify get user image`() = runTest {
+        provider = spyk(provider)
+        coEvery { provider.getImage(any()) } answers { callOriginal() }
+
+        val image = provider.getUserImage("userid").await()
+
+        coVerify(exactly = 1) { provider.getImage("usuarios/userid") }
+    }
+
+    @Test
+    @Suppress("DeferredResultUnused")
+    fun `verify save animal image`() = runTest {
+        provider = spyk(provider)
+        coEvery { provider.saveImage(any(), any()) } answers { callOriginal() }
+
+        provider.saveAnimalImage("animalid", nonDefaultBitmap).await()
+
+        coVerify(exactly = 1) { provider.saveImage("animais/animalid", nonDefaultBitmap) }
+    }
+
+    @Test
+    @Suppress("DeferredResultUnused")
+    fun `verify save user image`() = runTest {
+        provider = spyk(provider)
+        coEvery { provider.saveImage(any(), any()) } answers { callOriginal() }
+
+        provider.saveUserImage("userid", nonDefaultBitmap).await()
+
+        coVerify(exactly = 1) { provider.saveImage("usuarios/userid", nonDefaultBitmap) }
     }
 }

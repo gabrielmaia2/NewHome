@@ -1,6 +1,7 @@
 package com.newhome.app.services.concrete
 
 import com.newhome.app.dao.IAnimalProviderTemp
+import com.newhome.app.dao.IImageProvider
 import com.newhome.app.dao.ISolicitacaoProvider
 import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.SolicitacaoAsync
@@ -15,8 +16,8 @@ import kotlinx.coroutines.async
 
 class SolicitacaoService(
     private val solicitacaoProvider: ISolicitacaoProvider,
-    private val usuarioProvider: IUsuarioProvider,
-    private val animalProvider: IAnimalProviderTemp
+    private val animalProvider: IAnimalProviderTemp,
+    private val imageProvider: IImageProvider
 ) : ISolicitacaoService {
     override suspend fun getTodasSolicitacoes(): Deferred<List<SolicitacaoPreviewAsync>> =
         CoroutineScope(Dispatchers.Main).async {
@@ -25,7 +26,7 @@ class SolicitacaoService(
                     s.id,
                     s.titulo,
                     s.descricao,
-                    usuarioProvider.getUserImage(s.id!!.solicitadorID)
+                    imageProvider.getUserImage(s.id!!.solicitadorID)
                 )
             }
         }
@@ -37,14 +38,14 @@ class SolicitacaoService(
                     s.id,
                     s.titulo,
                     s.descricao,
-                    usuarioProvider.getUserImage(s.id!!.solicitadorID)
+                    imageProvider.getUserImage(s.id!!.solicitadorID)
                 )
             }
         }
 
     override suspend fun getSolicitacao(solicitacaoId: SolicitacaoID): Deferred<SolicitacaoAsync> =
         CoroutineScope(Dispatchers.Main).async {
-            val solicitadorTask = usuarioProvider.getUserImage(solicitacaoId.solicitadorID)
+            val solicitadorTask = imageProvider.getUserImage(solicitacaoId.solicitadorID)
             val animalTask = animalProvider.getImagemAnimal(solicitacaoId.animalID)
             val s = solicitacaoProvider.getSolicitacao(solicitacaoId).await()
 

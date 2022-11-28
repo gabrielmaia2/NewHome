@@ -277,6 +277,43 @@ class MockUtils {
                 else getDefaultImageTask
             }
 
+            coEvery { provider.getAnimalImage(capture(pathCapture)) } answers {
+                val paths = imagePath
+                    .filter { p -> p.startsWith("animais/") }
+                    .map { p -> p.split("/")[1] }
+                if (paths.contains(pathCapture.captured)) getImageTask
+                else getDefaultImageTask
+            }
+            coEvery { provider.getUserImage(capture(pathCapture)) } answers {
+                val paths = imagePath
+                    .filter { p -> p.startsWith("usuarios/") }
+                    .map { p -> p.split("/")[1] }
+                if (paths.contains(pathCapture.captured)) getImageTask
+                else getDefaultImageTask
+            }
+            coEvery { provider.saveAnimalImage(capture(pathCapture), any()) } answers {
+                CoroutineScope(Dispatchers.Main).async {
+                    val paths = imagePath
+                        .filter { p -> p.startsWith("animais/") }
+                        .map { p -> p.split("/")[1] }
+                    assertTrue(
+                        "Wrong path provided",
+                        paths.contains(pathCapture.captured)
+                    )
+                }
+            }
+            coEvery { provider.saveUserImage(capture(pathCapture), any()) } answers {
+                CoroutineScope(Dispatchers.Main).async {
+                    val paths = imagePath
+                        .filter { p -> p.startsWith("usuarios/") }
+                        .map { p -> p.split("/")[1] }
+                    assertTrue(
+                        "Wrong path provided",
+                        paths.contains(pathCapture.captured)
+                    )
+                }
+            }
+
             return provider
         }
 
@@ -329,16 +366,11 @@ class MockUtils {
                 else if (userId.captured == "userid") emptyTask
                 else exceptionTask
             }
-            coEvery { provider.getUserImage(capture(userId)) } answers {
-                if (userId.captured == "currentuserid") getImageTask
-                else if (userId.captured == "userid") getImageTask
-                else getDefaultImageTask
-            }
-            coEvery { provider.setUserImage(capture(userId), any()) } answers {
-                if (userId.captured == "currentuserid") emptyTask
-                else if (userId.captured == "userid") emptyTask
-                else exceptionTask
-            }
+//            coEvery { provider.setUserImage(capture(userId), any()) } answers {
+//                if (userId.captured == "currentuserid") emptyTask
+//                else if (userId.captured == "userid") emptyTask
+//                else exceptionTask
+//            }
 
             return provider
         }

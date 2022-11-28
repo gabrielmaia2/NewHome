@@ -37,7 +37,7 @@ class FirebaseAnimalProviderTest {
         firestore = MockUtils.mockFirestore()
         imageProvider = MockUtils.mockImageProvider("usuarios/userid")
 
-        provider = FirebaseAnimalProvider(firestore, imageProvider)
+        provider = FirebaseAnimalProvider(firestore)
     }
 
 //    @Test

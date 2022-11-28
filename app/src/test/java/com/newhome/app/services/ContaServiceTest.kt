@@ -8,6 +8,7 @@ import com.google.firebase.firestore.*
 import com.newhome.app.MockUtils
 import com.newhome.app.TestUtils
 import com.newhome.app.dao.IContaProvider
+import com.newhome.app.dao.IImageProvider
 import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.Credentials
 import com.newhome.app.dto.NewAccount
@@ -33,6 +34,7 @@ class ContaServiceTest {
 
     private lateinit var usuarioProvider: IUsuarioProvider
     private lateinit var contaProvider: IContaProvider
+    private lateinit var imageProvider: IImageProvider
 
     private lateinit var service: ContaService
 
@@ -42,8 +44,9 @@ class ContaServiceTest {
 
         usuarioProvider = MockUtils.mockUsuarioProvider()
         contaProvider = MockUtils.mockContaProvider()
+        imageProvider = MockUtils.mockImageProvider("usuarios/userid", "usuarios/currentuserid")
 
-        service = ContaService(usuarioProvider, contaProvider)
+        service = ContaService(usuarioProvider, contaProvider, imageProvider)
     }
 
     @Test
@@ -128,7 +131,7 @@ class ContaServiceTest {
     @Suppress("DeferredResultUnused")
     fun `verify sign in no email verified`() = runTest {
         val contaProvider = MockUtils.mockContaProvider()
-        val service = ContaService(usuarioProvider, contaProvider)
+        val service = ContaService(usuarioProvider, contaProvider, imageProvider)
         every { contaProvider.emailConfirmacaoVerificado() } returns false
 
         val e = TestUtils.assertThrowsAsync<Exception> {
@@ -156,7 +159,7 @@ class ContaServiceTest {
     @Suppress("DeferredResultUnused")
     fun `verify sign in with google first time`() = runTest {
         val usuarioProvider = MockUtils.mockUsuarioProvider()
-        val service = ContaService(usuarioProvider, contaProvider)
+        val service = ContaService(usuarioProvider, contaProvider, imageProvider)
 
         val account = mockk<GoogleSignInAccount>()
         val photoUrl = mockk<Uri>()
@@ -178,7 +181,7 @@ class ContaServiceTest {
         service.entrarComGoogle(account).await()
         coVerify(exactly = 1) { contaProvider.entrarComGoogle(any()) }
         coVerify(exactly = 1) { usuarioProvider.createUser(any()) }
-        coVerify(exactly = 1) { usuarioProvider.setUserImage(any(), nonDefaultBitmap) }
+        coVerify(exactly = 1) { imageProvider.saveUserImage(any(), nonDefaultBitmap) }
     }
 
     @Test
@@ -187,13 +190,13 @@ class ContaServiceTest {
         service.entrarComGoogle(mockk()).await()
         coVerify(exactly = 1) { contaProvider.entrarComGoogle(any()) }
         coVerify(exactly = 0) { usuarioProvider.createUser(any()) }
-        coVerify(exactly = 0) { usuarioProvider.setUserImage(any(), any()) }
+        coVerify(exactly = 0) { imageProvider.saveUserImage(any(), any()) }
     }
 
     @Test
     fun `verify try use signed in account not signed in`() = runTest {
         val contaProvider = MockUtils.mockContaProvider()
-        val service = ContaService(usuarioProvider, contaProvider)
+        val service = ContaService(usuarioProvider, contaProvider, imageProvider)
         every { contaProvider.getContaID() } returns null
 
         val e = TestUtils.assertThrowsAsync<Exception> { service.tentarUsarContaLogada() }

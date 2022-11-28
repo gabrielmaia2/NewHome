@@ -12,8 +12,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 
 class FirebaseAnimalProvider(
-    private val db: FirebaseFirestore,
-    private val imageProvider: IImageProvider
+    private val db: FirebaseFirestore
 ) : IAnimalProvider {
     private fun snapshotToAnimalData(snapshot: DocumentSnapshot): AnimalData {
         return AnimalData(
@@ -26,11 +25,6 @@ class FirebaseAnimalProvider(
             (snapshot.data?.get("buscando") ?: false) as Boolean
         )
     }
-
-    override suspend fun getAnimalImage(id: String): Deferred<Bitmap> =
-        CoroutineScope(Dispatchers.Main).async {
-            return@async imageProvider.getImageOrDefault("animais/${id}").await()
-        }
 
     override suspend fun getAllAnimals(): Deferred<List<AnimalData>> =
         CoroutineScope(Dispatchers.Main).async {

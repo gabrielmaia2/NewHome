@@ -7,8 +7,6 @@ import com.newhome.app.dto.UpdateAnimalData
 import kotlinx.coroutines.Deferred
 
 interface IAnimalProvider {
-    suspend fun getAnimalImage(id: String): Deferred<Bitmap>
-
     suspend fun getAllAnimals(): Deferred<List<AnimalData>>
 
     suspend fun getAnimalsIdsFromList(userId: String, listType: AnimalList): Deferred<List<String>>

@@ -3,8 +3,6 @@ package com.newhome.app.dao.firebase
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
-import androidx.appcompat.content.res.AppCompatResources
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.ktx.storageMetadata
@@ -16,7 +14,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.tasks.await
-import java.io.ByteArrayOutputStream
 
 class FirebaseImageProvider(private val context: Context, storage: FirebaseStorage) : IImageProvider {
     var cache: HashMap<String, ByteArray> = HashMap()
@@ -107,4 +104,16 @@ class FirebaseImageProvider(private val context: Context, storage: FirebaseStora
             }
             return@async imagem
         }
+
+    override suspend fun getAnimalImage(id: String): Deferred<Bitmap> =
+        getImageOrDefault("animais/${id}")
+
+    override suspend fun getUserImage(id: String): Deferred<Bitmap> =
+        getImageOrDefault("usuarios/${id}")
+
+    override suspend fun saveAnimalImage(id: String, image: Bitmap?): Deferred<Unit> =
+        saveImage("animais/${id}", image)
+
+    override suspend fun saveUserImage(id: String, image: Bitmap?): Deferred<Unit> =
+        saveImage("usuarios/${id}", image)
 }

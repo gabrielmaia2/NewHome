@@ -14,10 +14,6 @@ interface IUsuarioProvider {
 
     suspend fun deleteUser(id: String): Deferred<Unit>
 
-    suspend fun getUserImage(id: String): Deferred<Bitmap>
-
-    suspend fun setUserImage(id: String, image: Bitmap?): Deferred<Unit>
-
     suspend fun addAnimalIdToList(id: String, animalId: String, list: AnimalList): Deferred<Unit>
 
     suspend fun removeAnimalIdFromList(id: String, animalId: String, list: AnimalList): Deferred<Unit>

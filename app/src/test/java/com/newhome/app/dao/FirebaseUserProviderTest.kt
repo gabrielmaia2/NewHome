@@ -46,7 +46,7 @@ class FirebaseUserProviderTest {
         firestore = MockUtils.mockFirestore()
         imageProvider = MockUtils.mockImageProvider("usuarios/userid")
 
-        provider = FirebaseUsuarioProvider(firestore, imageProvider)
+        provider = FirebaseUsuarioProvider(firestore)
     }
 
     @Test
@@ -111,37 +111,6 @@ class FirebaseUserProviderTest {
     @Test
     fun `verify delete nonexistent user`() = runTest {
         // TODO implement
-    }
-
-    @Test
-    @Suppress("DeferredResultUnused")
-    fun `verify get user image`() = runTest {
-        val image = provider.getUserImage("userid").await()
-        coVerify(exactly = 1) { imageProvider.getImageOrDefault("usuarios/userid") }
-        assertEquals(nonDefaultBitmap, image)
-    }
-
-    @Test
-    fun `verify get nonexistent user image`() = runTest {
-        val e = TestUtils.assertThrowsAsync<NoSuchElementException> {
-            provider.getUserImage("nonexistentid").await()
-        }
-        assertEquals("Couldn't find user with specified ID.", e.message)
-    }
-
-    @Test
-    @Suppress("DeferredResultUnused")
-    fun `verify set user image`() = runTest {
-        provider.setUserImage("userid", nonDefaultBitmap).await()
-        coVerify(exactly = 1) { imageProvider.saveImage("usuarios/userid", nonDefaultBitmap) }
-    }
-
-    @Test
-    fun `verify set nonexistent user image`() = runTest {
-        val e = TestUtils.assertThrowsAsync<NoSuchElementException> {
-            provider.setUserImage("nonexistentid", nonDefaultBitmap).await()
-        }
-        assertEquals("Couldn't find user with specified ID.", e.message)
     }
 
     @Test

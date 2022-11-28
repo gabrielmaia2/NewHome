@@ -2,6 +2,7 @@ package com.newhome.app.services.concrete
 
 import android.graphics.Bitmap
 import com.newhome.app.dao.IContaProvider
+import com.newhome.app.dao.IImageProvider
 import com.newhome.app.dao.IUsuarioProvider
 import com.newhome.app.dto.User
 import com.newhome.app.dto.UsuarioAsync
@@ -11,7 +12,8 @@ import kotlinx.coroutines.*
 
 class UsuarioService(
     private val usuarioProvider: IUsuarioProvider,
-    private val contaProvider: IContaProvider
+    private val contaProvider: IContaProvider,
+    private val imageProvider: IImageProvider
 ) : IUsuarioService {
     private lateinit var user: User
 
@@ -24,18 +26,14 @@ class UsuarioService(
     }
 
     override suspend fun getImagemUsuario(id: String): Deferred<Bitmap> =
-        CoroutineScope(Dispatchers.Main).async {
-            return@async usuarioProvider.getUserImage(id).await()
-        }
+        imageProvider.getUserImage(id)
 
     override suspend fun getUsuarioSemImagem(id: String): Deferred<UserData> =
-        CoroutineScope(Dispatchers.Main).async {
-            return@async usuarioProvider.getUser(id).await()
-        }
+        usuarioProvider.getUser(id)
 
     override suspend fun getUsuario(id: String): Deferred<UsuarioAsync> =
         CoroutineScope(Dispatchers.Main).async {
-            val imageTask = usuarioProvider.getUserImage(id)
+            val imageTask = getImagemUsuario(id)
             val usuario = usuarioProvider.getUser(id).await()
             return@async UsuarioAsync(usuario.id, usuario.name, usuario.details, imageTask)
         }
@@ -57,7 +55,7 @@ class UsuarioService(
             }
             val updateUserTask =
                 usuarioProvider.updateUser(UserData(user.id, user.name, user.details))
-            val updateImageTask = usuarioProvider.setUserImage(user.id, user.image)
+            val updateImageTask = imageProvider.saveUserImage(user.id, user.image)
 
             updateUserTask.await()
             updateImageTask.await()
