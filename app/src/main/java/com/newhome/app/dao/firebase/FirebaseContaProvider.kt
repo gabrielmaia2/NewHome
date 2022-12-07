@@ -10,7 +10,11 @@ import com.newhome.app.dto.Credentials
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 
-class FirebaseContaProvider(private val auth: FirebaseAuth, private val authUI: AuthUI, private val context: Context) :
+open class FirebaseContaProvider(
+    private val auth: FirebaseAuth,
+    private val authUI: AuthUI,
+    private val context: Context
+) :
     IContaProvider {
     override fun getContaID(): String? {
         return auth.currentUser?.uid

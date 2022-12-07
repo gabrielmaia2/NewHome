@@ -29,12 +29,16 @@ class UsuarioService(
         imageProvider.getUserImage(id)
 
     override suspend fun getUsuarioSemImagem(id: String): Deferred<UserData> =
-        usuarioProvider.getUser(id)
+        CoroutineScope(Dispatchers.Main).async {
+            val task = usuarioProvider.runTransaction { t -> usuarioProvider.getUser(t, id) }
+            return@async task.await() ?: UserData.empty
+        }
 
     override suspend fun getUsuario(id: String): Deferred<UsuarioAsync> =
         CoroutineScope(Dispatchers.Main).async {
             val imageTask = getImagemUsuario(id)
-            val usuario = usuarioProvider.getUser(id).await()
+            val task = usuarioProvider.runTransaction { t -> usuarioProvider.getUser(t, id) }
+            val usuario = task.await() ?: UserData.empty
             return@async UsuarioAsync(usuario.id, usuario.name, usuario.details, imageTask)
         }
 
@@ -53,8 +57,10 @@ class UsuarioService(
             if (user.id != this@UsuarioService.user.id) {
                 throw Exception("A user can only edit its own profile.")
             }
-            val updateUserTask =
-                usuarioProvider.updateUser(UserData(user.id, user.name, user.details))
+            val u = UserData(user.id, user.name, user.details)
+            val updateUserTask = usuarioProvider.runTransaction { t ->
+                usuarioProvider.updateUser(t, u)
+            }
             val updateImageTask = imageProvider.saveUserImage(user.id, user.image)
 
             updateUserTask.await()

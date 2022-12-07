@@ -39,8 +39,8 @@ class UserServiceTest {
         defaultBitmap = MockUtils.defaultBitmap
         nonDefaultBitmap = MockUtils.nonDefaultBitmap
 
-        usuarioProvider = MockUtils.mockUsuarioProvider()
         contaProvider = MockUtils.mockContaProvider()
+        usuarioProvider = MockUtils.mockUsuarioProvider()
         imageProvider = MockUtils.mockImageProvider("usuarios/currentuserid", "usuarios/userid")
 
         service = UsuarioService(usuarioProvider, contaProvider, imageProvider)
@@ -63,7 +63,7 @@ class UserServiceTest {
         val usuario = service.carregarUsuarioAtual().await()
         val usuario2 = service.getUsuarioAtual()
         coVerify(exactly = 1) { contaProvider.getContaID() }
-        coVerify(exactly = 1) { usuarioProvider.getUser("currentuserid") }
+        coVerify(exactly = 1) { usuarioProvider.getUser(any(), "currentuserid") }
         coVerify(exactly = 1) { imageProvider.getUserImage("currentuserid") }
 
         // getUsuarioAtual() should always return a copy of the original object
@@ -89,7 +89,7 @@ class UserServiceTest {
     @Suppress("DeferredResultUnused")
     fun `verify get user without image`() = runTest {
         val usuario = service.getUsuarioSemImagem("userid").await()
-        coVerify(exactly = 1) { usuarioProvider.getUser("userid") }
+        coVerify(exactly = 1) { usuarioProvider.getUser(any(), "userid") }
         assertEquals("userid", usuario.id)
     }
 
@@ -97,7 +97,7 @@ class UserServiceTest {
     @Suppress("DeferredResultUnused")
     fun `verify get user`() = runTest {
         val usuario = service.getUsuario("userid").await()
-        coVerify(exactly = 1) { usuarioProvider.getUser("userid") }
+        coVerify(exactly = 1) { usuarioProvider.getUser(any(), "userid") }
         coVerify(exactly = 1) { imageProvider.getUserImage("userid") }
         assertEquals("userid", usuario.id)
     }
@@ -123,9 +123,8 @@ class UserServiceTest {
                 "detalhes2",
                 nonDefaultBitmap
             )
-        )
-            .await()
-        coVerify(exactly = 1) { usuarioProvider.updateUser(any()) }
+        ).await()
+        verify(exactly = 1) { usuarioProvider.updateUser(any(), any()) }
         coVerify(exactly = 1) { imageProvider.saveUserImage("currentuserid", nonDefaultBitmap) }
     }
 }

@@ -223,7 +223,7 @@ class ListarAnimaisActivity : AppCompatActivity() {
             val dono = taskDono.await()
             val adotador = taskAdotador.await()
 
-            val eDono = userAtual.id == dono.id
+            val eDono = (dono != null) && userAtual.id == dono.id
             val adotado = adotador != null
 
             val intent = if (eDono) {

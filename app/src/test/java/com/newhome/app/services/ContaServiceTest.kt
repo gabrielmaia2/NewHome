@@ -32,8 +32,8 @@ class ContaServiceTest {
 
     private lateinit var nonDefaultBitmap: Bitmap
 
-    private lateinit var usuarioProvider: IUsuarioProvider
     private lateinit var contaProvider: IContaProvider
+    private lateinit var usuarioProvider: IUsuarioProvider
     private lateinit var imageProvider: IImageProvider
 
     private lateinit var service: ContaService
@@ -42,8 +42,8 @@ class ContaServiceTest {
     fun setup() {
         nonDefaultBitmap = MockUtils.nonDefaultBitmap
 
-        usuarioProvider = MockUtils.mockUsuarioProvider()
         contaProvider = MockUtils.mockContaProvider()
+        usuarioProvider = MockUtils.mockUsuarioProvider()
         imageProvider = MockUtils.mockImageProvider("usuarios/userid", "usuarios/currentuserid")
 
         service = ContaService(usuarioProvider, contaProvider, imageProvider)
@@ -124,7 +124,7 @@ class ContaServiceTest {
 
         coVerify(exactly = 6) { contaProvider.criarConta(any()) }
         coVerify(exactly = 6) { contaProvider.enviarEmailConfirmacao() }
-        coVerify(exactly = 6) { usuarioProvider.createUser(any()) }
+        verify(exactly = 6) { usuarioProvider.createUser(any(), any()) }
     }
 
     @Test
@@ -163,9 +163,9 @@ class ContaServiceTest {
 
         val account = mockk<GoogleSignInAccount>()
         val photoUrl = mockk<Uri>()
-        coEvery { account.displayName } returns "Nome Correto"
-        coEvery { account.photoUrl } returns photoUrl
-        coEvery { photoUrl.toString() } returns "https://www.example.com"
+        every { account.displayName } returns "Nome Correto"
+        every { account.photoUrl } returns photoUrl
+        every { photoUrl.toString() } returns "https://www.example.com"
 
         mockkObject(Utils)
         coEvery { Utils.decodeBitmap(any()) } returns nonDefaultBitmap
@@ -173,14 +173,11 @@ class ContaServiceTest {
         mockkStatic(BitmapFactory::class)
         every { BitmapFactory.decodeStream(any()) } returns nonDefaultBitmap
 
-        val exceptionTask = CoroutineScope(Dispatchers.Main).async {
-            throw NoSuchElementException("Couldn't find user with specified ID.")
-        }
-        coEvery { usuarioProvider.getUser(any()) } returns exceptionTask
+        every { usuarioProvider.getUser(any(), any()) } returns null
 
         service.entrarComGoogle(account).await()
         coVerify(exactly = 1) { contaProvider.entrarComGoogle(any()) }
-        coVerify(exactly = 1) { usuarioProvider.createUser(any()) }
+        coVerify(exactly = 1) { usuarioProvider.createUser(any(), any()) }
         coVerify(exactly = 1) { imageProvider.saveUserImage(any(), nonDefaultBitmap) }
     }
 
@@ -189,7 +186,7 @@ class ContaServiceTest {
     fun `verify sign in with google`() = runTest {
         service.entrarComGoogle(mockk()).await()
         coVerify(exactly = 1) { contaProvider.entrarComGoogle(any()) }
-        coVerify(exactly = 0) { usuarioProvider.createUser(any()) }
+        coVerify(exactly = 0) { usuarioProvider.createUser(any(), any()) }
         coVerify(exactly = 0) { imageProvider.saveUserImage(any(), any()) }
     }
 

@@ -17,14 +17,14 @@ interface IAnimalService {
 
     suspend fun getAnimaisSolicitados(solicitadorId: String): Deferred<List<AnimalAsync>>
 
-    suspend fun getDonoInicial(animalId: String): Deferred<UsuarioAsync>
+    suspend fun getDonoInicial(animalId: String): Deferred<UsuarioAsync?>
 
     // retorna adotador se tiver ou nulo se nao foi adotado
     suspend fun getAdotador(animalId: String): Deferred<UsuarioAsync?>
 
-    suspend fun getAnimalSemImagem(id: String): Deferred<AnimalAsync>
+    suspend fun getAnimalSemImagem(id: String): Deferred<AnimalAsync?>
 
-    suspend fun getAnimal(id: String): Deferred<AnimalAsync>
+    suspend fun getAnimal(id: String): Deferred<AnimalAsync?>
 
     // returna id do animal
     suspend fun adicionarAnimal(animal: Animal): Deferred<String>

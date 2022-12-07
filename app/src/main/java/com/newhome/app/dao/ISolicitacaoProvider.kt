@@ -4,10 +4,9 @@ import com.newhome.app.dto.SolicitacaoData
 import com.newhome.app.dto.SolicitacaoID
 import com.newhome.app.dto.SolicitacaoPreviewData
 import com.newhome.app.dto.StatusSolicitacao
-import com.newhome.app.dto.*
 import kotlinx.coroutines.Deferred
 
-interface ISolicitacaoProvider {
+interface ISolicitacaoProvider : IStoreProvider {
     suspend fun getTodasSolicitacoes(): Deferred<List<SolicitacaoPreviewData>>
 
     suspend fun getTodasSolicitacoesAnimal(animalId: String): Deferred<List<SolicitacaoPreviewData>>

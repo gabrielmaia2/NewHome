@@ -1,30 +1,33 @@
 package com.newhome.app.dao
 
-import android.graphics.Bitmap
+import com.google.firebase.firestore.Transaction
 import com.newhome.app.dto.AnimalData
 import com.newhome.app.dto.NewAnimalData
 import com.newhome.app.dto.UpdateAnimalData
 import kotlinx.coroutines.Deferred
 
-interface IAnimalProvider {
+interface IAnimalProvider : IStoreProvider {
     suspend fun getAllAnimals(): Deferred<List<AnimalData>>
 
-    suspend fun getAnimalsIdsFromList(userId: String, listType: AnimalList): Deferred<List<String>>
+    suspend fun getAnimalsIdsFromList(
+        userId: String,
+        listType: AnimalList
+    ): Deferred<List<String>>
 
-    suspend fun getDonorId(animalId: String): Deferred<String>
+    fun getDonorId(t: Transaction, animalId: String): String
 
     // retorna adotador se tiver ou nulo se nao foi adotado
-    suspend fun getAdopterId(animalId: String): Deferred<String>
+    fun getAdopterId(t: Transaction, animalId: String): String
 
-    suspend fun getAnimal(id: String): Deferred<AnimalData>
+    fun getAnimal(t: Transaction, id: String): AnimalData?
 
     // returna id do animal
-    suspend fun criarAnimal(animal: NewAnimalData): Deferred<String>
+    fun criarAnimal(t: Transaction, animal: NewAnimalData): String
 
-    suspend fun editarAnimal(animal: UpdateAnimalData): Deferred<Unit>
+    fun editarAnimal(t: Transaction, animal: UpdateAnimalData)
 
-    suspend fun removerAnimal(id: String): Deferred<Unit>
+    fun removerAnimal(t: Transaction, id: String)
 
     // adotador marca animal como adotado
-    suspend fun marcarAnimalAdotado(id: String): Deferred<Unit>
+    fun marcarAnimalAdotado(t: Transaction, id: String)
 }

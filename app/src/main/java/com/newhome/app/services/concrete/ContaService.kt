@@ -43,7 +43,9 @@ class ContaService(
             val uid = contaProvider.getContaID()!!
 
             val usuario = NewUser(uid, newAccount.name, "", newAccount.age)
-            usuarioProvider.createUser(usuario).await()
+            usuarioProvider.runTransaction { t ->
+                usuarioProvider.createUser(t, usuario)
+            }.await()
 
             try {
                 contaProvider.enviarEmailConfirmacao().await()
@@ -70,16 +72,19 @@ class ContaService(
         CoroutineScope(Dispatchers.Main).async {
             contaProvider.entrarComGoogle(account).await()
             val uid = contaProvider.getContaID()!!
-            try {
-                usuarioProvider.getUser(uid).await()
-            } catch (e: NoSuchElementException) {
-                val usuario = NewUser(uid, account.displayName!!, "", 0)
-                usuarioProvider.createUser(usuario).await()
+            val user = usuarioProvider.runTransaction { t ->
+                usuarioProvider.getUser(t, uid)
+            }.await()
+            if (user != null) return@async
 
-                val photoUrl = account.photoUrl ?: return@async
-                val image = Utils.decodeBitmap(photoUrl.toString())
-                imageProvider.saveUserImage(uid, image).await()
-            }
+            val usuario = NewUser(uid, account.displayName!!, "", 0)
+            usuarioProvider.runTransaction { t ->
+                usuarioProvider.createUser(t, usuario)
+            }.await()
+
+            val photoUrl = account.photoUrl ?: return@async
+            val image = Utils.decodeBitmap(photoUrl.toString())
+            imageProvider.saveUserImage(uid, image).await()
         }
 
     override fun tentarUsarContaLogada() {
@@ -94,7 +99,9 @@ class ContaService(
     override suspend fun excluirConta(): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
             // TODO implementar
-            usuarioProvider.deleteUser(contaProvider.getContaID()!!).await()
+            usuarioProvider.runTransaction { t ->
+                usuarioProvider.deleteUser(t, contaProvider.getContaID()!!)
+            }.await()
             contaProvider.excluirConta().await()
         }
 }

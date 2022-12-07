@@ -26,5 +26,14 @@ class Utils {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 95, baos)
             return baos.toByteArray()
         }
+
+        fun <T> List<*>?.toArrayList(convert: (Any?) -> T): ArrayList<T> {
+            if (this == null) return ArrayList()
+            return ArrayList(this.map { i -> convert(i) })
+        }
+
+        fun List<*>?.toStringArrayList(): ArrayList<String> {
+            return this?.toArrayList { i -> i.toString() } ?: ArrayList()
+        }
     }
 }

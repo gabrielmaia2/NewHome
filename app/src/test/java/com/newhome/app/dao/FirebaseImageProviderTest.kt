@@ -29,29 +29,32 @@ class FirebaseImageProviderTest {
         }
     }
 
+    private lateinit var storage: FirebaseStorage
+    private lateinit var byteArray: ByteArray
+
     private lateinit var applicationContext: Context
 
     private lateinit var defaultBitmap: Bitmap
     private lateinit var nonDefaultBitmap: Bitmap
 
-    private lateinit var firebaseStorage: FirebaseStorage
-
     private lateinit var provider: FirebaseImageProvider
 
     @Before
     fun setup() {
+        val (s, b) = MockUtils.mockFirebaseStorage(
+            "path/valid1",
+            "usuarios/userid.jpg",
+            "animais/animalid.jpg"
+        )
+        storage = s
+        byteArray = b
+
         applicationContext = MockUtils.applicationContext
 
         defaultBitmap = MockUtils.defaultBitmap
         nonDefaultBitmap = MockUtils.nonDefaultBitmap
 
-        firebaseStorage = MockUtils.mockFirebaseStorage(
-            "path/valid1",
-            "usuarios/userid.jpg",
-            "animais/animalid.jpg"
-        )
-
-        provider = FirebaseImageProvider(applicationContext, firebaseStorage)
+        provider = FirebaseImageProvider(applicationContext, storage)
     }
 
     @Test
@@ -77,7 +80,7 @@ class FirebaseImageProviderTest {
     fun `verify save image null bitmap`() = runTest {
         provider.saveImage("path/valid1", null).await()
 
-        val imgRef = firebaseStorage.reference.child("path/valid1")
+        val imgRef = storage.reference.child("path/valid1")
         coVerify(exactly = 0) { imgRef.putBytes(any()) }
     }
 
@@ -94,10 +97,10 @@ class FirebaseImageProviderTest {
     fun `verify save image`() = runTest {
         provider.saveImage("path/valid1", nonDefaultBitmap).await()
 
-        val sha256 = Utils.sha256(MockUtils.byteArray)
+        val sha256 = Utils.sha256(byteArray)
 
         // check path
-        val imgRef = firebaseStorage.reference.child("path/valid1.jpg")
+        val imgRef = storage.reference.child("path/valid1.jpg")
         coVerify(exactly = 1) {
             imgRef.putBytes(any(), withArg {
                 // check sha256sum
@@ -117,11 +120,11 @@ class FirebaseImageProviderTest {
     @Test
     fun `verify get image cached`() = runTest {
         provider.cache = hashMapOf(
-            Utils.sha256(MockUtils.byteArray) to MockUtils.byteArray
+            Utils.sha256(byteArray) to byteArray
         )
         val image = provider.getImage("path/valid1").await()
 
-        val imgRef = firebaseStorage.reference.child("path/valid1.jpg")
+        val imgRef = storage.reference.child("path/valid1.jpg")
         coVerify(exactly = 0) { imgRef.getBytes(any()) }
         assertEquals(nonDefaultBitmap, image)
     }
@@ -131,13 +134,13 @@ class FirebaseImageProviderTest {
         val image = provider.getImage("path/valid1").await()
 
         // check getting data
-        val imgRef = firebaseStorage.reference.child("path/valid1.jpg")
+        val imgRef = storage.reference.child("path/valid1.jpg")
         coVerify(exactly = 1) { imgRef.getBytes(any()) }
         assertEquals(nonDefaultBitmap, image)
 
         // check caching
-        val sha256 = Utils.sha256(MockUtils.byteArray)
-        assertEquals(MockUtils.byteArray, provider.cache[sha256])
+        val sha256 = Utils.sha256(byteArray)
+        assertEquals(byteArray, provider.cache[sha256])
     }
 
     @Test
@@ -150,35 +153,35 @@ class FirebaseImageProviderTest {
     fun `verify get image or default`() = runTest {
         val image = provider.getImageOrDefault("path/valid1").await()
 
-        val imgRef = firebaseStorage.reference.child("path/valid1.jpg")
+        val imgRef = storage.reference.child("path/valid1.jpg")
         coVerify(exactly = 1) { imgRef.getBytes(any()) }
         assertEquals(nonDefaultBitmap, image)
     }
 
     @Test
     fun `verify remove image invalid path`() = runTest {
-        val sha256 = Utils.sha256(MockUtils.byteArray)
+        val sha256 = Utils.sha256(byteArray)
         provider.cache = hashMapOf(
-            sha256 to MockUtils.byteArray
+            sha256 to byteArray
         )
 
         // check delete
         provider.removeImage("path/invalid").await()
 
         // check caching
-        assertEquals(MockUtils.byteArray, provider.cache[sha256])
+        assertEquals(byteArray, provider.cache[sha256])
     }
 
     @Test
     fun `verify remove image`() = runTest {
-        val sha256 = Utils.sha256(MockUtils.byteArray)
+        val sha256 = Utils.sha256(byteArray)
         provider.cache = hashMapOf(
-            sha256 to MockUtils.byteArray
+            sha256 to byteArray
         )
 
         // check delete
         provider.removeImage("path/valid1").await()
-        val imgRef = firebaseStorage.reference.child("path/valid1.jpg")
+        val imgRef = storage.reference.child("path/valid1.jpg")
         coVerify(exactly = 1) { imgRef.delete() }
 
         // check caching

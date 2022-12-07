@@ -26,13 +26,12 @@ class NewHomeApplication : Application() {
         val contaProvider = FirebaseContaProvider(auth, authUI,context)
         val usuarioProvider = FirebaseUsuarioProvider(Firebase.firestore)
         val animalProvider = FirebaseAnimalProvider(Firebase.firestore)
-        val animalProviderTemp = FirebaseAnimalProviderTemp(Firebase.firestore, imageProvider)
-        val solicitacaoProvider = FirebaseSolicitacaoProvider()
+        val solicitacaoProvider = FirebaseSolicitacaoProvider(Firebase.firestore)
 
         contaService = ContaService(usuarioProvider, contaProvider, imageProvider)
         usuarioService = UsuarioService(usuarioProvider, contaProvider, imageProvider)
         animalService = AnimalService(animalProvider, usuarioProvider, contaProvider, imageProvider)
-        solicitacaoService = SolicitacaoService(solicitacaoProvider, animalProviderTemp, imageProvider)
+        solicitacaoService = SolicitacaoService(solicitacaoProvider, imageProvider)
 
         instance = this
     }

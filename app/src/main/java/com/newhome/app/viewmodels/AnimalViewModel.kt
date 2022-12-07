@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class AnimalViewModel: ViewModel() {
+class AnimalViewModel : ViewModel() {
     private val _animalState = MutableStateFlow(Animal())
     val animalState: StateFlow<Animal> = _animalState.asStateFlow()
 
@@ -27,13 +27,28 @@ class AnimalViewModel: ViewModel() {
         val a = taskAnimal.await()
         val u = taskDono.await()
 
-        val animalImageTask = a.getImage!!
-        val donoImageTask = u.getImage!!
-        val statusSolicitacaoTask = NewHomeApplication.solicitacaoService.getStatusSolicitacao(a.id)
+        val animalImageTask = a?.getImage
+        val donoImageTask = u?.getImage
+        val statusSolicitacaoTask =
+            if (a == null) null else NewHomeApplication.solicitacaoService.getStatusSolicitacao(a.id)
 
-        _animalState.update { Animal(a.id, a.name, a.details, animalImageTask.await()) }
-        _donoState.update { User(u.id, u.name, u.details, donoImageTask.await()) }
-        _statusState.update { statusSolicitacaoTask.await() }
+        _animalState.update {
+            Animal(
+                a?.id ?: "0",
+                a?.name ?: "null",
+                a?.details ?: "null",
+                animalImageTask?.await()
+            )
+        }
+        _donoState.update {
+            User(
+                u?.id ?: "0",
+                u?.name ?: "null",
+                u?.details ?: "null",
+                donoImageTask?.await()
+            )
+        }
+        _statusState.update { statusSolicitacaoTask?.await() ?: StatusSolicitacao() }
     }
 
     suspend fun animalBuscado() {

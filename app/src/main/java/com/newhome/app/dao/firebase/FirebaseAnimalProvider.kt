@@ -1,19 +1,23 @@
 package com.newhome.app.dao.firebase
 
-import android.graphics.Bitmap
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.Transaction
 import com.newhome.app.dao.AnimalList
 import com.newhome.app.dao.IAnimalProvider
-import com.newhome.app.dao.IImageProvider
 import com.newhome.app.dto.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 
-class FirebaseAnimalProvider(
+open class FirebaseAnimalProvider(
     private val db: FirebaseFirestore
 ) : IAnimalProvider {
+    private val sp = StoreProvider(db)
+
+    override suspend fun <T> runTransaction(
+        func: (Transaction) -> T
+    ): Deferred<T> = sp.runTransaction(func)
+
     private fun snapshotToAnimalData(snapshot: DocumentSnapshot): AnimalData {
         return AnimalData(
             snapshot.id,
@@ -43,30 +47,28 @@ class FirebaseAnimalProvider(
             return@async l.map { t -> t.toString() }
         }
 
-    override suspend fun getDonorId(animalId: String): Deferred<String> =
-        CoroutineScope(Dispatchers.Main).async {
-            val docRef = db.collection("animais").document(animalId).get().await()
-            return@async (docRef.data?.get("dono") ?: "") as String
+    override fun getDonorId(t: Transaction, animalId: String): String {
+            val doc = db.collection("animais").document(animalId)
+            val docRef = t.get(doc)
+            return (docRef.data?.get("dono") ?: "") as String
         }
 
-    override suspend fun getAdopterId(animalId: String): Deferred<String> =
-        CoroutineScope(Dispatchers.Main).async {
-            val docRef = db.collection("animais").document(animalId).get().await()
-            return@async (docRef.data?.get("adotador") ?: "") as String
+    override fun getAdopterId(t: Transaction, animalId: String): String {
+            val doc = db.collection("animais").document(animalId)
+            val docRef = t.get(doc)
+            return (docRef.data?.get("adotador") ?: "") as String
         }
 
-    override suspend fun getAnimal(id: String): Deferred<AnimalData> =
-        CoroutineScope(Dispatchers.Main).async {
-            val doc = db.collection("animais").document(id).get().await()
+    override fun getAnimal(t: Transaction, id: String): AnimalData? {
+            val doc = db.collection("animais").document(id)
+            val docRef = t.get(doc)
 
-            if (!doc.exists()) return@async AnimalData.empty
-
-            return@async snapshotToAnimalData(doc)
+            if (!docRef.exists()) return null
+            return snapshotToAnimalData(docRef)
         }
 
-    override suspend fun criarAnimal(animal: NewAnimalData): Deferred<String> =
-        CoroutineScope(Dispatchers.Main).async {
-            val animalRef = db.collection("animais").document()
+    override fun criarAnimal(t: Transaction, animal: NewAnimalData): String {
+            val doc = db.collection("animais").document()
 
             val docData = hashMapOf(
                 "nome" to animal.name,
@@ -78,62 +80,32 @@ class FirebaseAnimalProvider(
                 "detalhesAdocao" to ""
             )
 
-            animalRef.set(docData).await()
-
-            return@async animalRef.id
+            t.set(doc, docData)
+            return doc.id
         }
 
-    override suspend fun editarAnimal(animal: UpdateAnimalData): Deferred<Unit> =
-        CoroutineScope(Dispatchers.Main).async {
+    override fun editarAnimal(t: Transaction, animal: UpdateAnimalData){
             // TODO verificar se e dono
             val animalRef = db.collection("animais").document(animal.id)
 
-            val docData = hashMapOf(
+            val docData = hashMapOf<String, Any>(
                 "nome" to animal.name,
                 "detalhes" to animal.details,
                 "buscando" to animal.beingAdopted,
             )
 
-            db.runTransaction { transaction ->
-                val animalData = transaction.get(animalRef)
-
-                if (!animalData.exists())
-                    throw NoSuchElementException("Couldn't find animal with specified ID.")
-
-                transaction.set(animalRef, docData, SetOptions.merge())
-            }.await()
+            t.update(animalRef, docData)
         }
 
-    override suspend fun removerAnimal(id: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.Main).async {
+    override fun removerAnimal(t: Transaction, id: String){
             // TODO verificar se e dono
             val animalRef = db.collection("animais").document(id)
-
-            db.runTransaction { transaction ->
-                val animalData = transaction.get(animalRef)
-
-                if (!animalData.exists())
-                    throw NoSuchElementException("Couldn't find animal with specified ID.")
-
-                transaction.delete(animalRef)
-            }.await()
+            t.delete(animalRef)
         }
 
-    override suspend fun marcarAnimalAdotado(id: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.Main).async {
+    override fun marcarAnimalAdotado(t: Transaction, id: String) {
             // TODO verificar se e dono
             val animalRef = db.collection("animais").document(id)
-
-            db.runTransaction { transaction ->
-                val animalData = transaction.get(animalRef)
-
-                if (!animalData.exists())
-                    throw NoSuchElementException("Couldn't find animal with specified ID.")
-
-                val data = hashMapOf(
-                    "buscando" to true
-                )
-                transaction.set(animalRef, data, SetOptions.merge())
-            }.await()
+            t.update(animalRef, "buscando", true)
         }
 }

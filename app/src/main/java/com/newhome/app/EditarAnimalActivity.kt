@@ -83,7 +83,7 @@ class EditarAnimalActivity : AppCompatActivity() {
 
         try {
             val a = NewHomeApplication.animalService.getAnimal(id).await()
-            animal = Animal.fromData(a)
+            animal = if (a != null) Animal.fromData(a) else Animal()
             nomeAnimalEditText.setText(animal.name)
             descricaoAnimalEditText.setText(animal.details)
 

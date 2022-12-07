@@ -91,24 +91,26 @@ class AnimalDonoActivity : AppCompatActivity() {
 
         val id = intent.getStringExtra("id")!!
 
-        animal = try {
+        val a = try {
             NewHomeApplication.animalService.getAnimal(id).await()
         } catch (e: Exception) {
             errorLoading(e)
             return
         }
 
+        animal = a ?: AnimalAsync.empty
+
         nomeAnimalDonoText.text = animal.name
         descricaoAnimalDonoText.text = animal.details
 
         val imagem = try {
-            animal.getImage!!.await()
+            animal.getImage?.await()
         } catch (e: Exception) {
             errorLoading(e)
             return
         }
 
-        animalDonoImage.setImageBitmap(imagem)
+        if (imagem != null) animalDonoImage.setImageBitmap(imagem)
         loadingDialog.stop()
     }
 

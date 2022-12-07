@@ -69,24 +69,26 @@ class AnimalAdotadoActivity : AppCompatActivity() {
 
         val id = intent.getStringExtra("id")!!
 
-        animal = try {
+        val a = try {
             NewHomeApplication.animalService.getAnimal(id).await()
         } catch (e: Exception) {
             errorLoading(e)
             return
         }
 
+        animal = a ?: AnimalAsync.empty
+
         nomeAnimalAdotadoText.text = animal.name
         descricaoAnimalAdotadoText.text = animal.details
 
         val imagem = try {
-            animal.getImage!!.await()
+            animal.getImage?.await()
         } catch (e: Exception) {
             errorLoading(e)
             return
         }
 
-        animalAdotadoImage.setImageBitmap(imagem)
+        if (imagem != null) animalAdotadoImage.setImageBitmap(imagem)
         loadingDialog.stop()
     }
 
@@ -105,6 +107,12 @@ class AnimalAdotadoActivity : AppCompatActivity() {
             NewHomeApplication.animalService.getDonoInicial(animal.id).await()
         } catch (e: Exception) {
             dialogDisplayer.display("Falha ao buscar dono", e)
+            dialog.stop()
+            return
+        }
+
+        if (dono == null) {
+            dialogDisplayer.display("Dono inexistente.")
             dialog.stop()
             return
         }

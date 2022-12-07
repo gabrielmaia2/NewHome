@@ -3,6 +3,7 @@ package com.newhome.app.dao
 import android.graphics.Bitmap
 import com.google.android.gms.tasks.*
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Transaction
 import com.newhome.app.MockUtils
 import com.newhome.app.dao.firebase.FirebaseAnimalProvider
 import io.mockk.*
@@ -23,18 +24,21 @@ class FirebaseAnimalProviderTest {
         }
     }
 
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var transaction: Transaction
     private lateinit var nonDefaultBitmap: Bitmap
 
-    private lateinit var firestore: FirebaseFirestore
     private lateinit var imageProvider: IImageProvider
 
     private lateinit var provider: FirebaseAnimalProvider
 
     @Before
     fun setup() {
+        val (f, t) = MockUtils.mockFirestore()
+        firestore = f
+        transaction = t
         nonDefaultBitmap = MockUtils.nonDefaultBitmap
 
-        firestore = MockUtils.mockFirestore()
         imageProvider = MockUtils.mockImageProvider("usuarios/userid")
 
         provider = FirebaseAnimalProvider(firestore)

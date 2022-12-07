@@ -15,7 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.tasks.await
 
-class FirebaseImageProvider(private val context: Context, storage: FirebaseStorage) : IImageProvider {
+open class FirebaseImageProvider(private val context: Context, storage: FirebaseStorage) :
+    IImageProvider {
     var cache: HashMap<String, ByteArray> = HashMap()
 
     private val storageRef = storage.reference
