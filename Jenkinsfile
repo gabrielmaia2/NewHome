@@ -119,39 +119,39 @@ pipeline {
 //         genericSh './gradlew connectedAndroidTest'
 //       }
 //     }
-
-    stage('SonarQube Analysis') {
-      when {
-        anyOf {
-          branch 'main'
-          branch 'develop'
-        }
-      }
-      steps {
-        echo 'Running SonarQube analysis...'
-        script {
-          scannerHome = tool 'qube-scanner'
-        }
-        withSonarQubeEnv(installationName: 'server-sonar') {
-          genericSh "\"${scannerHome}/bin/sonar-scanner\" -Dsonar.projectKey=${M_SONAR_PROJECT_KEY}"
-        }
-      }
-    }
-
-    stage('Quality Gate') {
-      when {
-        anyOf {
-          branch 'main'
-          branch 'develop'
-        }
-      }
-      steps {
-        echo 'Waiting for quality gate...'
-        timeout(time: 4, unit: 'MINUTES') {
-          waitForQualityGate abortPipeline: true
-        }
-      }
-    }
+//
+//     stage('SonarQube Analysis') {
+//       when {
+//         anyOf {
+//           branch 'main'
+//           branch 'develop'
+//         }
+//       }
+//       steps {
+//         echo 'Running SonarQube analysis...'
+//         script {
+//           scannerHome = tool 'qube-scanner'
+//         }
+//         withSonarQubeEnv(installationName: 'server-sonar') {
+//           genericSh "\"${scannerHome}/bin/sonar-scanner\" -Dsonar.projectKey=${M_SONAR_PROJECT_KEY}"
+//         }
+//       }
+//     }
+//
+//     stage('Quality Gate') {
+//       when {
+//         anyOf {
+//           branch 'main'
+//           branch 'develop'
+//         }
+//       }
+//       steps {
+//         echo 'Waiting for quality gate...'
+//         timeout(time: 4, unit: 'MINUTES') {
+//           waitForQualityGate abortPipeline: true
+//         }
+//       }
+//     }
 
     stage('Publish') {
       when {
