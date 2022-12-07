@@ -44,8 +44,8 @@ class AnimalPreviewFragment : Fragment() {
         val imageView: ImageView = view.findViewById(R.id.animalImagem)
 
         id = animal.id
-        nomeAnimalPreviewText.text = animal.nome
-        detalhesAnimalPreviewText.text = animal.detalhes
-        imageView.setImageBitmap(animal.imagem)
+        nomeAnimalPreviewText.text = animal.name
+        detalhesAnimalPreviewText.text = animal.details
+        imageView.setImageBitmap(animal.image)
     }
 }

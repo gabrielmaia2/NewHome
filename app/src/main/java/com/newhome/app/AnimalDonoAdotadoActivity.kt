@@ -8,7 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.newhome.app.R
 import com.newhome.app.dto.AnimalAsync
 import com.newhome.app.utils.DialogDisplayer
 import com.newhome.app.utils.LoadingDialog
@@ -70,24 +69,26 @@ class AnimalDonoAdotadoActivity : AppCompatActivity() {
 
         val id = intent.getStringExtra("id")!!
 
-        animal = try {
+        val a = try {
             NewHomeApplication.animalService.getAnimal(id).await()
         } catch (e: Exception) {
             errorLoading(e)
             return
         }
 
-        nomeAnimalAdotadoDonoText.text = animal.nome
-        descricaoAnimalAdotadoDonoText.text = animal.detalhes
+        animal = a ?: AnimalAsync.empty
+
+        nomeAnimalAdotadoDonoText.text = animal.name
+        descricaoAnimalAdotadoDonoText.text = animal.details
 
         val imagem = try {
-            animal.getImagem!!.await()
+            animal.getImage?.await()
         } catch (e: Exception) {
             errorLoading(e)
             return
         }
 
-        animalAdotadoDonoImage.setImageBitmap(imagem)
+        if (imagem != null) animalAdotadoDonoImage.setImageBitmap(imagem)
         loadingDialog.stop()
     }
 
@@ -110,8 +111,14 @@ class AnimalDonoAdotadoActivity : AppCompatActivity() {
             return
         }
 
+        if (adotador == null) {
+            dialogDisplayer.display("Adotador inexistente.")
+            dialog.stop()
+            return
+        }
+
         val intent = Intent(applicationContext, PerfilActivity::class.java)
-        intent.putExtra("id", adotador!!.id)
+        intent.putExtra("id", adotador.id)
         startActivity(intent)
         dialog.stop()
     }

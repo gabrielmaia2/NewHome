@@ -6,11 +6,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.newhome.app.dao.IContaProvider
-import com.newhome.app.dto.Credenciais
+import com.newhome.app.dto.Credentials
 import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 
-class FirebaseContaProvider(private val auth: FirebaseAuth, private val authUI: AuthUI, private val context: Context) :
+open class FirebaseContaProvider(
+    private val auth: FirebaseAuth,
+    private val authUI: AuthUI,
+    private val context: Context
+) :
     IContaProvider {
     override fun getContaID(): String? {
         return auth.currentUser?.uid
@@ -27,14 +31,14 @@ class FirebaseContaProvider(private val auth: FirebaseAuth, private val authUI: 
         return currentUser.isEmailVerified
     }
 
-    override suspend fun criarConta(credenciais: Credenciais): Deferred<Unit> =
+    override suspend fun criarConta(credentials: Credentials): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
-            auth.createUserWithEmailAndPassword(credenciais.email, credenciais.senha).await()
+            auth.createUserWithEmailAndPassword(credentials.email, credentials.password).await()
         }
 
-    override suspend fun logar(credenciais: Credenciais): Deferred<Unit> =
+    override suspend fun logar(credentials: Credentials): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
-            auth.signInWithEmailAndPassword(credenciais.email, credenciais.senha).await()
+            auth.signInWithEmailAndPassword(credentials.email, credentials.password).await()
         }
 
     override suspend fun entrarComGoogle(account: GoogleSignInAccount): Deferred<Unit> =

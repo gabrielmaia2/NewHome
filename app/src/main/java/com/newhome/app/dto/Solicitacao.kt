@@ -3,14 +3,14 @@ package com.newhome.app.dto
 data class Solicitacao(
     var id: SolicitacaoID? = null,
     var animal: Animal? = null,
-    var solicitador: Usuario? = null
+    var solicitador: User? = null
 ) {
     companion object {
         fun fromData(data: SolicitacaoData): Solicitacao {
             return Solicitacao(
                 data.id,
                 Animal.fromData(data.animal!!),
-                Usuario.fromData(data.solicitador!!)
+                User.fromData(data.solicitador!!)
             )
         }
 
@@ -18,7 +18,7 @@ data class Solicitacao(
             return Solicitacao(
                 data.id,
                 Animal.fromData(data.animal!!),
-                Usuario.fromData(data.solicitador!!)
+                User.fromData(data.solicitador!!)
             )
         }
     }

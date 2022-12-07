@@ -8,7 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.newhome.app.R
 import com.newhome.app.dto.AnimalAsync
 import com.newhome.app.utils.DialogDisplayer
 import com.newhome.app.utils.LoadingDialog
@@ -70,24 +69,26 @@ class AnimalAdotadoActivity : AppCompatActivity() {
 
         val id = intent.getStringExtra("id")!!
 
-        animal = try {
+        val a = try {
             NewHomeApplication.animalService.getAnimal(id).await()
         } catch (e: Exception) {
             errorLoading(e)
             return
         }
 
-        nomeAnimalAdotadoText.text = animal.nome
-        descricaoAnimalAdotadoText.text = animal.detalhes
+        animal = a ?: AnimalAsync.empty
+
+        nomeAnimalAdotadoText.text = animal.name
+        descricaoAnimalAdotadoText.text = animal.details
 
         val imagem = try {
-            animal.getImagem!!.await()
+            animal.getImage?.await()
         } catch (e: Exception) {
             errorLoading(e)
             return
         }
 
-        animalAdotadoImage.setImageBitmap(imagem)
+        if (imagem != null) animalAdotadoImage.setImageBitmap(imagem)
         loadingDialog.stop()
     }
 
@@ -106,6 +107,12 @@ class AnimalAdotadoActivity : AppCompatActivity() {
             NewHomeApplication.animalService.getDonoInicial(animal.id).await()
         } catch (e: Exception) {
             dialogDisplayer.display("Falha ao buscar dono", e)
+            dialog.stop()
+            return
+        }
+
+        if (dono == null) {
+            dialogDisplayer.display("Dono inexistente.")
             dialog.stop()
             return
         }

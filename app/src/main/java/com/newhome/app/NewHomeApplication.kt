@@ -5,15 +5,13 @@ import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import com.newhome.app.dao.firebase.*
 import com.newhome.app.services.IAnimalService
 import com.newhome.app.services.IContaService
 import com.newhome.app.services.ISolicitacaoService
 import com.newhome.app.services.IUsuarioService
-import com.newhome.app.services.concrete.AnimalService
-import com.newhome.app.services.concrete.ContaService
-import com.newhome.app.services.concrete.SolicitacaoService
-import com.newhome.app.services.concrete.UsuarioService
+import com.newhome.app.services.concrete.*
 
 class NewHomeApplication : Application() {
     override fun onCreate() {
@@ -23,17 +21,17 @@ class NewHomeApplication : Application() {
         val auth = FirebaseAuth.getInstance()
         val authUI = AuthUI.getInstance()
 
-        val imageProvider = FirebaseImageProvider(context)
+        val imageProvider = FirebaseImageProvider(context, Firebase.storage)
 
         val contaProvider = FirebaseContaProvider(auth, authUI,context)
-        val usuarioProvider = FirebaseUsuarioProvider(Firebase.firestore, imageProvider)
-        val animalProvider = FirebaseAnimalProvider(imageProvider)
-        val solicitacaoProvider = FirebaseSolicitacaoProvider()
+        val usuarioProvider = FirebaseUsuarioProvider(Firebase.firestore)
+        val animalProvider = FirebaseAnimalProvider(Firebase.firestore)
+        val solicitacaoProvider = FirebaseSolicitacaoProvider(Firebase.firestore)
 
-        contaService = ContaService(usuarioProvider, contaProvider)
-        usuarioService = UsuarioService(usuarioProvider, contaProvider)
-        animalService = AnimalService(animalProvider, usuarioProvider)
-        solicitacaoService = SolicitacaoService(solicitacaoProvider, usuarioProvider, animalProvider)
+        contaService = ContaService(usuarioProvider, contaProvider, imageProvider)
+        usuarioService = UsuarioService(usuarioProvider, contaProvider, imageProvider)
+        animalService = AnimalService(animalProvider, usuarioProvider, contaProvider, imageProvider)
+        solicitacaoService = SolicitacaoService(contaProvider, usuarioProvider, animalProvider, solicitacaoProvider, imageProvider)
 
         instance = this
     }

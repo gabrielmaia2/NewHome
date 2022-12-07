@@ -18,7 +18,6 @@ import kotlinx.coroutines.launch
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.newhome.app.R
 import com.newhome.app.dto.Solicitacao
 import com.newhome.app.dto.SolicitacaoID
 import com.newhome.app.dto.StatusSolicitacao
@@ -127,9 +126,9 @@ class SolicitacaoActivity : AppCompatActivity() {
     }
 
     private fun loadSolicitacao(solicitacao: Solicitacao) {
-        solicitacaoNomeText.text = solicitacao.solicitador?.nome ?: ""
-        solicitacaoPerfilDescricaoText.text = solicitacao.solicitador?.detalhes ?: ""
-        solicitacaoPerfilImage.setImageBitmap(solicitacao.solicitador?.imagem)
+        solicitacaoNomeText.text = solicitacao.solicitador?.name ?: ""
+        solicitacaoPerfilDescricaoText.text = solicitacao.solicitador?.details ?: ""
+        solicitacaoPerfilImage.setImageBitmap(solicitacao.solicitador?.image)
 
         if (solicitacao.animal != null)
             animalDetalhesSolicitacaoFragment.carregarAnimal(solicitacao.animal!!)

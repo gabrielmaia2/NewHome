@@ -13,4 +13,12 @@ interface IImageProvider {
     suspend fun removeImage(path: String): Deferred<Unit>
 
     suspend fun getImageOrDefault(path: String): Deferred<Bitmap>
+
+    suspend fun getAnimalImage(id: String): Deferred<Bitmap>
+
+    suspend fun getUserImage(id: String): Deferred<Bitmap>
+
+    suspend fun saveAnimalImage(id: String, image: Bitmap?): Deferred<Unit>
+
+    suspend fun saveUserImage(id: String, image: Bitmap?): Deferred<Unit>
 }

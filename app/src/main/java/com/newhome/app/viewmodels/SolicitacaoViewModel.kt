@@ -26,12 +26,12 @@ class SolicitacaoViewModel : ViewModel() {
             NewHomeApplication.solicitacaoService.getStatusSolicitacao(id.animalID)
 
         val solicitacao = Solicitacao.fromData(solicitacaoTask.await())
-        solicitacao.animal!!.imagem = animalImageTask.await()
-        solicitacao.solicitador!!.imagem = solicitadorImageTask.await()
+        solicitacao.animal!!.image = animalImageTask.await()
+        solicitacao.solicitador!!.image = solicitadorImageTask.await()
         _solicitacaoState.update { solicitacao }
 
         val status = statusSolicitacaoTask.await()
-        _statusState.update { status }
+        _statusState.update { status ?: StatusSolicitacao() }
     }
 
     suspend fun aceitarSolicitacao(detalhes: String) {

@@ -22,9 +22,9 @@ class AnimalAdapter(context: Context, var animais: List<Animal> = ArrayList()) :
         val detalhesAnimalText: TextView = v.findViewById(R.id.detalhesAnimalPreviewText)
         val animalImagem: ImageView = v.findViewById(R.id.animalImagem)
 
-        nomeAnimalText.text = animal.nome
-        detalhesAnimalText.text = animal.detalhes
-        animalImagem.setImageBitmap(animal.imagem)
+        nomeAnimalText.text = animal.name
+        detalhesAnimalText.text = animal.details
+        animalImagem.setImageBitmap(animal.image)
 
         return v
     }

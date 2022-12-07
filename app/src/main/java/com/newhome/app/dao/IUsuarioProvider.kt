@@ -1,21 +1,31 @@
 package com.newhome.app.dao
 
-import android.graphics.Bitmap
-import com.newhome.app.dto.NovoUsuario
+import com.google.firebase.firestore.Transaction
+import com.newhome.app.dto.NewUser
 import kotlinx.coroutines.Deferred
-import com.newhome.app.dto.Usuario
-import com.newhome.app.dto.UsuarioData
+import com.newhome.app.dto.UserData
 
-interface IUsuarioProvider {
-    suspend fun getUser(id: String): Deferred<UsuarioData>
+interface IUsuarioProvider : IStoreProvider {
+    // gets user or null if does not exist
+    fun getUser(t: Transaction, id: String): UserData?
 
-    suspend fun createUser(usuario: NovoUsuario): Deferred<Unit>
+    fun createUser(t: Transaction, usuario: NewUser)
 
-    suspend fun updateUser(usuario: UsuarioData): Deferred<Unit>
+    fun updateUser(t: Transaction, usuario: UserData)
 
-    suspend fun deleteUser(id: String): Deferred<Unit>
+    fun deleteUser(t: Transaction, id: String)
 
-    suspend fun getUserImage(id: String): Deferred<Bitmap>
+    // gets animal list or null if does not exist
+    fun getAnimalList(
+        t: Transaction,
+        id: String,
+        list: AnimalList
+    ): ArrayList<String>?
 
-    suspend fun setUserImage(id: String, image: Bitmap?): Deferred<Unit>
+    fun setAnimalList(
+        t: Transaction,
+        id: String,
+        list: AnimalList,
+        data: List<String>
+    )
 }

@@ -9,11 +9,10 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.newhome.app.R
 import com.newhome.app.adapters.AnimalAdapter
 import com.newhome.app.dto.Animal
 import com.newhome.app.dto.AnimalAsync
-import com.newhome.app.dto.Usuario
+import com.newhome.app.dto.User
 import com.newhome.app.utils.DialogDisplayer
 import com.newhome.app.utils.LoadingDialog
 import kotlinx.coroutines.launch
@@ -35,7 +34,7 @@ class ListarAnimaisActivity : AppCompatActivity() {
     // postos em adocao pelo usuario com esse id
     private var usuarioId: String = ""
     private var eProprioPerfil = false
-    private lateinit var usuarioAtual: Usuario
+    private lateinit var userAtual: User
 
     private val loadingDialog = LoadingDialog(this)
     private val dialog = LoadingDialog(this)
@@ -106,7 +105,7 @@ class ListarAnimaisActivity : AppCompatActivity() {
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         val perfilItem: MenuItem = menu!!.findItem(R.id.verPerfilMenuItem)
         perfilItem.icon =
-            BitmapDrawable(resources, NewHomeApplication.usuarioService.getUsuarioAtual().imagem)
+            BitmapDrawable(resources, NewHomeApplication.usuarioService.getUsuarioAtual().image)
 
         return true
     }
@@ -141,7 +140,7 @@ class ListarAnimaisActivity : AppCompatActivity() {
             tipo = "postosAdocao"
         }
 
-        usuarioAtual = NewHomeApplication.usuarioService.getUsuarioAtual()
+        userAtual = NewHomeApplication.usuarioService.getUsuarioAtual()
 
         definirVisibilidadeBotoes()
         carregarAnimais()
@@ -185,11 +184,11 @@ class ListarAnimaisActivity : AppCompatActivity() {
                 }
                 "adotados" -> {
                     supportActionBar?.title = "Animais adotados"
-                    NewHomeApplication.animalService.getAnimaisAdotados(usuarioAtual.id).await()
+                    NewHomeApplication.animalService.getAnimaisAdotados(userAtual.id).await()
                 }
                 "solicitados" -> {
                     supportActionBar?.title = "Animais solicitados"
-                    NewHomeApplication.animalService.getAnimaisSolicitados(usuarioAtual.id).await()
+                    NewHomeApplication.animalService.getAnimaisSolicitados(userAtual.id).await()
                 }
                 else -> {
                     loadingDialog.stop()
@@ -224,7 +223,7 @@ class ListarAnimaisActivity : AppCompatActivity() {
             val dono = taskDono.await()
             val adotador = taskAdotador.await()
 
-            val eDono = usuarioAtual.id == dono.id
+            val eDono = (dono != null) && userAtual.id == dono.id
             val adotado = adotador != null
 
             val intent = if (eDono) {
@@ -274,7 +273,7 @@ class ListarAnimaisActivity : AppCompatActivity() {
     }
 
     private fun exibeAnimaisCarregados(animais: List<AnimalAsync>) {
-        val ans = animais.map { animal -> Animal(animal.id, animal.nome, animal.detalhes) }
+        val ans = animais.map { animal -> Animal(animal.id, animal.name, animal.details) }
         listViewAdapter = AnimalAdapter(this, ans)
         listView.adapter = listViewAdapter
 
@@ -289,10 +288,10 @@ class ListarAnimaisActivity : AppCompatActivity() {
         for (animal in animais) {
             // precisa ser um launch pra cada animal
             lifecycleScope.launch {
-                val imagem = animal.getImagem!!.await()
+                val imagem = animal.getImage!!.await()
                 val index = listViewAdapter.animais.indexOfFirst { a -> a.id == animal.id }
                 if (index == -1) return@launch
-                listViewAdapter.animais[index].imagem = imagem
+                listViewAdapter.animais[index].image = imagem
                 listView.invalidateViews()
             }
         }

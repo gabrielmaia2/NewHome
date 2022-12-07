@@ -1,83 +1,90 @@
 package com.newhome.app.dao.firebase
 
-import android.graphics.Bitmap
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.Transaction
+import com.newhome.app.dao.AnimalList
 import com.newhome.app.dao.IUsuarioProvider
-import com.newhome.app.dao.IImageProvider
-import com.newhome.app.dto.NovoUsuario
-import com.newhome.app.dto.Usuario
-import com.newhome.app.dto.UsuarioData
-import kotlinx.coroutines.CoroutineScope
+import com.newhome.app.dto.NewUser
+import com.newhome.app.dto.UserData
+import com.newhome.app.utils.Utils.Companion.toStringArrayList
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.tasks.await
 
-class FirebaseUsuarioProvider(
-    private val db: FirebaseFirestore,
-    private val imageProvider: IImageProvider
+open class FirebaseUsuarioProvider(
+    private val db: FirebaseFirestore
 ) : IUsuarioProvider {
-    override suspend fun getUser(id: String): Deferred<UsuarioData> =
-        CoroutineScope(Dispatchers.Main).async {
-            val doc = db.collection("usuarios").document(id).get().await()
+    private val sp = StoreProvider(db)
 
-            val exists = doc.exists()
-            if (!exists) throw Exception("User does not exist.")
+    override suspend fun <T> runTransaction(
+        func: (Transaction) -> T
+    ): Deferred<T> = sp.runTransaction(func)
 
-            return@async UsuarioData(
-                doc.id,
-                doc.data!!["nome"] as String,
-                doc.data!!["detalhes"] as String
-            )
+    private fun snapshotToUserData(snapshot: DocumentSnapshot): UserData {
+        // TODO use this
+        return UserData(
+            snapshot.id,
+            (snapshot.data?.get("nome") ?: "") as String,
+            (snapshot.data?.get("detalhes") ?: "") as String
+        )
+    }
+
+    override fun getUser(t: Transaction, id: String): UserData? {
+            val doc = db.collection("usuarios").document(id)
+            val snap = t.get(doc)
+
+            if (!snap.exists()) return null
+            return snapshotToUserData(snap)
         }
 
-    override suspend fun createUser(usuario: NovoUsuario): Deferred<Unit> =
-        CoroutineScope(Dispatchers.Main).async {
+    override fun createUser(t: Transaction, usuario: NewUser) {
             val data = hashMapOf(
-                "nome" to usuario.nome,
-                "detalhes" to usuario.detalhes,
-                "idade" to usuario.idade,
+                "nome" to usuario.name,
+                "detalhes" to usuario.details,
+                "idade" to usuario.age,
                 "animais" to ArrayList<String>(),
                 "adotados" to ArrayList<String>(),
                 "solicitados" to ArrayList<String>()
             )
 
-            db.collection("usuarios").document(usuario.id).set(data).await()
+            val doc = db.collection("usuarios").document(usuario.id)
+            t.set(doc, data)
         }
 
-    override suspend fun updateUser(usuario: UsuarioData): Deferred<Unit> =
-        CoroutineScope(Dispatchers.Main).async {
-            val exists = db.collection("usuarios").document(usuario.id).get().await().exists()
-            if (!exists) throw Exception("User does not exist.")
+    override fun updateUser(t: Transaction, usuario: UserData) {
+            val doc = db.collection("usuarios").document(usuario.id)
 
             // TODO editar idade
-            val docData = hashMapOf(
-                "nome" to usuario.nome,
-                "detalhes" to usuario.detalhes,
+            val docData = hashMapOf<String, Any>(
+                "nome" to usuario.name,
+                "detalhes" to usuario.details,
             )
 
-            db.collection("usuarios").document(usuario.id).set(docData, SetOptions.merge()).await()
+            t.update(doc, docData)
         }
 
-    override suspend fun deleteUser(id: String): Deferred<Unit> =
-        CoroutineScope(Dispatchers.Main).async {
+    override fun deleteUser(t: Transaction, id: String) {
             // TODO implementar
         }
 
-    override suspend fun getUserImage(id: String): Deferred<Bitmap> =
-        CoroutineScope(Dispatchers.Main).async {
-            val exists = db.collection("usuarios").document(id).get().await().exists()
-            if (!exists) throw NoSuchElementException("Couldn't find user with specified ID.")
-            return@async imageProvider.getImageOrDefault("usuarios/${id}").await()
+    override fun getAnimalList(
+        t: Transaction,
+        id: String,
+        list: AnimalList
+    ): ArrayList<String>? {
+            val donoRef = db.collection("usuarios").document(id)
+            val donoData = t.get(donoRef)
+
+            if (!donoData.exists()) return null
+            return (donoData.data!!.get(list.toString()) as List<*>?).toStringArrayList()
         }
 
-    override suspend fun setUserImage(id: String, image: Bitmap?): Deferred<Unit> =
-        CoroutineScope(Dispatchers.Main).async {
-            val exists = db.collection("usuarios").document(id).get().await().exists()
-            if (!exists) throw NoSuchElementException("Couldn't find user with specified ID.")
-            return@async imageProvider.saveImage("usuarios/${id}", image).await()
+    override fun setAnimalList(
+        t: Transaction,
+        id: String,
+        list: AnimalList,
+        data: List<String>
+    ) {
+            val donoRef = db.collection("usuarios").document(id)
+            t.update(donoRef, list.toString(), data)
         }
 }

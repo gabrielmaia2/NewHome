@@ -2,10 +2,9 @@ package com.newhome.app.dao.firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Transaction
 import com.newhome.app.dao.ISolicitacaoProvider
-import com.newhome.app.dto.*
 import com.newhome.app.dto.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -13,153 +12,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.tasks.await
 
-class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
-    private val db = Firebase.firestore
+open class FirebaseSolicitacaoProvider(
+    private val db: FirebaseFirestore
+) : ISolicitacaoProvider {
+    private val sp = StoreProvider(db)
 
-    override suspend fun getTodasSolicitacoes(): Deferred<List<SolicitacaoPreviewData>> =
-        CoroutineScope(Dispatchers.Main).async {
-        val usuario = FirebaseAuth.getInstance().currentUser!!
-
-        val usuariosRef = db.collection("usuarios")
-        val usuarioRef = usuariosRef.document(usuario.uid)
-        val animaisRef = db.collection("animais")
-
-        val solicitacoes = db.runTransaction { transaction ->
-            val usuarioData = transaction.get(usuarioRef)
-            val idsAnimais = usuarioData.data!!["animais"] as List<*>
-
-            val solicitacoes = ArrayList<SolicitacaoPreviewData>()
-
-            for (idAnimal in idsAnimais) {
-                val animalRef = animaisRef.document(idAnimal as String)
-                val animalData = transaction.get(animalRef)
-
-                if (!animalData.exists()) continue
-
-                val idsSolicitadores = animalData.data!!["solicitadores"] as List<*>
-                for (idSolicitador in idsSolicitadores) {
-                    val solicitadorRef = usuariosRef.document(idSolicitador as String)
-                    val solicitadorData = transaction.get(solicitadorRef)
-
-                    if (!solicitadorData.exists()) continue
-
-                    val solicitacaoId = SolicitacaoID(
-                        idAnimal,
-                        idSolicitador
-                    )
-
-                    val solicitacao = SolicitacaoPreviewData()
-                    solicitacao.id = solicitacaoId
-                    solicitacao.titulo = solicitadorData.data!!["nome"] as String
-                    solicitacao.descricao = "Quer adotar ${animalData.data!!["nome"]}"
-
-                    solicitacoes.add(solicitacao)
-                }
-            }
-
-            solicitacoes
-        }.await()
-
-        return@async solicitacoes
-    }
-
-    override suspend fun getTodasSolicitacoesAnimal(animalId: String): Deferred<List<SolicitacaoPreviewData>> =
-        CoroutineScope(Dispatchers.Main).async {
-            val usuariosRef = db.collection("usuarios")
-            val animaisRef = db.collection("animais")
-
-            val solicitacoes = db.runTransaction { transaction ->
-                val solicitacoes = ArrayList<SolicitacaoPreviewData>()
-
-                val animalRef = animaisRef.document(animalId)
-                val animalData = transaction.get(animalRef)
-
-                if (!animalData.exists()) throw Exception("Animal does not exist.")
-
-                val idsSolicitadores = animalData.data!!["solicitadores"] as List<*>
-                for (idSolicitador in idsSolicitadores) {
-                    val solicitadorRef = usuariosRef.document(idSolicitador as String)
-                    val solicitadorData = transaction.get(solicitadorRef)
-
-                    if (!solicitadorData.exists()) continue
-
-                    val solicitacaoId = SolicitacaoID(
-                        animalId,
-                        idSolicitador
-                    )
-
-                    val solicitacao = SolicitacaoPreviewData(
-                        solicitacaoId,
-                        solicitadorData.data!!["nome"] as String,
-                        "Quer adotar ${animalData.data!!["nome"]}"
-                    )
-
-                    solicitacoes.add(solicitacao)
-                }
-
-                solicitacoes
-            }.await()
-
-            return@async solicitacoes
-    }
-
-    override suspend fun getSolicitacao(solicitacaoId: SolicitacaoID): Deferred<SolicitacaoData> =
-        CoroutineScope(Dispatchers.Main).async {
-            val solicitadorRef = db.collection("usuarios").document(solicitacaoId.solicitadorID)
-            val animalRef = db.collection("animais").document(solicitacaoId.animalID)
-
-            val solicitacao = db.runTransaction { transaction ->
-                val animalData = transaction.get(animalRef)
-                val solicitadorData = transaction.get(solicitadorRef)
-
-                if (!animalData.exists()) throw Exception("Animal does not exist.")
-                if (!solicitadorData.exists()) throw Exception("User does not exist.")
-
-                val animal = AnimalData(
-                    animalData.id,
-                    animalData.data!!["nome"] as String,
-                    animalData.data!!["detalhes"] as String
-                )
-
-                val solicitador = UsuarioData(
-                    solicitadorData.id,
-                    solicitadorData.data!!["nome"] as String,
-                    solicitadorData.data!!["detalhes"] as String
-                )
-
-                val solicitacao = SolicitacaoData(
-                    solicitacaoId,
-                    animal,
-                    solicitador
-                )
-
-                solicitacao
-            }.await()
-
-            return@async solicitacao
-    }
-
-    override suspend fun getStatusSolicitacao(animalId : String): Deferred<StatusSolicitacao> =
-        CoroutineScope(Dispatchers.Main).async {
-            // TODO corrigir esse status tem que ser so pro id do solicitador
-            val animalRef = db.collection("animais").document(animalId)
-
-            val status = db.runTransaction { transaction ->
-                val animalData = transaction.get(animalRef)
-
-                if (!animalData.exists()) throw Exception("Animal does not exist.")
-
-                val status = StatusSolicitacao(
-                    (animalData.data!!["solicitadores"] as List<*>).isNotEmpty(),
-                    animalData.getBoolean("buscando")!!,
-                    animalData.getString("detalhesAdocao")!!
-                )
-
-                status
-            }.await()
-
-            return@async status
-    }
+    override suspend fun <T> runTransaction(
+        func: (Transaction) -> T
+    ): Deferred<T> = sp.runTransaction(func)
 
     override suspend fun solicitarAnimal(animalId: String): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
@@ -195,11 +55,10 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
             }.await()
             if (success) {
                 return@async
-            }
-            else {
+            } else {
                 throw Exception("Animal já está em processo de adoção")
             }
-    }
+        }
 
     override suspend fun aceitarSolicitacao(
         solicitacaoId: SolicitacaoID,
@@ -245,7 +104,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 transaction.update(animalRef, "detalhesAdocao", detalhesAdocao)
                 transaction.update(animalRef, "solicitadores", newSolicitadores)
             }.await()
-    }
+        }
 
     override suspend fun rejeitarSolicitacao(solicitacaoId: SolicitacaoID): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
@@ -263,7 +122,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 val newSolicitadores = (animalData.data!!["solicitadores"] as List<*>)
                     .filter { i -> i != solicitadorData.id }
 
-                val newSolicitados =(solicitadorData.data!!["solicitados"] as List<*>)
+                val newSolicitados = (solicitadorData.data!!["solicitados"] as List<*>)
                     .filter { i -> i != animalData.id }
 
                 transaction.update(solicitadorRef, "solicitados", newSolicitados)
@@ -272,7 +131,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 transaction.update(animalRef, "detalhesAdocao", "")
                 transaction.update(animalRef, "solicitadores", newSolicitadores)
             }.await()
-    }
+        }
 
     override suspend fun cancelarSolicitacao(animalId: String): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
@@ -282,7 +141,8 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
             db.runTransaction { transaction ->
                 val animalData = transaction.get(animalRef)
 
-                val solicitadorRef = usuariosRef.document((animalData.data!!["solicitadores"] as List<*>)[0] as String)
+                val solicitadorRef =
+                    usuariosRef.document((animalData.data!!["solicitadores"] as List<*>)[0] as String)
                 val solicitadorData = transaction.get(solicitadorRef)
 
                 if (!animalData.exists()) throw Exception("Animal does not exist.")
@@ -291,7 +151,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 val newSolicitadores = (animalData.data!!["solicitadores"] as List<*>)
                     .filter { i -> i != solicitadorData.id }
 
-                val newSolicitados =(solicitadorData.data!!["solicitados"] as List<*>)
+                val newSolicitados = (solicitadorData.data!!["solicitados"] as List<*>)
                     .filter { i -> i != animalData.id }
 
                 transaction.update(solicitadorRef, "solicitados", newSolicitados)
@@ -300,7 +160,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 transaction.update(animalRef, "detalhesAdocao", "")
                 transaction.update(animalRef, "solicitadores", newSolicitadores)
             }.await()
-    }
+        }
 
     override suspend fun cancelarSolicitacaoAceita(animalId: String): Deferred<Unit> =
         CoroutineScope(Dispatchers.Main).async {
@@ -310,7 +170,8 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
             db.runTransaction { transaction ->
                 val animalData = transaction.get(animalRef)
 
-                val solicitadorRef = usuariosRef.document((animalData.data!!["solicitadores"] as List<*>)[0] as String)
+                val solicitadorRef =
+                    usuariosRef.document((animalData.data!!["solicitadores"] as List<*>)[0] as String)
                 val solicitadorData = transaction.get(solicitadorRef)
 
                 if (!animalData.exists()) throw Exception("Animal does not exist.")
@@ -319,7 +180,7 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 val newSolicitadores = (animalData.data!!["solicitadores"] as List<*>)
                     .filter { i -> i != solicitadorData.id }
 
-                val newSolicitados =(solicitadorData.data!!["solicitados"] as List<*>)
+                val newSolicitados = (solicitadorData.data!!["solicitados"] as List<*>)
                     .filter { i -> i != animalData.id }
 
                 transaction.update(solicitadorRef, "solicitados", newSolicitados)
@@ -328,5 +189,5 @@ class FirebaseSolicitacaoProvider : ISolicitacaoProvider {
                 transaction.update(animalRef, "detalhesAdocao", "")
                 transaction.update(animalRef, "solicitadores", newSolicitadores)
             }.await()
-    }
+        }
 }

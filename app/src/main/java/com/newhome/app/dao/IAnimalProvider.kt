@@ -1,36 +1,33 @@
 package com.newhome.app.dao
 
-import android.graphics.Bitmap
-import com.newhome.app.dto.Animal
+import com.google.firebase.firestore.Transaction
 import com.newhome.app.dto.AnimalData
-import com.newhome.app.dto.UsuarioData
+import com.newhome.app.dto.NewAnimalData
+import com.newhome.app.dto.UpdateAnimalData
 import kotlinx.coroutines.Deferred
 
-interface IAnimalProvider {
-    suspend fun getImagemAnimal(id: String): Deferred<Bitmap>
+interface IAnimalProvider : IStoreProvider {
+    suspend fun getAllAnimals(): Deferred<List<AnimalData>>
 
-    suspend fun getTodosAnimais(): Deferred<List<AnimalData>>
+    suspend fun getAnimalsIdsFromList(
+        userId: String,
+        listType: AnimalList
+    ): Deferred<List<String>>
 
-    suspend fun getAnimaisPostosAdocao(donoId: String): Deferred<List<AnimalData>>
-
-    suspend fun getAnimaisAdotados(adotadorId: String): Deferred<List<AnimalData>>
-
-    suspend fun getAnimaisSolicitados(solicitadorId: String): Deferred<List<AnimalData>>
-
-    suspend fun getDonoInicial(animalId: String): Deferred<UsuarioData>
+    fun getDonorId(t: Transaction, animalId: String): String
 
     // retorna adotador se tiver ou nulo se nao foi adotado
-    suspend fun getAdotador(animalId: String): Deferred<UsuarioData?>
+    fun getAdopterId(t: Transaction, animalId: String): String
 
-    suspend fun getAnimal(id: String): Deferred<AnimalData>
+    fun getAnimal(t: Transaction, id: String): AnimalData?
 
     // returna id do animal
-    suspend fun adicionarAnimal(animal: Animal): Deferred<String>
+    fun criarAnimal(t: Transaction, animal: NewAnimalData): String
 
-    suspend fun editarAnimal(animal: Animal): Deferred<Unit>
+    fun editarAnimal(t: Transaction, animal: UpdateAnimalData)
 
-    suspend fun removerAnimal(id: String): Deferred<Unit>
+    fun removerAnimal(t: Transaction, id: String)
 
-    // adotador busca animal
-    suspend fun animalBuscado(id: String): Deferred<Unit>
+    // adotador marca animal como adotado
+    fun marcarAnimalAdotado(t: Transaction, id: String)
 }

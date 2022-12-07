@@ -10,11 +10,11 @@ import kotlinx.coroutines.Deferred
 interface ISolicitacaoService {
     suspend fun getTodasSolicitacoes(): Deferred<List<SolicitacaoPreviewAsync>>
 
-    suspend fun getTodasSolicitacoesAnimal(animalId: String): Deferred<List<SolicitacaoPreviewAsync>>
+    suspend fun getTodasSolicitacoesAnimal(animalId: String): Deferred<List<SolicitacaoPreviewAsync>?>
 
     suspend fun getSolicitacao(solicitacaoId: SolicitacaoID): Deferred<SolicitacaoAsync>
 
-    suspend fun getStatusSolicitacao(animalId: String): Deferred<StatusSolicitacao>
+    suspend fun getStatusSolicitacao(animalId: String): Deferred<StatusSolicitacao?>
 
     suspend fun solicitarAnimal(animalId: String): Deferred<Unit>
 

@@ -7,8 +7,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.newhome.app.R
-import com.newhome.app.dto.Usuario
+import com.newhome.app.dto.User
 import com.newhome.app.utils.DialogDisplayer
 import com.newhome.app.utils.LoadingDialog
 import com.newhome.app.utils.PictureTaker
@@ -25,7 +24,7 @@ class EditarPerfilActivity : AppCompatActivity() {
 
     private lateinit var cancelarEditPerfilButton: Button
 
-    private lateinit var usuario: Usuario
+    private lateinit var user: User
 
     private lateinit var pictureTaker: PictureTaker
 
@@ -74,15 +73,15 @@ class EditarPerfilActivity : AppCompatActivity() {
     private fun carregarDados() {
         // carrega dados do usuario e preenche campos na tela
 
-        this.usuario = NewHomeApplication.usuarioService.getUsuarioAtual()
-        nomePerfilEditText.setText(this.usuario.nome)
-        descricaoPerfilEditText.setText(this.usuario.detalhes)
-        editPerfilImage.setImageBitmap(this.usuario.imagem)
+        this.user = NewHomeApplication.usuarioService.getUsuarioAtual()
+        nomePerfilEditText.setText(this.user.name)
+        descricaoPerfilEditText.setText(this.user.details)
+        editPerfilImage.setImageBitmap(this.user.image)
     }
 
     private fun createPictureTaker() {
         pictureTaker = PictureTaker(this, { bitmap ->
-            usuario.imagem = bitmap
+            user.image = bitmap
             editPerfilImage.setImageBitmap(bitmap)
         }, { e ->
             dialogDisplayer.display("Falha ao acessar câmera", e)
@@ -95,11 +94,11 @@ class EditarPerfilActivity : AppCompatActivity() {
 
         dialog.start()
 
-        usuario.nome = nomePerfilEditText.text.toString()
-        usuario.detalhes = descricaoPerfilEditText.text.toString()
+        user.name = nomePerfilEditText.text.toString()
+        user.details = descricaoPerfilEditText.text.toString()
 
         try {
-            NewHomeApplication.usuarioService.editarUsuarioAtual(usuario).await()
+            NewHomeApplication.usuarioService.editarUsuarioAtual(user).await()
         } catch (e: Exception) {
             dialogDisplayer.display("Falha ao editar usuário", e)
             dialog.stop()

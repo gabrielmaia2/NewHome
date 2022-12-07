@@ -1,12 +1,6 @@
 package com.newhome.app.services.concrete
 
-import com.newhome.app.dao.IAnimalProvider
-import com.newhome.app.dao.ISolicitacaoProvider
-import com.newhome.app.dao.IUsuarioProvider
-import com.newhome.app.dto.SolicitacaoAsync
-import com.newhome.app.dto.SolicitacaoID
-import com.newhome.app.dto.SolicitacaoPreviewAsync
-import com.newhome.app.dto.StatusSolicitacao
+import com.newhome.app.dao.*
 import com.newhome.app.dto.*
 import com.newhome.app.services.ISolicitacaoService
 import kotlinx.coroutines.CoroutineScope
@@ -15,50 +9,107 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 
 class SolicitacaoService(
-    private val solicitacaoProvider: ISolicitacaoProvider,
+    private val contaProvider: IContaProvider,
     private val usuarioProvider: IUsuarioProvider,
-    private val animalProvider: IAnimalProvider
+    private val animalProvider: IAnimalProvider,
+    private val solicitacaoProvider: ISolicitacaoProvider,
+    private val imageProvider: IImageProvider
 ) : ISolicitacaoService {
     override suspend fun getTodasSolicitacoes(): Deferred<List<SolicitacaoPreviewAsync>> =
         CoroutineScope(Dispatchers.Main).async {
-            solicitacaoProvider.getTodasSolicitacoes().await().map { s ->
+            val cuid = contaProvider.getContaID()!!
+            val pAnimals =
+                animalProvider.getAnimalsIdsFromList(cuid, AnimalList.placedForAdoption).await()
+
+            val requests = animalProvider.runTransaction { t ->
+                val rs = ArrayList<SolicitacaoPreviewData>()
+                for (aid in pAnimals) {
+                    val animal = animalProvider.getAnimal(t, aid) ?: continue
+                    for (uid in animal.requestersIds) {
+                        val requester = usuarioProvider.getUser(t, uid) ?: continue
+
+                        val s = SolicitacaoPreviewData(
+                            SolicitacaoID(aid, uid),
+                            requester.name,
+                            "Quer adotar ${animal.name}"
+                        )
+                        rs.add(s)
+                    }
+                }
+                return@runTransaction rs
+            }.await()
+
+            requests.map { s ->
                 SolicitacaoPreviewAsync(
                     s.id,
                     s.titulo,
                     s.descricao,
-                    usuarioProvider.getUserImage(s.id!!.solicitadorID)
+                    imageProvider.getUserImage(s.id!!.solicitadorID)
                 )
             }
         }
 
-    override suspend fun getTodasSolicitacoesAnimal(animalId: String): Deferred<List<SolicitacaoPreviewAsync>> =
+    override suspend fun getTodasSolicitacoesAnimal(animalId: String): Deferred<List<SolicitacaoPreviewAsync>?> =
         CoroutineScope(Dispatchers.Main).async {
-            solicitacaoProvider.getTodasSolicitacoesAnimal(animalId).await().map { s ->
+            val requests = animalProvider.runTransaction { t ->
+                val rs = ArrayList<SolicitacaoPreviewData>()
+                val animal = animalProvider.getAnimal(t, animalId) ?: return@runTransaction null
+                for (uid in animal.requestersIds) {
+                    val requester = usuarioProvider.getUser(t, uid) ?: continue
+
+                    val s = SolicitacaoPreviewData(
+                        SolicitacaoID(animalId, uid),
+                        requester.name,
+                        "Quer adotar ${animal.name}"
+                    )
+                    rs.add(s)
+                }
+                return@runTransaction rs
+            }.await() ?: return@async null
+
+            requests.map { s ->
                 SolicitacaoPreviewAsync(
                     s.id,
                     s.titulo,
                     s.descricao,
-                    usuarioProvider.getUserImage(s.id!!.solicitadorID)
+                    imageProvider.getUserImage(s.id!!.solicitadorID)
                 )
             }
         }
 
     override suspend fun getSolicitacao(solicitacaoId: SolicitacaoID): Deferred<SolicitacaoAsync> =
         CoroutineScope(Dispatchers.Main).async {
-            val solicitadorTask = usuarioProvider.getUserImage(solicitacaoId.solicitadorID)
-            val animalTask = animalProvider.getImagemAnimal(solicitacaoId.animalID)
-            val s = solicitacaoProvider.getSolicitacao(solicitacaoId).await()
+            val requestTask = animalProvider.runTransaction { t ->
+                val animal = animalProvider.getAnimal(t, solicitacaoId.animalID)
+                val requester = usuarioProvider.getUser(t, solicitacaoId.solicitadorID)
+                return@runTransaction SolicitacaoData(
+                    solicitacaoId,
+                    animal,
+                    requester
+                )
+            }
 
-            val solicitacao = SolicitacaoAsync.fromData(s)
-            solicitacao.solicitador!!.getImagem = solicitadorTask
-            solicitacao.animal!!.getImagem = animalTask
+            val solicitadorTask = imageProvider.getUserImage(solicitacaoId.solicitadorID)
+            val animalTask = imageProvider.getAnimalImage(solicitacaoId.animalID)
+            val request = requestTask.await()
+
+            val solicitacao = SolicitacaoAsync.fromData(request)
+            solicitacao.solicitador!!.getImage = solicitadorTask
+            solicitacao.animal!!.getImage = animalTask
 
             return@async solicitacao
         }
 
-    override suspend fun getStatusSolicitacao(animalId: String): Deferred<StatusSolicitacao> =
+    override suspend fun getStatusSolicitacao(animalId: String): Deferred<StatusSolicitacao?> =
         CoroutineScope(Dispatchers.Main).async {
-            solicitacaoProvider.getStatusSolicitacao(animalId).await()
+            val animal = animalProvider.runTransaction { t ->
+                animalProvider.getAnimal(t, animalId)
+            }.await() ?: return@async null
+            return@async StatusSolicitacao(
+                animal.requestersIds.isNotEmpty(),
+                animal.beingAdopted,
+                animal.requestDetails,
+            )
         }
 
     override suspend fun solicitarAnimal(animalId: String): Deferred<Unit> =
