@@ -31,7 +31,7 @@ class SolicitacaoViewModel : ViewModel() {
         _solicitacaoState.update { solicitacao }
 
         val status = statusSolicitacaoTask.await()
-        _statusState.update { status }
+        _statusState.update { status ?: StatusSolicitacao() }
     }
 
     suspend fun aceitarSolicitacao(detalhes: String) {

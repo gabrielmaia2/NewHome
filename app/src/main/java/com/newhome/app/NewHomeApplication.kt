@@ -31,7 +31,7 @@ class NewHomeApplication : Application() {
         contaService = ContaService(usuarioProvider, contaProvider, imageProvider)
         usuarioService = UsuarioService(usuarioProvider, contaProvider, imageProvider)
         animalService = AnimalService(animalProvider, usuarioProvider, contaProvider, imageProvider)
-        solicitacaoService = SolicitacaoService(solicitacaoProvider, imageProvider)
+        solicitacaoService = SolicitacaoService(contaProvider, usuarioProvider, animalProvider, solicitacaoProvider, imageProvider)
 
         instance = this
     }

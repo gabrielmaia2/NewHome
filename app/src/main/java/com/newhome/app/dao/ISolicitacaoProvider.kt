@@ -7,14 +7,6 @@ import com.newhome.app.dto.StatusSolicitacao
 import kotlinx.coroutines.Deferred
 
 interface ISolicitacaoProvider : IStoreProvider {
-    suspend fun getTodasSolicitacoes(): Deferred<List<SolicitacaoPreviewData>>
-
-    suspend fun getTodasSolicitacoesAnimal(animalId: String): Deferred<List<SolicitacaoPreviewData>>
-
-    suspend fun getSolicitacao(solicitacaoId: SolicitacaoID): Deferred<SolicitacaoData>
-
-    suspend fun getStatusSolicitacao(animalId: String): Deferred<StatusSolicitacao>
-
     suspend fun solicitarAnimal(animalId: String): Deferred<Unit>
 
     suspend fun aceitarSolicitacao(

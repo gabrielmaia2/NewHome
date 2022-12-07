@@ -25,6 +25,7 @@ open class FirebaseAnimalProvider(
             (snapshot.data?.get("detalhes") ?: "") as String,
             (snapshot.data?.get("dono") ?: "") as String,
             (snapshot.data?.get("adotador") ?: "") as String,
+            (snapshot.data?.get("detalhesAdocao")?: "") as String,
             (snapshot.data?.get("solicitadores") as List<*>).map { s -> s.toString() },
             (snapshot.data?.get("buscando") ?: false) as Boolean
         )

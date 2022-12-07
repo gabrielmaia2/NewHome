@@ -8,6 +8,7 @@ data class AnimalData(
     var details: String = "",
     var donorId: String = "",
     var adopterId: String = "",
+    var requestDetails: String = "",
     var requestersIds: List<String> = ArrayList(),
     var beingAdopted: Boolean = false
 ) : Serializable {

@@ -69,7 +69,7 @@ class ListaSolicitacaoActivity : AppCompatActivity() {
 
         // carrega solicitacoes do database
 
-        val solicitacoes = try {
+        var solicitacoes = try {
             if (animalId == "") {
                 NewHomeApplication.solicitacaoService.getTodasSolicitacoes().await()
             } else {
@@ -79,6 +79,12 @@ class ListaSolicitacaoActivity : AppCompatActivity() {
             dialogDisplayer.display("Falha ao buscar solicitações", e)
             dialog.stop()
             return
+        }
+
+        if (solicitacoes == null) {
+            dialogDisplayer.display("Animal inexistente.")
+            dialog.stop()
+            solicitacoes = ArrayList()
         }
 
         onSolicitacoesCarregadas(solicitacoes)
